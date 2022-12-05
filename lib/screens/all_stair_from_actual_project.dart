@@ -80,7 +80,7 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                   child: Row(
                     children: [
                       Expanded(
-                        flex: 2,
+                        flex: 3,
                         child: Container(
                           margin: const EdgeInsets.all(15),
                           padding: const EdgeInsets.all(10),
@@ -283,8 +283,9 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(
-                                width: 200,
+                              Container(
+                                width: 150,
+                                margin: const EdgeInsets.all(15.0),
                                 child: ElevatedButton.icon(
                                   onPressed: () {
                                     if (widget.cloud) {
@@ -341,33 +342,46 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                               const SizedBox(
                                 height: 20,
                               ),
-                              SizedBox(
-                                width: 200,
+                              Container(
+                                margin: const EdgeInsets.all(15.0),
+                                width: 150,
                                 child: ElevatedButton.icon(
                                   onPressed: () async {
                                     await OurDataStorage.clearTemporary();
                                     List<String> direcciones = [];
                                     var data;
                                     var docpath = await OurDataStorage
-                                        .documentsDirectoryPath;
-                                    currentProject.stairs.map((stair) => {
-                                          data = jsonEncode(currentProject
-                                              .stairs[0]
-                                              .toJson()['flights']),
-                                          OurDataStorage.writeTemporary(
-                                              'stair ${currentProject.stairs[0].id}',
-                                              {
-                                                '${currentProject.stairs[0].id}':
-                                                    data
-                                              }),
-                                          direcciones.add(
-                                              '${docpath}/stair-${currentProject.stairs[0].id}}.json')
-                                        });
+                                        .temporaryDirectoryPath;
+
+                                    // // currentProject.stairs.map((stair) => {
+                                    // //   //print(stair.id)
+                                    // //       // data = jsonEncode(currentProject
+                                    // //       //     .stairs[0]
+                                    // //       //     .toJson()['flights']),
+                                    // //       // OurDataStorage.writeTemporary(
+                                    // //       //     'stair ${currentProject.stairs[0].id}',
+                                    // //       //     {
+                                    // //       //       '${currentProject.stairs[0].id}':
+                                    // //       //           data
+                                    // //       //     }),
+                                    // //       // direcciones.add(
+                                    // //       //     '${docpath}/stair-${currentProject.stairs[0].id}}.json')
+                                    // //     });
+                                    await currentProject.stairs
+                                        .forEach((stair) => {
+                                              data = jsonEncode(
+                                                  stair.toJson()['flights']),
+                                              OurDataStorage.writeTemporary(
+                                                  'stair-${stair.id}',
+                                                  {'${stair.id}': data}),
+                                              direcciones.add(
+                                                  '${docpath}/stair-${stair.id}.json')
+                                            });
 
                                     final Email email = Email(
                                       body: 'Hello, In attach the following',
                                       subject: 'Project ${currentProject.id}',
-                                      recipients: ['example.user@gmail.com'],
+                                      recipients: [],
                                       attachmentPaths: direcciones,
                                       isHTML: false,
                                     );

@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "127726397965",
+    "project_id": "sds-flight-tester",
+    "storage_bucket": "sds-flight-tester.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:127726397965:android:c795bfc6ffb9ffc4144344",
+        "android_client_info": {
+          "package_name": "com.l3pcurves.l3pflighttester"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "127726397965-eo3maklo5vbgnuvblj0rrpp1uneub48s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEOr-LlG1d-eH9g4-Qk7S9f1RqTKdoPvs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "127726397965-eo3maklo5vbgnuvblj0rrpp1uneub48s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "127726397965-77ca0s29s5kuip6c3sk06uugu2sqrfun.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.l3pcurves.l3pflighttester"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
