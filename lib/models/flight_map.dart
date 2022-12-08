@@ -774,7 +774,7 @@ class RampPost {
       required this.embeddedType,
       required this.step}) {
     noseController.text = nosingDistance.toString();
-    balusterController.text = balusterController.toString();
+    balusterController.text = balusterDistance.toString();
     stepController.text = step.toString();
 
     // @override

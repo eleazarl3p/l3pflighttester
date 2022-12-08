@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:l3pflighttester/screens/flight_editor.dart';
 import '/file_storage_manager/secretaria.dart';
 import '../models/project.dart';
 import '../models/stair.dart';
@@ -77,10 +78,12 @@ class Home extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ProjectsPage(
-                        tempProjects: tempProjects,
-                        cloud: false,
-                      ),
+                      builder: (context) =>
+                          FlightEditor(pIndex: 0, sIndex: 0, fIndex: 0)
+                      //     ProjectsPage(
+                      //   tempProjects: tempProjects,
+                      //   cloud: false,
+                      // ),
                     ),
                   );
                 },
