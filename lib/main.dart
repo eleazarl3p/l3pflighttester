@@ -6,6 +6,7 @@ import '/screens/all_stair_from_actual_project.dart';
 import 'package:provider/provider.dart';
 import '/screens/Home.dart';
 
+import 'file_storage_manager/secretaria.dart';
 import 'models/Projects.dart';
 import 'models/flight_map.dart';
 import 'models/project.dart';
@@ -32,15 +33,27 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+    final tempProjects = Projects();
+
+    OurDataStorage.readDocument('MyProjects').then((value) {
+      tempProjects.resetProject();
+      //print(value['projects']);
+      value['projects'].forEach((element) => tempProjects.massiveUpdate(Project.fromJson(element)));
+    });
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
+        scaffoldBackgroundColor: Colors.blueGrey.shade50,
 
       ),
 
-      home: const Home(),
+      //home: const Home(),
+      routes: {
+        '/' : (context) => ProjectsPage(tempProjects: tempProjects)
+      },
     );
   }
 }

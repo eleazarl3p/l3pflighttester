@@ -15,12 +15,10 @@ import 'all_stair_from_actual_project.dart';
 //import '../Utils/dbConn.dart';
 
 class ProjectsPage extends StatefulWidget {
-  ProjectsPage({Key? key, required this.tempProjects, required this.cloud})
-      : super(key: key);
+  ProjectsPage({Key? key, required this.tempProjects}) : super(key: key);
 
-  Projects tempProjects;
+  final Projects tempProjects;
   bool load = true;
-  bool cloud;
 
   @override
   State<ProjectsPage> createState() => _ProjectsPageState();
@@ -52,16 +50,30 @@ class _ProjectsPageState extends State<ProjectsPage> {
     }
     //final pjProvider = Provider.of<Project>(context, listen: false);
     return Scaffold(
-      appBar: AppBar(title: const Text('Local'), leading: IconButton(onPressed: () {
-        // save temporal projects
-        widget.tempProjects.resetProject();
-        for (Project pj in pjsProvider.projects) {
-          widget.tempProjects.massiveUpdate(pj);
-        }
-        Navigator.pop(context);
-      }, icon: const Icon(Icons.arrow_back_ios),
-
-      ),),
+      appBar: AppBar(
+        title: const Text(''),
+        // leading: IconButton(
+        //   onPressed: () {
+        //     // save temporal projects
+        //     widget.tempProjects.resetProject();
+        //     for (Project pj in pjsProvider.projects) {
+        //       widget.tempProjects.massiveUpdate(pj);
+        //     }
+        //     Navigator.pop(context);
+        //   },
+        //   icon: const Icon(Icons.arrow_back_ios),
+        // ),
+      ),
+      drawer: Drawer(
+child: ListView(
+  children: [
+    DrawerHeader(decoration: BoxDecoration(
+      color: Colors.blue,
+    ),
+        child: Text('Drawer Header'))
+  ],
+),
+      ),
       body: Center(
         child: Column(
             //crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,34 +98,28 @@ class _ProjectsPageState extends State<ProjectsPage> {
                             // ),
                             Expanded(
                               child: ListView.builder(
-                                  itemCount: pjsProvider.projects
-                                      .length, //context.select((Projects pj) => pj.projects.length),
+                                  itemCount: pjsProvider
+                                      .projects.length, //context.select((Projects pj) => pj.projects.length),
                                   itemBuilder: (context, index) {
                                     return Card(
                                       //color: Colors.brown.shade100,
                                       child: ListTile(
                                         leading: Checkbox(
                                           //activeColor: Colors.blueGrey,
-                                          fillColor: MaterialStateProperty.all(
-                                              Colors.blueGrey),
+                                          fillColor: MaterialStateProperty.all(Colors.blueGrey),
                                           checkColor: Colors.white,
-                                          value: pjsProvider
-                                              .projects[index].selected,
+                                          value: pjsProvider.projects[index].selected,
                                           onChanged: (value) {
                                             setState(() {
-                                              pjsProvider.projects[index]
-                                                      .selected =
-                                                  !pjsProvider
-                                                      .projects[index].selected;
+                                              pjsProvider.projects[index].selected =
+                                                  !pjsProvider.projects[index].selected;
                                             });
                                           },
                                         ),
                                         title: Text(
                                           pjsProvider.projects[index].id,
                                           style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18.0,
-                                              color: Colors.blueGrey),
+                                              fontWeight: FontWeight.bold, fontSize: 18.0, color: Colors.blueGrey),
                                         ),
                                         trailing: Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -123,14 +129,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        StairOnCurrentProject(
-                                                            pIndex: index),
+                                                    builder: (context) => StairOnCurrentProject(pIndex: index),
                                                   ),
                                                 );
                                               },
-                                              icon:
-                                                  const Icon(Icons.open_in_new),
+                                              icon: const Icon(Icons.open_in_new),
                                               label: const Text('Open'),
                                             ),
                                             TextButton.icon(
@@ -147,52 +150,37 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                             ),
                                             TextButton.icon(
                                               style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty.all(
-                                                        Colors.red),
-                                                foregroundColor:
-                                                    MaterialStateProperty.all(
-                                                        Colors.white),
+                                                backgroundColor: MaterialStateProperty.all(Colors.red),
+                                                foregroundColor: MaterialStateProperty.all(Colors.white),
                                               ),
                                               onPressed: () {
                                                 showDialog(
                                                   context: context,
-                                                  builder:
-                                                      (BuildContext context) {
+                                                  builder: (BuildContext context) {
                                                     return AlertDialog(
-                                                      title: const Text(
-                                                          "Are you sure you want to delete this project?"),
-                                                      content: Text(
-                                                          'Project id: ${pjsProvider.projects[index].id}'),
+                                                      title:
+                                                          const Text("Are you sure you want to delete this project?"),
+                                                      content: Text('Project id: ${pjsProvider.projects[index].id}'),
                                                       actions: [
                                                         TextButton.icon(
                                                           onPressed: () {
                                                             setState(
                                                               () {
-                                                                pjsProvider.removeProject(
-                                                                    pjsProvider
-                                                                            .projects[
-                                                                        index]);
+                                                                pjsProvider.removeProject(pjsProvider.projects[index]);
                                                               },
                                                             );
 
-                                                            Navigator.pop(
-                                                                context);
+                                                            Navigator.pop(context);
                                                           },
-                                                          icon: const Icon(
-                                                              Icons.check),
-                                                          label:
-                                                              const Text("Yes"),
+                                                          icon: const Icon(Icons.check),
+                                                          label: const Text("Yes"),
                                                         ),
                                                         TextButton.icon(
                                                           onPressed: () {
-                                                            Navigator.pop(
-                                                                context);
+                                                            Navigator.pop(context);
                                                           },
-                                                          icon: const Icon(
-                                                              Icons.cancel),
-                                                          label:
-                                                              const Text("No"),
+                                                          icon: const Icon(Icons.cancel),
+                                                          label: const Text("No"),
                                                         ),
                                                       ],
                                                     );
@@ -217,139 +205,116 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     Expanded(
                       flex: 1,
                       child: Card(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: 200,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text("Project's name"),
-                                        content: Focus(
-                                          child: TextFormField(
-
-                                            controller: projectNameController,
-                                            focusNode: miFocus,
-                                            autofocus: true,
-                                            autovalidateMode: AutovalidateMode
-                                                .onUserInteraction,
-                                            autocorrect: true,
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.trim().isEmpty) {
-                                                _error = true;
-                                                return '';
-                                              }
-                                              _error = false;
-                                              return null;
-                                            },
-                                          ),
-                                          onFocusChange: (value) {
-                                            if (!value) {
-                                              if (_error) {
-                                                miFocus.requestFocus();
-                                              }
-                                            } else {
-                                              projectNameController.selection =
-                                                  TextSelection(
-                                                      baseOffset: 0,
-                                                      extentOffset:
-                                                          projectNameController
-                                                              .value
-                                                              .text
-                                                              .length);
+                        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          SizedBox(
+                            width: 200,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text("Project's name"),
+                                      content: Focus(
+                                        child: TextFormField(
+                                          controller: projectNameController,
+                                          focusNode: miFocus,
+                                          autofocus: true,
+                                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                                          autocorrect: true,
+                                          validator: (value) {
+                                            if (value == null || value.trim().isEmpty) {
+                                              _error = true;
+                                              return '';
                                             }
+                                            _error = false;
+                                            return null;
                                           },
                                         ),
-                                        actions: [
-                                          TextButton.icon(
-                                            onPressed: () {
-                                              if (projectNameController
-                                                      .text.length >
-                                                  1) {
-                                                pjsProvider.addProject(Project(
-                                                    id: projectNameController
-                                                        .text,
-                                                    stairs: <Stair>[]));
-                                                projectNameController.text = '';
+                                        onFocusChange: (value) {
+                                          if (!value) {
+                                            if (_error) {
+                                              miFocus.requestFocus();
+                                            }
+                                          } else {
+                                            projectNameController.selection = TextSelection(
+                                                baseOffset: 0, extentOffset: projectNameController.value.text.length);
+                                          }
+                                        },
+                                      ),
+                                      actions: [
+                                        TextButton.icon(
+                                          onPressed: () {
+                                            if (projectNameController.text.length > 1) {
+                                              pjsProvider.addProject(
+                                                  Project(id: projectNameController.text, stairs: <Stair>[]));
+                                              projectNameController.text = '';
 
-                                                Navigator.pop(context);
-                                              }
-                                            },
-                                            icon: const Icon(Icons.check),
-                                            label: const Text("OK"),
-                                          ),
-                                          TextButton.icon(
-                                            onPressed: () {
                                               Navigator.pop(context);
-                                            },
-                                            icon: const Icon(Icons.cancel),
-                                            label: const Text("Cancel"),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                                icon: const Icon(Icons.new_label),
-                                label: const Text("New"),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 20.0,
-                            ),
-
-                            if (!widget.cloud) ...[
-                              SizedBox(
-                                width: 200,
-                                child: ElevatedButton.icon(
-                                  onPressed: () {
-                                    for (var element in pjsProvider.projects) {
-                                      if (element.selected) {
-                                        FBDB.create('projects', element.id,
-                                            {'data': element.toJson()});
-
-                                        pjsProvider.removeProject(element);
-                                      }
-                                    }
-
-                                    // var jsonData = proj.toJson();
-                                    // DB.create('projects', proj.name, {'data': jsonData});
+                                            }
+                                          },
+                                          icon: const Icon(Icons.check),
+                                          label: const Text("OK"),
+                                        ),
+                                        TextButton.icon(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          icon: const Icon(Icons.cancel),
+                                          label: const Text("Cancel"),
+                                        ),
+                                      ],
+                                    );
                                   },
-                                  icon: const Icon(Icons.upload),
-                                  label: const Text('Upload'),
-                                ),
-                              ),
-                            ],
-                            const SizedBox(
-                              height: 20.0,
+                                );
+                              },
+                              icon: const Icon(Icons.new_label),
+                              label: const Text("New"),
                             ),
-                            if (!widget.cloud) ...[
-                              SizedBox(
-                                width: 200,
-                                child: ElevatedButton.icon(
-                                  onPressed: () {
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          SizedBox(
+                            width: 200,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                for (var element in pjsProvider.projects) {
+                                  if (element.selected) {
+                                    FBDB.create('projects', element.id, {'data': element.toJson()});
 
-                                    OurDataStorage.writeDocument("MyProjects", pjsProvider.toJson());
-                                    // for (var element in pjsProvider.projects) {
-                                    // FBDB.create('projects', element.id,
-                                    // {'data': element.toJson()});
-                                    //}
+                                    pjsProvider.removeProject(element);
+                                  }
+                                }
 
-                                    // var jsonData = proj.toJson();
-                                    // DB.create('projects', proj.name, {'data': jsonData});
-                                  },
-                                  icon: const Icon(Icons.save),
-                                  label: const Text('Save'),
-                                ),
-                              ),
-                            ]
-                          ],
-                        ),
+                                // var jsonData = proj.toJson();
+                                // DB.create('projects', proj.name, {'data': jsonData});
+                              },
+                              icon: const Icon(Icons.upload),
+                              label: const Text('Upload'),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          SizedBox(
+                            width: 200,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                OurDataStorage.writeDocument("MyProjects", pjsProvider.toJson());
+                                // for (var element in pjsProvider.projects) {
+                                // FBDB.create('projects', element.id,
+                                // {'data': element.toJson()});
+                                //}
+
+                                // var jsonData = proj.toJson();
+                                // DB.create('projects', proj.name, {'data': jsonData});
+                              },
+                              icon: const Icon(Icons.save),
+                              label: const Text('Save'),
+                            ),
+                          ),
+                        ]),
                       ),
                     ),
                   ],

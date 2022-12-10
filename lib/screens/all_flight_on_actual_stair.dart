@@ -137,7 +137,8 @@ class _FlightOnActualStairState extends State<FlightOnActualStair> {
                                                         pIndex: widget.pIndex,
                                                         sIndex: widget.sIndex,
                                                         fIndex: index,
-                                                        cloud: widget.cloud,
+
+                                                            template: {},
                                                       ),
                                                     ),
                                                   );

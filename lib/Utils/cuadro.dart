@@ -42,7 +42,7 @@ class _Dibujo extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    int stairsCount = int.parse(data['stairsCount']);
+    int stepsCount = int.parse(data['stepsCount']);
 
     // ------------------------------ Colors -------------------------------
     Color stepColor = Colors.red.shade200;
@@ -110,16 +110,18 @@ class _Dibujo extends CustomPainter {
     // ---------------------------------------------------------------------
     // ----------------------------- Variables -----------------------------
     double escalonLength = 12.0;
-    double sumStairsLength = escalonLength * stairsCount;
+    double sumStairsLength = escalonLength * stepsCount;
 
     //double bevel = double.parse(data['bevel']);
 
     double bottomCrotchExtension = 0.0;
     double topCrotchExtension = 0.0;
 
-    List lowerFlatPost = data['lowerFlatPost'];
-    List rampPost = data['rampPost'];
-    List upperFlatPost = data['upperFlatPost'];
+    List lowerFlatPost = [...data['lowerFlatPost']];
+    List rampPostL = [...data['rampPost']];
+    // order poost llist
+    rampPostL.sort((a, b) => a.nosingDistance.compareTo(b.nosingDistance));
+    List upperFlatPost = [...data['upperFlatPost']];
 
     List nosingStepsList = [];
 
@@ -169,7 +171,7 @@ class _Dibujo extends CustomPainter {
         as double; //[40, bottomCrotchExtension, bottomFlatLength, topCrotchExtension, topFlatLength].reduce((value, element) => value > element ? value : element) * factor;
     //double firstEscalonX = [40, bottomCrotchExtension, bottomFlatLength].reduce((value, element) => value > element ? value : element) * factor;
 
-    double riser = (double.parse(data['riser']) * 6.6875 / 6.75) * factor;
+    double riser = 6.7031 * factor;//(double.parse(data['riser']) * 6.6875 / 6.75) * factor;
     double bevel = 7.3125 * factor;
 
     bool hasTopCrotch = data['topCrotch'];
@@ -204,9 +206,9 @@ class _Dibujo extends CustomPainter {
     List<int> stairs = [];
 
     // Filter post where step equal to zero
-    for (RampPost rp in rampPost) {
+    for (RampPost rp in rampPostL) {
       if (rp.step != 0) {
-        if (int.parse(rp.step.toString()) <= stairsCount) {
+        if (int.parse(rp.step.toString()) <= stepsCount) {
           stairs.add(int.parse(rp.step.toString()));
         }
       }
@@ -314,7 +316,7 @@ class _Dibujo extends CustomPainter {
       px = firstEscalonX - factor - xp;
 
       //labelHeigth = size.height - postHeight - riser + 0 * factor;
-      labelHeigth = size.height - postHeight + factor;
+      labelHeigth = size.height - postHeight +  7 * factor;
 
       if (value != 0) {
         if (!hasBottomCrotch) {
@@ -327,7 +329,7 @@ class _Dibujo extends CustomPainter {
           addLabel(
               x: px - 6,
               //y: labelHeigth + 10 * factor,
-              y: labelHeigth + 20,
+              y: labelHeigth ,
               label: label,
               nose: false);
           addTubePlate(px, tubePlateY, tubePlate);
@@ -340,7 +342,7 @@ class _Dibujo extends CustomPainter {
             aPost.lineTo(px, size.height - postHeight);
 
             canvas.drawPath(aPost, postPen);
-            addLabel(x: px - 6, y: labelHeigth + 10 * factor, label: label, nose: false);
+            addLabel(x: px - 6, y: labelHeigth , label: label, nose: false);
             addTubePlate(px, tubePlateY, tubePlate);
             // addLabel(x: px + value / 2 - factor, y: labelHeigth, label: alphabet.removeAt(0));
             postFlatLower.add([px, size.height - postHeight]);
@@ -356,6 +358,7 @@ class _Dibujo extends CustomPainter {
       xpUp += (value * factor);
       px = lastX + xpUp;
 
+      //labelHeigth = size.height - postHeight - lastY; //+ 2 * factor;
       labelHeigth = size.height - postHeight - lastY; //+ 2 * factor;
       if (value != 0) {
         if (!hasTopCrotch) {
@@ -366,7 +369,7 @@ class _Dibujo extends CustomPainter {
           canvas.drawPath(aPost, postPen);
 
           // addLabel(x: px - 6, y: labelHeigth + 10 * factor + landingHeight, label: label, nose: false);
-          addLabel(x: px - 6, y: labelHeigth + 10 * factor, label: label, nose: false);
+          addLabel(x: px - 6, y: labelHeigth + 15 * factor, label: label, nose: false);
           addTubePlate(px, size.height - lastY + factor, tublePlate);
 
           postFlatUpper.add([px, size.height - postHeight - lastY + landingHeight]);
@@ -377,7 +380,7 @@ class _Dibujo extends CustomPainter {
             aPost.lineTo(px, size.height - postHeight - lastY + landingHeight);
             canvas.drawPath(aPost, postPen);
             // addLabel(x: px - (value * factor) / 2 - factor, y: size.height - lastY - postHeight / 2, label: alphabet.removeAt(0));
-            addLabel(x: px - 6, y: labelHeigth + 10 * factor, label: label, nose: false);
+            addLabel(x: px - 6, y: labelHeigth + 15 * factor, label: label, nose: false);
             addTubePlate(px, size.height - lastY + factor, tublePlate);
             postFlatUpper.add([px, size.height - postHeight - lastY + landingHeight]);
           } else {
@@ -405,7 +408,7 @@ class _Dibujo extends CustomPainter {
 
     nosingStepsList.add([lastX + baluster / 2, size.height - landingHeight - riser + baluster / 2]);
 
-    for (int i = 1; i < stairsCount; i++) {
+    for (int i = 1; i < stepsCount; i++) {
       x = firstEscalonX - factor + i * (escalonLength * factor) + (i - 1) * (-factor);
       y = landingHeight + i * (riser);
       escalera.lineTo(x, size.height - y);
@@ -426,8 +429,8 @@ class _Dibujo extends CustomPainter {
     }
 
     // flat up
-    y = landingHeight + stairsCount * (riser);
-    // double lastxx = firstEscalonX - factor + escalonLength * factor * (stairsCount - 1) - (stairsCount - 1) * factor;
+    y = landingHeight + stepsCount * (riser);
+    // double lastxx = firstEscalonX - factor + escalonLength * factor * (stepsCount - 1) - (stepsCount - 1) * factor;
     // print('lastY $lastY | y $y | $lastxx - $lastX  | ${size.width} $factor');
     escalera.lineTo(size.width, size.height - y);
     escalera.lineTo(size.width, size.height - y + landingHeight);
@@ -440,6 +443,7 @@ class _Dibujo extends CustomPainter {
 
     // Top Crotch
     if (hasTopCrotch) {
+      double crotchDelta = 0.0;
       Path topCrotch = Path();
       topCrotch.moveTo(lastX + topCrotchLength, size.height - y);
       topCrotch.lineTo(lastX + topCrotchLength, size.height - y + landingHeight);
@@ -458,6 +462,11 @@ class _Dibujo extends CustomPainter {
         lineTC.lineTo(lastX + max(topCrotchLength, -11.0 * factor), size.height - lastY + riser);
         canvas.drawPath(lineTC, whitePen);
       }
+
+      if (data['hasTopCrotchPost'] && data['topCrotch']) {
+        canvas.drawLine(Offset(lastX + topCrotchLength, size.height - postHeight - lastY + landingHeight),
+            Offset(lastX + topCrotchLength, size.height - lastY), postPen);
+      }
     }
 
     // Bottom Crotch
@@ -473,17 +482,17 @@ class _Dibujo extends CustomPainter {
       canvas.drawPath(bottomCrotch, stairPenStk);
 
       // Bottom Crotch Post
-      if (data['hasBottomCrotchPost']) {
+      if (data['hasBottomCrotchPost'] && data['bottomCrotch']) {
         Path cP = Path();
         cP.moveTo(firstEscalonX - factor - bottomCrotchLength, size.height - landingHeight);
         cP.lineTo(firstEscalonX - factor - bottomCrotchLength, size.height - postHeight);
 
         canvas.drawPath(cP, postPen);
-        addLabel(
-            x: firstEscalonX - factor - bottomCrotchLength - 6,
-            y: size.height - postHeight + 2 * factor + 20,
-            nose: false,
-            label: 'B${lowerFlatPost.length + 1}');
+        // addLabel(
+        //     x: firstEscalonX - factor - bottomCrotchLength - 6,
+        //     y: size.height - postHeight + 2 * factor + 20,
+        //     nose: false,
+        //     label: 'B${lowerFlatPost.length + 1}');
         //addFlatLowerPost(firstEscalonX - factor - bottomCrotchLength, "sleeve", "B");
       }
       // White line Bottom Crotch
@@ -503,6 +512,7 @@ class _Dibujo extends CustomPainter {
 
     // lower Flat Post
     if (lowerFlatPost.isNotEmpty) {
+
       for (Post post in lowerFlatPost) {
         addFlatLowerPost(post.distance * factor, post.embeddedType, "B${lowerFlatPost.indexOf(post) + 1}");
       }
@@ -518,7 +528,7 @@ class _Dibujo extends CustomPainter {
 
         labelHeigth = size.height - pt[1] - postHeight + 2 * factor + landingHeight;
 
-        RampPost rpt = rampPost.firstWhere((element) => element.step == stairs[postStair.indexOf(pt)]); // stairs
+        RampPost rpt = rampPostL.firstWhere((element) => element.step == stairs[postStair.indexOf(pt)]); // stairs
 
         addTubePlate(pt[0] + baluster, size.height - pt[1] + factor, rpt.embeddedType);
 
@@ -535,10 +545,10 @@ class _Dibujo extends CustomPainter {
 
         i += 6;
 
-        Path dimentionLabelPath = Path();
-        dimentionLabelPath.moveTo(pt[0], size.height - pt[1]);
-        dimentionLabelPath.lineTo((pt[0] + 12 * (bevel / 11)), size.height - pt[1] + 12 * bevel / 6);
-        dimentionLabelPath.lineTo((pt[0] + 12 * (bevel / 11)) + 45, size.height - pt[1] + 12 * bevel / 6);
+        Path dimensionLabelPath = Path();
+        dimensionLabelPath.moveTo(pt[0], size.height - pt[1]);
+        dimensionLabelPath.lineTo((pt[0] + 12 * (bevel / 11)), size.height - pt[1] + 12 * bevel / 6);
+        dimensionLabelPath.lineTo((pt[0] + 12 * (bevel / 11)) + 45, size.height - pt[1] + 12 * bevel / 6);
 
         //canvas.drawPath(dimentionLabelPath, dimensionLabelPen);
 
@@ -563,15 +573,14 @@ class _Dibujo extends CustomPainter {
             size: size,
             factor: factor,
             offset: const Offset(0, 0),
-            dx: dx1 + ((dx1 - dx2).abs() / 2) - (rpt.nosingDistance.toString().length)*factor,
-            dy: dy1 - ((dy1 - dy2).abs() / 2) + (rpt.nosingDistance.toString().length)*factor,
+            dx: dx1 + ((dx1 - dx2).abs() / 2) - (rpt.nosingDistance.toString().length) * factor,
+            dy: dy1 - ((dy1 - dy2).abs() / 2) + (rpt.nosingDistance.toString().length) * factor,
             canvas: canvas,
             angle: 0,
             pen: postPen);
       }
     }
     // Add label Nosing
-
     if (nosingStepsList.isNotEmpty) {
       for (List step in nosingStepsList) {
         //if (stairStepsList.indexOf(step).isEven) {
@@ -584,6 +593,7 @@ class _Dibujo extends CustomPainter {
             couleur: Colors.white);
       }
     }
+
     // upper Flat Post
     if (upperFlatPost.isNotEmpty) {
       for (Post pt in upperFlatPost) {
@@ -593,15 +603,28 @@ class _Dibujo extends CustomPainter {
       }
     }
 
+    // Bottom Crotch Post
+
+    // ***** Ramp rail
     // lower Flat Post
     if (postFlatLower.isNotEmpty) {
-      if (data['hasBottomCrotchPost']) {
+      if (data['hasBottomCrotchPost'] && data['bottomCrotch']) {
         canvas.drawLine(Offset(firstEscalonX - factor - bottomCrotchLength, postFlatLower.first[1]),
             Offset(postFlatLower.first[0], postFlatLower.first[1]), postPen);
       } else {
         canvas.drawLine(Offset(postFlatLower.first[0], postFlatLower.first[1]),
             Offset(postFlatLower.last[0], postFlatLower.last[1]), postPen);
       }
+    } else {
+      if (data['hasBottomCrotchPost'] && data['bottomCrotch']) {
+        canvas.drawLine(Offset(firstEscalonX - factor - bottomCrotchLength, size.height - postHeight),
+            Offset(firstEscalonX - baluster, size.height - postHeight), postPen);
+        postFlatLower.add([firstEscalonX - baluster, size.height - postHeight]);
+      }
+    }
+    if (data['hasTopCrotchPost'] && data['topCrotch']) {
+      postFlatUpper.add([lastX + topCrotchLength, size.height - postHeight - lastY + landingHeight]);
+
     }
 
     if (postFlatUpper.isNotEmpty) {
@@ -658,7 +681,7 @@ class _Dibujo extends CustomPainter {
       required double dy,
       required Paint pen}) {
     canvas.save();
-    canvas.translate(dx, dy + 8.5);
+    canvas.translate(dx, dy + (7.5/3) * factor);
     //canvas.translate(dx , dy );
 
     angle = atan(bevel / 12);

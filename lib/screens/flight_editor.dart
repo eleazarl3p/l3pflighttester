@@ -14,16 +14,22 @@ import 'package:l3pflighttester/screens/dibujo.dart';
 // import '../Utils/cuadro_on_dev.dart';
 // import '../Utils/flight_data_input_on_dev.dart';
 // import '../Utils/stair_painter.dart';
+import '../constants.dart';
 import '../models/flight_map.dart';
+import 'Home.dart';
+
+
+
+final _formKey = GlobalKey<FormState>();
 
 class FlightEditor extends StatefulWidget {
-  FlightEditor({Key? key, required this.pIndex, required this.sIndex, required this.fIndex, this.cloud = false})
+  FlightEditor({Key? key, required this.pIndex, required this.sIndex, required this.fIndex, required this.template})
       : super(key: key);
 
   int pIndex;
   int sIndex;
   int fIndex;
-  bool cloud;
+  final Map<String, dynamic> template;
 
   List k = ["None", "Plate", 'Tube'];
   List<Post> lowerPost = [
@@ -37,14 +43,14 @@ class FlightEditor extends StatefulWidget {
 }
 
 class _FlightEditorState extends State<FlightEditor> {
-  TextEditingController riserController = TextEditingController(text: '6.6875');
-  TextEditingController bevelController = TextEditingController(text: '7.45');
-  TextEditingController btcController = TextEditingController(text: '0.0');
-  TextEditingController tcController = TextEditingController(text: '0.0');
-  TextEditingController lowerPostQuantity = TextEditingController(text: '0');
-  TextEditingController upperPostQuantity = TextEditingController(text: '0');
-  TextEditingController rampPostQuantity = TextEditingController(text: '0');
-  TextEditingController lastNoseDistance = TextEditingController(text: '216');
+  TextEditingController riserController = TextEditingController();
+  TextEditingController bevelController = TextEditingController();
+  TextEditingController btcController = TextEditingController();
+  TextEditingController tcController = TextEditingController();
+  TextEditingController lowerPostQuantity = TextEditingController();
+  TextEditingController upperPostQuantity = TextEditingController();
+  TextEditingController rampPostQuantity = TextEditingController();
+  TextEditingController lastNoseDistance = TextEditingController();
 
   FocusNode riserFocus = FocusNode();
   FocusNode bevelFocus = FocusNode();
@@ -64,41 +70,18 @@ class _FlightEditorState extends State<FlightEditor> {
   bool rampQuantityError = false;
   bool lastNoseError = false;
 
-  final Map _textFormFields = {
-    'id': '0',
-    "riser": '6.6875', //
-    "bevel": '7.3125',
-
-    "topCrotch": false,
-    "topCrotchLength": '0.0',
-    'hasBottomCrotchPost': false,
-
-    "bottomCrotch": false,
-    "bottomCrotchLength": '0.0',
-    'hasTopCrotchPost': true,
-
-    "lowerFlatPost": <Post>[
-      //Post(distance: 5.0, embeddedType: 'none')
-    ], //Post(distance: 10.0, embeddedType: 'sleeve')
-    "rampPost": <RampPost>[], //RampPost(nosingDistance: 0.0, balusterDistance: 0.0, embeddedType: 'none', step: 5)
-    "upperFlatPost": <Post>[Post(distance: 6.0, embeddedType: 'none')], //Post(distance: 10.0, embeddedType: 'none')
-    "stairsCount": '15',
-
-    "currentFocus": FocusNode(),
-    //'bottomFlatPostEnable': true,
-    'active': true,
-    'enableBtn': true,
-    'hypotenuse': 12.875,
-  };
-
-  InputDecoration inputDec = const InputDecoration(
-    isDense: true,
-    contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-    border: OutlineInputBorder(),
-    errorStyle: TextStyle(fontSize: 0.0),
-    errorMaxLines: 1,
-    // disabledBorder: InputBorder.none
-  );
+  @override
+  void initState() {
+    super.initState();
+    riserController.text = widget.template['riser'];
+    bevelController.text = widget.template['bevel'];
+    btcController.text = widget.template['bottomCrotchLength'];
+    tcController.text = widget.template['topCrotchLength'];
+    lowerPostQuantity.text = widget.template['lowerFlatPost'].length.toString();
+    upperPostQuantity.text = widget.template['upperFlatPost'].length.toString();
+    rampPostQuantity.text = widget.template['rampPost'].length.toString();
+    lastNoseDistance.text = widget.template['lastNoseDistance'];
+  }
 
   @override
   void dispose() {
@@ -126,7 +109,7 @@ class _FlightEditorState extends State<FlightEditor> {
     // String selectedItem;
     // int selectedItemPosition = 0;
 
-    List<DataColumn> _createColumns() {
+    List<DataColumn> createColumns() {
       return [
         const DataColumn(label: Text('Id')),
         const DataColumn(label: Expanded(child: SizedBox(width: 90, child: Text('Distance')))),
@@ -134,12 +117,13 @@ class _FlightEditorState extends State<FlightEditor> {
       ];
     }
 
-    List<DataRow> _createRows({required bool crotch, required String campo, required double crotchDistance}) {
+    List<DataRow> createRows({required bool crotch, required String campo, required double crotchDistance}) {
       double sumDistance = 0;
+      String letter = campo == "lowerFlatPost" ? 'B' : "U";
       return List<DataRow>.generate(
-        _textFormFields[campo].length,
+        widget.template[campo].length,
         (index) => DataRow(cells: [
-          DataCell(Text('B${index + 1}')),
+          DataCell(Text('$letter${index + 1}')),
           DataCell(
             Container(
               height: 80,
@@ -149,41 +133,42 @@ class _FlightEditorState extends State<FlightEditor> {
               ),
               child: Focus(
                 child: TextFormField(
-                  focusNode: _textFormFields[campo][index].pFocusNode,
-                  controller: _textFormFields[campo][index].pController,
+                  focusNode: widget.template[campo][index].pFocusNode,
+                  controller: widget.template[campo][index].pController,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onTap: () => _textFormFields[campo][index].pController.selection = TextSelection(
-                      baseOffset: 0, extentOffset: _textFormFields[campo][index].pController.value.text.length),
+                  onTap: () => widget.template[campo][index].pController.selection = TextSelection(
+                      baseOffset: 0, extentOffset: widget.template[campo][index].pController.value.text.length),
                   validator: (value) {
                     if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      _textFormFields[campo][index].error = true;
+                      widget.template[campo][index].error = true;
                       return '';
                     }
 
                     if (crotch) {
-                      List sublista = _textFormFields[campo].sublist(0, index + 1);
+                      List sublista = widget.template[campo].sublist(0, index + 1);
                       sumDistance =
                           sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.pController.text));
 
                       if (sumDistance >= crotchDistance && double.parse(value) != 0) {
-                        _textFormFields[campo][index].error = true;
+                        widget.template[campo][index].error = true;
+
                         return "";
                       }
                     }
 
-                    _textFormFields[campo][index].error = false;
+                    widget.template[campo][index].error = false;
                     return null;
                   },
-                  decoration: inputDec,
+                  decoration: kInputDec,
                   style: const TextStyle(fontSize: 14),
                 ),
                 onFocusChange: (value) {
                   if (!value) {
-                    if (!_textFormFields[campo][index].error) {
-                      _textFormFields[campo][index].distance =
-                          double.parse(_textFormFields[campo][index].pController.text);
+                    if (!widget.template[campo][index].error) {
+                      widget.template[campo][index].distance =
+                          double.parse(widget.template[campo][index].pController.text);
                     } else {
-                      _textFormFields[campo][index].pFocusNode.requestFocus();
+                      widget.template[campo][index].pFocusNode.requestFocus();
                     }
                   }
                 },
@@ -207,10 +192,10 @@ class _FlightEditorState extends State<FlightEditor> {
                     child: Text("Sleeve"),
                   )
                 ],
-                value: _textFormFields[campo][index].embeddedType,
+                value: widget.template[campo][index].embeddedType,
                 onChanged: (value) {
                   setState(() {
-                    _textFormFields[campo][index].embeddedType = value;
+                    widget.template[campo][index].embeddedType = value;
                   });
                 }
 
@@ -222,25 +207,26 @@ class _FlightEditorState extends State<FlightEditor> {
       );
     }
 
-    Widget BuildTable({required bool crotch, required String campo, required double crotchDistance}) {
+    Widget buildTable({required bool crotch, required String campo, required double crotchDistance}) {
       return Card(
         child: Container(
           padding: const EdgeInsets.only(bottom: 12.0),
           child: DataTable(
-            columns: _createColumns(),
-            rows: _createRows(crotch: crotch, campo: campo, crotchDistance: crotchDistance),
+            dataRowHeight: 60.0,
+            columns: createColumns(),
+            rows: createRows(crotch: crotch, campo: campo, crotchDistance: crotchDistance),
             //columnSpacing: 20,
           ),
         ),
       );
     }
 
-    List<DataRow> _rampRows({required int steps}) {
-      double sumDistance = 0;
+    List<DataRow> rampRows({required int steps}) {
+      List<String> alphabet = List.generate(26, (index) => String.fromCharCode(index + 65));
       return List<DataRow>.generate(
-        _textFormFields['rampPost'].length,
+        widget.template['rampPost'].length,
         (index) => DataRow(cells: [
-          DataCell(Text('B${index + 1}')),
+          DataCell(Text(alphabet[index])),
           DataCell(
             Container(
               height: 80,
@@ -250,38 +236,42 @@ class _FlightEditorState extends State<FlightEditor> {
               ),
               child: Focus(
                 child: TextFormField(
-                  focusNode: _textFormFields['rampPost'][index].noseFocus,
-                  controller: _textFormFields['rampPost'][index].noseController,
+                  focusNode: widget.template['rampPost'][index].noseFocus,
+                  controller: widget.template['rampPost'][index].noseController,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onTap: () => _textFormFields['rampPost'][index].noseController.selection = TextSelection(
-                      baseOffset: 0, extentOffset: _textFormFields['rampPost'][index].noseController.value.text.length),
+                  onTap: () => widget.template['rampPost'][index].noseController.selection = TextSelection(
+                      baseOffset: 0, extentOffset: widget.template['rampPost'][index].noseController.value.text.length),
                   validator: (value) {
                     if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      _textFormFields['rampPost'][index].noseError = true;
+                      widget.template['rampPost'][index].noseError = true;
                       return '';
                     }
 
-                    // List sublista = _textFormFields['ramPost'].sublist(0, index + 1);
-                    // sumDistance =
-                    //     sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.noseController.text));
+
                     double noseValue = double.parse(value);
-                    if (noseValue >= double.parse(lastNoseDistance.text)) {
-                      _textFormFields['rampPost'][index].noseError = true;
-                      return "";
+                    if (double.tryParse(lastNoseDistance.text) != null) {
+                      if (noseValue >= double.parse(lastNoseDistance.text)) {
+                        widget.template['rampPost'][index].noseError = true;
+                        return "";
+                      }
                     }
 
-                    _textFormFields['rampPost'][index].noseError = false;
-                    _textFormFields['rampPost'][index].step = noseValue ~/ _textFormFields['hypotenuse'];
-                    _textFormFields['rampPost'][index].nosingDistance = double.parse(value);
+                    widget.template['rampPost'][index].noseError = false;
+                    int step = (noseValue / widget.template['hypotenuse']).round()..toInt();
+                    print('$step - $noseValue ${widget.template['hypotenuse']}');
+                    widget.template['rampPost'][index].step = step + 1;
+                    widget.template['rampPost'][index].nosingDistance = double.parse(value);
                     return null;
                   },
-                  decoration: inputDec,
+                  decoration: kInputDec,
                   style: const TextStyle(fontSize: 14),
                 ),
                 onFocusChange: (value) {
-                  if (!value) {
-                    if (_textFormFields['rampPost'][index].noseError) {
-                      _textFormFields['rampPost'][index].noseFocus.requestFocus();
+                  if (!lastNoseError) {
+                    if (!value) {
+                      if (widget.template['rampPost'][index].noseError) {
+                        widget.template['rampPost'][index].noseFocus.requestFocus();
+                      }
                     }
                   }
                 },
@@ -297,39 +287,39 @@ class _FlightEditorState extends State<FlightEditor> {
               ),
               child: Focus(
                 child: TextFormField(
-                  focusNode: _textFormFields['rampPost'][index].balusterFocus,
-                  controller: _textFormFields['rampPost'][index].balusterController,
+                  focusNode: widget.template['rampPost'][index].balusterFocus,
+                  controller: widget.template['rampPost'][index].balusterController,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onTap: () => _textFormFields['rampPost'][index].balusterController.selection = TextSelection(
+                  onTap: () => widget.template['rampPost'][index].balusterController.selection = TextSelection(
                       baseOffset: 0,
-                      extentOffset: _textFormFields['rampPost'][index].balusterController.value.text.length),
+                      extentOffset: widget.template['rampPost'][index].balusterController.value.text.length),
                   validator: (value) {
                     if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      _textFormFields['rampPost'][index].balusterError = true;
+                      widget.template['rampPost'][index].balusterError = true;
                       return '';
                     }
 
-                    // List sublista = _textFormFields['ramPost'].sublist(0, index + 1);
+                    // List sublista = widget.template['ramPost'].sublist(0, index + 1);
                     // sumDistance =
                     //     sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.noseController.text));
                     double noseValue = double.parse(value);
                     if (noseValue >= 10) {
-                      _textFormFields['rampPost'][index].balusterError = true;
+                      widget.template['rampPost'][index].balusterError = true;
                       return "";
                     }
 
-                    _textFormFields['rampPost'][index].balusterError = false;
-                    _textFormFields['rampPost'][index].balusterDistance = double.parse(value);
+                    widget.template['rampPost'][index].balusterError = false;
+                    widget.template['rampPost'][index].balusterDistance = double.parse(value);
 
                     return null;
                   },
-                  decoration: inputDec,
+                  decoration: kInputDec,
                   style: const TextStyle(fontSize: 14),
                 ),
                 onFocusChange: (value) {
                   if (!value) {
-                    if (_textFormFields['rampPost'][index].balusterError) {
-                      _textFormFields['rampPost'][index].balusterFocus.requestFocus();
+                    if (widget.template['rampPost'][index].balusterError) {
+                      widget.template['rampPost'][index].balusterFocus.requestFocus();
                     }
                   }
                 },
@@ -353,10 +343,10 @@ class _FlightEditorState extends State<FlightEditor> {
                     child: Text("Sleeve"),
                   )
                 ],
-                value: _textFormFields['rampPost'][index].embeddedType,
+                value: widget.template['rampPost'][index].embeddedType,
                 onChanged: (value) {
                   setState(() {
-                    _textFormFields['rampPost'][index].embeddedType = value;
+                    widget.template['rampPost'][index].embeddedType = value;
                   });
                 }
 
@@ -368,42 +358,45 @@ class _FlightEditorState extends State<FlightEditor> {
       );
     }
 
-    Widget RampPostTable({required int steps}) {
+    Widget rampPostTable({required int steps}) {
       return Card(
         child: Container(
           padding: const EdgeInsets.only(bottom: 12.0),
           child: DataTable(
-            columnSpacing: 10.0,
+            dataRowHeight: 60.0,
+            columnSpacing: 15.0,
             columns: const [
               DataColumn(label: Text('Id')),
               DataColumn(label: Expanded(child: SizedBox(width: 80, child: Text('Distance')))),
               DataColumn(label: Expanded(child: SizedBox(width: 80, child: Text('Baluster')))),
               DataColumn(label: Text('Emb. Type')),
             ],
-            rows: _rampRows(steps: steps),
+            rows: rampRows(steps: steps),
             //columnSpacing: 20,
           ),
         ),
       );
     }
 
+    TextStyle kCardLabelStyle =
+        const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, letterSpacing: 1.5, color: Colors.white);
+
     return Scaffold(
       appBar: AppBar(
-        leading: const Text(''),
-        title: ListTile(
-          title: const Text('Flight'
+        //leading: const Text(''),
+        title: const ListTile(
+          title: Text('Flight'
               //'Flight : ${Provider.of<Projects>(context).projects[pIndex].stairs[sIndex].flights[fIndex].id}',
               //style: const TextStyle(color: Colors.white),
               ),
-          subtitle: widget.cloud
-              ? const Text('Cloud > Project > Stair > FLight', style: TextStyle(color: Colors.white))
-              : const Text('Local > Projects > Stair > FLight', style: TextStyle(color: Colors.white)),
+          subtitle: Text('Local > Projects > Stair > FLight', style: TextStyle(color: Colors.white)),
         ),
+
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => Dibujo(_textFormFields)));
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => Dibujo(widget.template)));
             },
             child: Container(
               width: 40.0,
@@ -425,7 +418,7 @@ class _FlightEditorState extends State<FlightEditor> {
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5.0)),
               child: const Text(
                 "Cancel",
-                style: TextStyle(color: Colors.blueGrey),
+                style: TextStyle(color: Colors.blueGrey, fontSize: 16.0),
               ),
             ),
           ),
@@ -433,14 +426,25 @@ class _FlightEditorState extends State<FlightEditor> {
             width: 20,
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                // If the form is valid, display a snackbar. In the real world,
+                // you'd often call a server or save the information in a database.
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Processing Data'),
+                    backgroundColor: Colors.blueGrey.shade400,
+                  ),
+                );
+              }
+            },
             child: Container(
               width: 100.0,
               alignment: Alignment.center,
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5.0)),
               child: const Text(
                 "Save",
-                style: TextStyle(color: Colors.blueGrey),
+                style: TextStyle(color: Colors.blueGrey, fontSize: 16.0),
               ),
             ),
           ),
@@ -449,130 +453,155 @@ class _FlightEditorState extends State<FlightEditor> {
           )
         ],
       ),
-      body: ListView(children: [
-        Container(
-          margin: const EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: Wrap(
-                        alignment: WrapAlignment.spaceBetween,
-                        spacing: 10,
-                        runSpacing: 20,
-                        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            children: [
-                              MyTableCol(name: 'Riser'),
-                              MyTableCell(
-                                Focus(
-                                  child: TextFormField(
-                                    focusNode: riserFocus,
-                                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                                    controller: riserController,
-                                    validator: (value) {
-                                      if (double.tryParse(value!) == null) {
-                                        return '';
-                                      }
-                                      return null;
-                                    },
-                                    onTap: () => riserController.selection =
-                                        TextSelection(baseOffset: 0, extentOffset: riserController.value.text.length),
-                                    keyboardType: TextInputType.phone,
-                                    decoration: inputDec,
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                  onFocusChange: (value) {
-                                    if (!value) {
-                                      if (double.tryParse(riserController.text) == null) {
-                                        riserFocus.requestFocus();
-                                      } else {
-                                        _textFormFields['riser'] = riserController.text;
-                                        double hypotenuse = sqrt(121 + pow(double.parse(riserController.text), 2));
-                                        _textFormFields['hypotenuse'] = hypotenuse;
-                                      }
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              MyTableCol(name: 'Bevel'),
-                              MyTableCell(
-                                Focus(
-                                  child: TextFormField(
-                                    focusNode: bevelFocus,
-                                    controller: bevelController,
-                                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                                    onTap: () => bevelController.selection =
-                                        TextSelection(baseOffset: 0, extentOffset: bevelController.value.text.length),
-                                    validator: (value) {
-                                      if (double.tryParse(value!) == null) {
-                                        return '';
-                                      }
-                                      return null;
-                                    },
-                                    keyboardType: TextInputType.phone,
-                                    decoration: inputDec,
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                  onFocusChange: (value) {
-                                    if (!value) {
-                                      if (double.tryParse(bevelController.text) == null) {
-                                        bevelFocus.requestFocus();
-                                      } else {
-                                        _textFormFields['bevel'] = bevelController.text;
-                                      }
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              MyTableCol(name: 'Bot. Crotch'),
-                              MyTableCell(
-                                Checkbox(
-                                    value: _textFormFields['bottomCrotch'],
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        if (_textFormFields['lowerFlatPost'].isNotEmpty) {
-                                          double sumDistance = 0;
-                                          sumDistance = _textFormFields['lowerFlatPost'].fold(
-                                              0,
-                                              (sum, element) =>
-                                                  sum.toDouble() + double.parse(element.pController.text));
+      drawer: Drawer(
+        child: ListView(padding: EdgeInsets.zero, children: [
+          ListTile(
+            leading: Icon(Icons.list),
+            title: Text('READ'),
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (BuildContext context) => const Home(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.search),
+            title: Text('SELECT'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+        ]),
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(children: [
+          Container(
+            margin: const EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        child: Wrap(
+                          alignment: WrapAlignment.start,
 
-                                          if (sumDistance >= double.parse(_textFormFields['bottomCrotchLength'])) {
-                                            return;
-                                          }
+                          spacing: 10,
+                          runSpacing: 20,
+                          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              children: [
+                                MyTableCol(name: 'Riser'),
+                                MyTableCell(
+                                  Focus(
+                                    child: TextFormField(
+                                      focusNode: riserFocus,
+                                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                                      controller: riserController,
+                                      validator: (value) {
+                                        if (double.tryParse(value!) == null) {
+                                          return '';
+                                        }
+                                        return null;
+                                      },
+                                      onTap: () => riserController.selection =
+                                          TextSelection(baseOffset: 0, extentOffset: riserController.value.text.length),
+                                      keyboardType: TextInputType.phone,
+                                      decoration: kInputDec,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    onFocusChange: (value) {
+                                      if (!value) {
+                                        if (double.tryParse(riserController.text) == null) {
+                                          riserFocus.requestFocus();
+                                        } else {
+                                          widget.template['riser'] = riserController.text;
+                                          double hypotenuse = sqrt(121 + pow(double.parse(riserController.text), 2));
+                                          widget.template['hypotenuse'] = hypotenuse;
                                         }
                                       }
-                                      setState(() {
-                                        _textFormFields['bottomCrotch'] = !_textFormFields['bottomCrotch'];
-                                      });
-                                    }),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              MyTableCol(name: 'Bot. Cr. dist'),
-                              Container(
-                                color: _textFormFields['bottomCrotch'] ? Colors.white : Colors.grey.shade300,
-                                child: MyTableCell(
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                MyTableCol(name: 'Bevel'),
+                                MyTableCell(
+                                  Focus(
+                                    child: TextFormField(
+                                      focusNode: bevelFocus,
+                                      controller: bevelController,
+                                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                                      onTap: () => bevelController.selection =
+                                          TextSelection(baseOffset: 0, extentOffset: bevelController.value.text.length),
+                                      validator: (value) {
+                                        if (double.tryParse(value!) == null) {
+                                          return '';
+                                        }
+                                        return null;
+                                      },
+                                      keyboardType: TextInputType.phone,
+                                      decoration: kInputDec,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    onFocusChange: (value) {
+                                      if (!value) {
+                                        if (double.tryParse(bevelController.text) == null) {
+                                          bevelFocus.requestFocus();
+                                        } else {
+                                          widget.template['bevel'] = bevelController.text;
+                                        }
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                MyTableCol(name: 'Bot. Crotch'),
+                                MyTableCell(
+                                  Checkbox(
+                                      value: widget.template['bottomCrotch'],
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          if (widget.template['lowerFlatPost'].isNotEmpty) {
+                                            double sumDistance = 0;
+                                            sumDistance = widget.template['lowerFlatPost'].fold(
+                                                0,
+                                                (sum, element) =>
+                                                    sum.toDouble() + double.parse(element.pController.text));
+
+                                            if (sumDistance >= double.parse(widget.template['bottomCrotchLength'])) {
+                                              return;
+                                            }
+                                          }
+                                        }
+                                        setState(() {
+                                          widget.template['bottomCrotch'] = !widget.template['bottomCrotch'];
+                                        });
+                                      }),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                MyTableCol(name: 'Bot.\u{00A0}Cr.\u{00A0}dist'),
+                                MyTableCell(
                                   Focus(
                                     child: TextFormField(
                                       focusNode: btcFocus,
                                       controller: btcController,
-                                      enabled: _textFormFields['bottomCrotch'],
+                                      enabled: widget.template['bottomCrotch'],
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       onTap: () => btcController.selection =
                                           TextSelection(baseOffset: 0, extentOffset: btcController.value.text.length),
@@ -582,9 +611,9 @@ class _FlightEditorState extends State<FlightEditor> {
                                           return "";
                                         }
 
-                                        if (_textFormFields['lowerFlatPost'].isNotEmpty) {
+                                        if (widget.template['lowerFlatPost'].isNotEmpty) {
                                           double totDistance = 0;
-                                          totDistance = _textFormFields['lowerFlatPost']
+                                          totDistance = widget.template['lowerFlatPost']
                                               .fold(0, (previousValue, element) => previousValue + element.distance);
 
                                           if (double.parse(value) <= totDistance && totDistance != 0) {
@@ -592,7 +621,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                             return "";
                                           }
                                         }
-                                        _textFormFields['bottomCrotchLength'] = btcController.text;
+                                        widget.template['bottomCrotchLength'] = btcController.text;
 
                                         bottomFlatDistanceError = false;
 
@@ -600,8 +629,11 @@ class _FlightEditorState extends State<FlightEditor> {
                                         return null;
                                       },
                                       keyboardType: TextInputType.phone,
-                                      decoration: inputDec,
-                                      style: const TextStyle(fontSize: 14),
+                                      decoration: widget.template['bottomCrotch'] ? kInputDec : kInputDecDisable,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color:
+                                              widget.template['bottomCrotch'] ? Colors.black : Colors.blueGrey.shade50),
                                     ),
                                     onFocusChange: (value) {
                                       if (!value) {
@@ -612,62 +644,61 @@ class _FlightEditorState extends State<FlightEditor> {
                                     },
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              MyTableCol(name: "Bot. Cr. Post"),
-                              MyTableCell(
-                                Checkbox(
-                                    value: _textFormFields['hasBottomCrotchPost'],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _textFormFields['hasBottomCrotchPost'] =
-                                            !_textFormFields['hasBottomCrotchPost'];
-                                      });
-                                    }),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              MyTableCol(name: "Top Crotch"),
-                              MyTableCell(
-                                Checkbox(
-                                    value: _textFormFields['topCrotch'],
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        if (_textFormFields['upperFlatPost'].isNotEmpty) {
-                                          double sumDistance = 0;
-                                          sumDistance = _textFormFields['upperFlatPost'].fold(
-                                              0,
-                                              (sum, element) =>
-                                                  sum.toDouble() + double.parse(element.pController.text));
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                MyTableCol(name: "Bot\u{00A0}Cr.\u{00A0}Post"),
+                                MyTableCell(
+                                  Checkbox(
+                                      value: widget.template['hasBottomCrotchPost'],
+                                      onChanged: widget.template['bottomCrotch']
+                                          ? (value) {
+                                              setState(() {
+                                                widget.template['hasBottomCrotchPost'] =
+                                                    !widget.template['hasBottomCrotchPost'];
+                                              });
+                                            }
+                                          : null),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                MyTableCol(name: "Top\u{00A0}Crotch"),
+                                MyTableCell(
+                                  Checkbox(
+                                      value: widget.template['topCrotch'],
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          if (widget.template['upperFlatPost'].isNotEmpty) {
+                                            double sumDistance = 0;
+                                            sumDistance = widget.template['upperFlatPost'].fold(
+                                                0,
+                                                (sum, element) =>
+                                                    sum.toDouble() + double.parse(element.pController.text));
 
-                                          if (sumDistance >= double.parse(_textFormFields['topCrotchLength'])) {
-                                            return;
+                                            if (sumDistance >= double.parse(widget.template['topCrotchLength'])) {
+                                              return;
+                                            }
                                           }
                                         }
-                                      }
-                                      setState(() {
-                                        _textFormFields['topCrotch'] = !_textFormFields['topCrotch'];
-                                      });
-                                    }),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              MyTableCol(name: "Top Cr. Dist"),
-                              Container(
-                                color: _textFormFields['topCrotch'] ? Colors.white : Colors.grey.shade300,
-                                child: MyTableCell(
+                                        setState(() {
+                                          widget.template['topCrotch'] = !widget.template['topCrotch'];
+                                        });
+                                      }),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                MyTableCol(name: "Top\u{00A0}Cr.\u{00A0}Dist"),
+                                MyTableCell(
                                   Focus(
                                     child: TextFormField(
                                       focusNode: tcFocus,
                                       controller: tcController,
-                                      enabled: _textFormFields['topCrotch'],
+                                      enabled: widget.template['topCrotch'],
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       onTap: () => tcController.selection =
                                           TextSelection(baseOffset: 0, extentOffset: tcController.value.text.length),
@@ -676,10 +707,9 @@ class _FlightEditorState extends State<FlightEditor> {
                                           topFlatDistanceError = true;
                                           return "";
                                         }
-
-                                        if (_textFormFields['upperFlatPost'].isNotEmpty) {
+                                        if (widget.template['upperFlatPost'].isNotEmpty) {
                                           double totDistance = 0;
-                                          totDistance = _textFormFields['upperFlatPost']
+                                          totDistance = widget.template['upperFlatPost']
                                               .fold(0, (previousValue, element) => previousValue + element.distance);
 
                                           if (double.parse(value) <= totDistance && totDistance != 0) {
@@ -688,13 +718,15 @@ class _FlightEditorState extends State<FlightEditor> {
                                           }
                                         }
 
-                                        _textFormFields['topCrotchLength'] = tcController.text;
+                                        widget.template['topCrotchLength'] = tcController.text;
                                         topFlatDistanceError = false;
                                         return null;
                                       },
                                       keyboardType: TextInputType.phone,
-                                      decoration: inputDec,
-                                      style: const TextStyle(fontSize: 14),
+                                      decoration: widget.template['topCrotch'] ? kInputDec : kInputDecDisable,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: widget.template['topCrotch'] ? Colors.black : Colors.blueGrey.shade50),
                                     ),
                                     onFocusChange: (value) {
                                       if (!value) {
@@ -705,406 +737,430 @@ class _FlightEditorState extends State<FlightEditor> {
                                     },
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              MyTableCol(name: "Top Cr. Post"),
-                              MyTableCell(
-                                Checkbox(
-                                    value: _textFormFields['hasTopCrotchPost'],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _textFormFields['hasTopCrotchPost'] = !_textFormFields['hasTopCrotchPost'];
-                                      });
-                                    }),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              MyTableCol(name: "Last Nose"),
-                              MyTableCell(
-                                Focus(
-                                  child: TextFormField(
-                                    focusNode: lastNoseDistFocus,
-                                    autocorrect: true,
-                                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                                    onTap: () => lastNoseDistance.selection =
-                                        TextSelection(baseOffset: 0, extentOffset: lastNoseDistance.value.text.length),
-                                    validator: (value) {
-                                      if (double.tryParse(lastNoseDistance.text) == null) {
-                                        lastNoseError = true;
-                                        return '';
-                                      }
-                                      double parseVal = double.parse(value!);
-                                      if (parseVal < _textFormFields['hypotenuse']) {
-                                        lastNoseError = true;
-                                        return '';
-                                      }
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                MyTableCol(name: "Top\u{00A0}Cr.\u{00A0}Post"),
+                                MyTableCell(
+                                  Checkbox(
+                                      value: widget.template['hasTopCrotchPost'],
+                                      onChanged: widget.template['topCrotch']
+                                          ? (value) {
+                                              setState(() {
+                                                widget.template['hasTopCrotchPost'] =
+                                                    !widget.template['hasTopCrotchPost'];
+                                              });
+                                            }
+                                          : null),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                MyTableCol(name: "Last Nose"),
+                                MyTableCell(
+                                  Focus(
+                                    child: TextFormField(
+                                      focusNode: lastNoseDistFocus,
+                                      autocorrect: true,
+                                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                                      onTap: () => lastNoseDistance.selection = TextSelection(
+                                          baseOffset: 0, extentOffset: lastNoseDistance.value.text.length),
+                                      validator: (value) {
+                                        lastNoseError = false;
+                                        if (double.tryParse(lastNoseDistance.text) == null) {
+                                          lastNoseError = true;
 
-                                      _textFormFields['rampPost'].forEach((rp) => {
-                                        if (rp.nosingDistance > parseVal) {
-                                          lastNoseError = true,
-
+                                          return '';
                                         }
-                                      });
+                                        double parseVal = double.parse(value!);
+                                        if (parseVal < widget.template['hypotenuse']) {
+                                          lastNoseError = true;
 
-                                      if(lastNoseError) {
-                                        return '';
-                                      }
+                                          return '';
+                                        }
+                                        if (widget.template['rampPost'].isNotEmpty) {
+                                          widget.template['rampPost'].forEach((rp) => {
+                                                if (rp.nosingDistance > parseVal)
+                                                  {lastNoseError = true, print(rp.nosingDistance)}
+                                              });
 
-                                      lastNoseError = false;
-                                      return null;
-                                    },
-                                    controller: lastNoseDistance,
-                                    keyboardType: TextInputType.phone,
-                                    decoration: inputDec,
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                  onFocusChange: (value) {
-                                    if(!lastNoseError) {
+                                          if (lastNoseError) {
+                                            return '';
+                                          }
+                                        }
 
-                                    double? lnd = double.tryParse(lastNoseDistance.text);
-                                    double hypotenuse = _textFormFields['hypotenuse'];
+                                        lastNoseError = false;
+                                        return null;
+                                      },
+                                      controller: lastNoseDistance,
+                                      keyboardType: TextInputType.phone,
+                                      decoration: kInputDec,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    onFocusChange: (value) {
+                                      if (!lastNoseError) {
+                                        double? lnd = double.tryParse(lastNoseDistance.text);
+                                        double hypotenuse = widget.template['hypotenuse'];
 
-                                    if (!(lnd == null)) {
-                                      if (lnd >= hypotenuse) {
-                                        int numSteps = (lnd / hypotenuse).round();
-                                        setState(() {
-                                          _textFormFields['stairsCount'] = numSteps.toString();
-                                        });
+                                        if (!(lnd == null)) {
+                                          if (lnd >= hypotenuse) {
+                                            int numSteps = (lnd / hypotenuse).round() + 1;
+
+                                            setState(() {
+                                              widget.template['stepsCount'] = numSteps.toString();
+                                            });
+                                          } else {
+                                            lastNoseDistFocus.requestFocus();
+                                          }
+                                        }
                                       } else {
                                         lastNoseDistFocus.requestFocus();
                                       }
-                                    }
-                                    } else {
-                                      lastNoseDistFocus.requestFocus();
-                                    }
-                                  },
-                                ),
-                              )
-                            ],
-                          )
-                        ],
+                                    },
+                                  ),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 40.0,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Wrap(
-                        spacing: 10,
-                        runSpacing: 64,
-                        alignment: WrapAlignment.spaceBetween,
-                        children: [
-                          PostCard(
-                            Column(
-                              children: [
-                                const SizedBox(
-                                  height: 6.0,
-                                ),
-                                SizedBox(
-                                  height: 40.0,
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 6.0,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text('Lower Flat Post'),
-                                        Row(
-                                          children: [
-                                            const Text('Quantity : '),
-                                            MyTableCell(
-                                              Focus(
-                                                  child: TextFormField(
-                                                    focusNode: lowerPostQFocus,
-                                                    controller: lowerPostQuantity,
-                                                    keyboardType: TextInputType.phone,
-                                                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                                                    onTap: () {
-                                                      lowerPostQuantity.selection = TextSelection(
-                                                          baseOffset: 0,
-                                                          extentOffset: lowerPostQuantity.value.text.length);
-                                                    },
-                                                    validator: (value) {
-                                                      if (value == null) {
-                                                        lowerQuantityError = true;
+                      const SizedBox(
+                        height: 40.0,
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Wrap(
+                          spacing: 10,
+                          runSpacing: 64,
+                          alignment: WrapAlignment.spaceBetween,
+                          children: [
+                            PostCard(
+                              Column(
+                                children: [
+                                  const SizedBox(
+                                    height: 6.0,
+                                  ),
+                                  SizedBox(
+                                    height: 40.0,
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Lower Flat Post',
+                                            style: kCardLabelStyle,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Qty : ',
+                                                style: kCardLabelStyle,
+                                              ),
+                                              MyTableCell(
+                                                Focus(
+                                                    child: TextFormField(
+                                                      focusNode: lowerPostQFocus,
+                                                      controller: lowerPostQuantity,
+                                                      keyboardType: TextInputType.phone,
+                                                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                                                      onTap: () {
+                                                        lowerPostQuantity.selection = TextSelection(
+                                                            baseOffset: 0,
+                                                            extentOffset: lowerPostQuantity.value.text.length);
+                                                      },
+                                                      validator: (value) {
+                                                        if (value == null) {
+                                                          lowerQuantityError = true;
 
-                                                        return '';
-                                                      }
+                                                          return '';
+                                                        }
 
-                                                      if (int.tryParse(value) == null) {
-                                                        lowerQuantityError = true;
-                                                        return '';
-                                                      }
-                                                      lowerQuantityError = false;
-                                                      return null;
-                                                    },
-                                                    decoration: inputDec,
-                                                    style: const TextStyle(fontSize: 14),
-                                                  ),
-                                                  onFocusChange: (value) {
-                                                    if (!value) {
-                                                      if (!lowerQuantityError) {
-                                                        int numLP = int.parse(lowerPostQuantity.text);
-                                                        int listLpLen = _textFormFields['lowerFlatPost'].length;
-                                                        if (numLP > 0) {
-                                                          if (_textFormFields['lowerFlatPost'].length < numLP) {
-                                                            for (int i = 0; i < (numLP - listLpLen); i++) {
-                                                              _textFormFields['lowerFlatPost']
-                                                                  .add(Post(distance: 0, embeddedType: 'none'));
+                                                        if (int.tryParse(value) == null) {
+                                                          lowerQuantityError = true;
+                                                          return '';
+                                                        }
+                                                        lowerQuantityError = false;
+                                                        return null;
+                                                      },
+                                                      decoration: kInputDec,
+                                                      style: const TextStyle(fontSize: 14),
+                                                    ),
+                                                    onFocusChange: (value) {
+                                                      if (!value) {
+                                                        if (!lowerQuantityError) {
+                                                          int numLP = int.parse(lowerPostQuantity.text);
+                                                          int listLpLen = widget.template['lowerFlatPost'].length;
+                                                          if (numLP > 0) {
+                                                            if (widget.template['lowerFlatPost'].length < numLP) {
+                                                              for (int i = 0; i < (numLP - listLpLen); i++) {
+                                                                widget.template['lowerFlatPost']
+                                                                    .add(Post(distance: 0, embeddedType: 'none'));
+                                                              }
+                                                              setState(() {});
+                                                            } else if (widget.template['lowerFlatPost'].length >
+                                                                numLP) {
+                                                              setState(() {
+                                                                widget.template['lowerFlatPost'] =
+                                                                    widget.template['lowerFlatPost'].sublist(0, numLP);
+                                                              });
                                                             }
-                                                            setState(() {});
-                                                          } else if (_textFormFields['lowerFlatPost'].length > numLP) {
+                                                          } else {
                                                             setState(() {
-                                                              _textFormFields['lowerFlatPost'] =
-                                                                  _textFormFields['lowerFlatPost'].sublist(0, numLP);
+                                                              widget.template['lowerFlatPost'].clear();
                                                             });
                                                           }
                                                         } else {
-                                                          setState(() {
-                                                            _textFormFields['lowerFlatPost'].clear();
-                                                          });
+                                                          lowerPostQFocus.requestFocus();
                                                         }
-                                                      } else {
-                                                        lowerPostQFocus.requestFocus();
                                                       }
-                                                    }
-                                                  }),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                                    }),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: 20.0,
-                                ),
-                                if (int.parse(lowerPostQuantity.text) > 0) ...[
-                                  BuildTable(
-                                      crotch: _textFormFields['bottomCrotch'],
-                                      campo: 'lowerFlatPost',
-                                      crotchDistance: double.parse(_textFormFields['bottomCrotchLength']))
+                                  const SizedBox(
+                                    height: 20.0,
+                                  ),
+                                  if (int.parse(lowerPostQuantity.text) > 0) ...[
+                                    buildTable(
+                                        crotch: widget.template['bottomCrotch'],
+                                        campo: 'lowerFlatPost',
+                                        crotchDistance: double.parse(widget.template['bottomCrotchLength']))
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
-                          ),
-                          PostCard(
-                            Column(
-                              children: [
-                                const SizedBox(
-                                  height: 6.0,
-                                ),
-                                SizedBox(
-                                  height: 40.0,
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 6.0,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text('Upper Flat Post'),
-                                        Row(
-                                          children: [
-                                            const Text('Quantity : '),
-                                            MyTableCell(
-                                              Focus(
-                                                  child: TextFormField(
-                                                    focusNode: upperPostQFocus,
-                                                    controller: upperPostQuantity,
-                                                    onTap: () {
-                                                      upperPostQuantity.selection = TextSelection(
-                                                          baseOffset: 0,
-                                                          extentOffset: upperPostQuantity.value.text.length);
-                                                    },
-                                                    keyboardType: TextInputType.phone,
-                                                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                                                    validator: (value) {
-                                                      if (value == null) {
-                                                        return '';
-                                                      }
-
-                                                      if (int.tryParse(value) == null) {
-                                                        return '';
-                                                      }
-
-                                                      return null;
-                                                    },
-                                                    decoration: inputDec,
-                                                    style: const TextStyle(fontSize: 14),
-                                                  ),
-                                                  onFocusChange: (value) {
-                                                    if (!value) {
-                                                      int numLP = int.parse(upperPostQuantity.text);
-                                                      int listLpLen = _textFormFields['upperFlatPost'].length;
-                                                      if (numLP > 0) {
-                                                        if (_textFormFields['upperFlatPost'].length < numLP) {
-                                                          for (int i = 0; i < (numLP - listLpLen); i++) {
-                                                            _textFormFields['upperFlatPost']
-                                                                .add(Post(distance: 0, embeddedType: 'none'));
-                                                          }
-                                                          setState(() {});
-                                                        } else if (_textFormFields['upperFlatPost'].length > numLP) {
-                                                          setState(() {
-                                                            _textFormFields['upperFlatPost'] =
-                                                                _textFormFields['upperFlatPost'].sublist(0, numLP);
-                                                          });
-                                                        }
-                                                      } else {
-                                                        setState(() {
-                                                          _textFormFields['upperFlatPost'].clear();
-                                                        });
-                                                      }
-                                                    }
-                                                  }),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                            PostCard(
+                              Column(
+                                children: [
+                                  const SizedBox(
+                                    height: 6.0,
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: 20.0,
-                                ),
-                                if (int.parse(upperPostQuantity.text) > 0) ...[
-                                  BuildTable(
-                                      crotch: _textFormFields['topCrotch'],
-                                      campo: 'upperFlatPost',
-                                      crotchDistance: double.parse(_textFormFields['topCrotchLength']))
-                                ]
-                              ],
-                            ),
-                          ),
-                          PostCard(
-                            Column(
-                              children: [
-                                const SizedBox(
-                                  height: 6.0,
-                                ),
-                                SizedBox(
-                                  height: 40.0,
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 6.0,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text('Post'),
-                                        Row(
-                                          children: [
-                                            const Text('Quantity : '),
-                                            MyTableCell(
-                                              Focus(
-                                                  child: TextFormField(
-                                                    focusNode: rampPostQFocus,
-                                                    controller: rampPostQuantity,
-                                                    onTap: () {
-                                                      rampPostQuantity.selection = TextSelection(
-                                                          baseOffset: 0,
-                                                          extentOffset: rampPostQuantity.value.text.length);
-                                                    },
-                                                    keyboardType: TextInputType.phone,
-                                                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                                                    validator: (value) {
-                                                      if (value == null) {
-                                                        rampQuantityError = true;
-                                                        return '';
-                                                      }
-
-                                                      if (double.tryParse(value) == null) {
-                                                        rampQuantityError = true;
-                                                        return '';
-                                                      }
-
-                                                      int numRP = int.parse(rampPostQuantity.text);
-                                                      int stepsCount = int.parse(_textFormFields['stairsCount']);
-                                                      if (numRP > 0) {
-                                                        // If number of post to add is minor than the amount of steps
-                                                        if (numRP > stepsCount) {
+                                  SizedBox(
+                                    height: 40.0,
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Baluster',
+                                            style: kCardLabelStyle,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Qty : ',
+                                                style: kCardLabelStyle,
+                                              ),
+                                              MyTableCell(
+                                                Focus(
+                                                    child: TextFormField(
+                                                      focusNode: rampPostQFocus,
+                                                      controller: rampPostQuantity,
+                                                      onTap: () {
+                                                        rampPostQuantity.selection = TextSelection(
+                                                            baseOffset: 0,
+                                                            extentOffset: rampPostQuantity.value.text.length);
+                                                      },
+                                                      keyboardType: TextInputType.phone,
+                                                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                                                      validator: (value) {
+                                                        if (value == null) {
                                                           rampQuantityError = true;
                                                           return '';
                                                         }
-                                                      }
-                                                      rampQuantityError = false;
-                                                      return null;
-                                                    },
-                                                    decoration: inputDec,
-                                                    style: const TextStyle(fontSize: 14),
-                                                  ),
-                                                  onFocusChange: (value) {
-                                                    if (!value) {
-                                                      int listRpLen = _textFormFields['rampPost'].length;
-                                                      int numRP = int.parse(rampPostQuantity.text);
 
-                                                      if (!rampQuantityError) {
-                                                        // If number of post to add in greater than zero
+                                                        if (double.tryParse(value) == null) {
+                                                          rampQuantityError = true;
+                                                          return '';
+                                                        }
+
+                                                        int numRP = int.parse(rampPostQuantity.text);
+                                                        int stepsCount = int.parse(widget.template['stepsCount']);
                                                         if (numRP > 0) {
                                                           // If number of post to add is minor than the amount of steps
-                                                          if (numRP > listRpLen) {
-                                                            for (int i = 0; i < (numRP - listRpLen); i++) {
-                                                              _textFormFields['rampPost'].add(RampPost(
-                                                                  nosingDistance: 0.0,
-                                                                  balusterDistance: 5.5,
-                                                                  embeddedType: 'none',
-                                                                  step: 0));
+                                                          if (numRP > stepsCount) {
+                                                            rampQuantityError = true;
+                                                            return '';
+                                                          }
+                                                        }
+                                                        rampQuantityError = false;
+                                                        return null;
+                                                      },
+                                                      decoration: kInputDec,
+                                                      style: const TextStyle(fontSize: 14),
+                                                    ),
+                                                    onFocusChange: (value) {
+                                                      if (!value) {
+                                                        int listRpLen = widget.template['rampPost'].length;
+                                                        int numRP = int.parse(rampPostQuantity.text);
+
+                                                        if (!rampQuantityError) {
+                                                          // If number of post to add in greater than zero
+                                                          if (numRP > 0) {
+                                                            // If number of post to add is minor than the amount of steps
+                                                            if (numRP > listRpLen) {
+                                                              for (int i = 0; i < (numRP - listRpLen); i++) {
+                                                                widget.template['rampPost'].add(RampPost(
+                                                                    nosingDistance: 0.0,
+                                                                    balusterDistance: 5.5,
+                                                                    embeddedType: 'none',
+                                                                    step: 0));
+                                                              }
+                                                              setState(() {});
+                                                            } else {
+                                                              setState(() {
+                                                                widget.template['rampPost'] =
+                                                                    widget.template['rampPost'].sublist(0, numRP);
+                                                              });
                                                             }
-                                                            setState(() {});
                                                           } else {
                                                             setState(() {
-                                                              _textFormFields['rampPost'] =
-                                                                  _textFormFields['rampPost'].sublist(0, numRP);
+                                                              widget.template['rampPost'].clear();
+                                                            });
+                                                          }
+                                                        } else {
+                                                          rampPostQFocus.requestFocus();
+                                                        }
+                                                      }
+                                                    }),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 20.0,
+                                  ),
+                                  if (int.parse(rampPostQuantity.text) > 0) ...[
+                                    rampPostTable(steps: int.parse(rampPostQuantity.text))
+                                  ]
+                                  // BuildTable(
+                                  //     crotch: widget.template['Crotch'],
+                                  //     campo: 'upperFlatPost',
+                                  //     crotchDistance: double.parse(widget.template['topCrotchLength']))
+                                ],
+                              ),
+                            ),
+                            PostCard(
+                              Column(
+                                children: [
+                                  const SizedBox(
+                                    height: 6.0,
+                                  ),
+                                  SizedBox(
+                                    height: 40.0,
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Upper Flat Post',
+                                            style: kCardLabelStyle,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Qty : ',
+                                                style: kCardLabelStyle,
+                                              ),
+                                              MyTableCell(
+                                                Focus(
+                                                    child: TextFormField(
+                                                      focusNode: upperPostQFocus,
+                                                      controller: upperPostQuantity,
+                                                      onTap: () {
+                                                        upperPostQuantity.selection = TextSelection(
+                                                            baseOffset: 0,
+                                                            extentOffset: upperPostQuantity.value.text.length);
+                                                      },
+                                                      keyboardType: TextInputType.phone,
+                                                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                                                      validator: (value) {
+                                                        if (value == null) {
+                                                          return '';
+                                                        }
+
+                                                        if (int.tryParse(value) == null) {
+                                                          return '';
+                                                        }
+
+                                                        return null;
+                                                      },
+                                                      decoration: kInputDec,
+                                                      style: const TextStyle(fontSize: 14),
+                                                    ),
+                                                    onFocusChange: (value) {
+                                                      if (!value) {
+                                                        int numLP = int.parse(upperPostQuantity.text);
+                                                        int listLpLen = widget.template['upperFlatPost'].length;
+                                                        if (numLP > 0) {
+                                                          if (widget.template['upperFlatPost'].length < numLP) {
+                                                            for (int i = 0; i < (numLP - listLpLen); i++) {
+                                                              widget.template['upperFlatPost']
+                                                                  .add(Post(distance: 0, embeddedType: 'none'));
+                                                            }
+                                                            setState(() {});
+                                                          } else if (widget.template['upperFlatPost'].length > numLP) {
+                                                            setState(() {
+                                                              widget.template['upperFlatPost'] =
+                                                                  widget.template['upperFlatPost'].sublist(0, numLP);
                                                             });
                                                           }
                                                         } else {
                                                           setState(() {
-                                                            _textFormFields['rampPost'].clear();
+                                                            widget.template['upperFlatPost'].clear();
                                                           });
                                                         }
-                                                      } else {
-                                                        rampPostQFocus.requestFocus();
                                                       }
-                                                    }
-                                                  }),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                                    }),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: 20.0,
-                                ),
-                                if (int.parse(rampPostQuantity.text) > 0) ...[
-                                  RampPostTable(steps: int.parse(rampPostQuantity.text))
-                                ]
-                                // BuildTable(
-                                //     crotch: _textFormFields['Crotch'],
-                                //     campo: 'upperFlatPost',
-                                //     crotchDistance: double.parse(_textFormFields['topCrotchLength']))
-                              ],
+                                  const SizedBox(
+                                    height: 20.0,
+                                  ),
+                                  if (int.parse(upperPostQuantity.text) > 0) ...[
+                                    buildTable(
+                                        crotch: widget.template['topCrotch'],
+                                        campo: 'upperFlatPost',
+                                        crotchDistance: double.parse(widget.template['topCrotchLength']))
+                                  ]
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              // Expanded(flex: 2, child: Column())
-            ],
+                // Expanded(flex: 2, child: Column())
+              ],
+            ),
           ),
-        ),
-      ]),
+        ]),
+      ),
     );
     // );
   }
@@ -1116,8 +1172,8 @@ class PostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 360,
-      decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(10)),
+      width: 380,
+      decoration: BoxDecoration(color: Colors.blueGrey.shade300, borderRadius: BorderRadius.circular(10)),
       padding: const EdgeInsets.all(10.0),
       child: postCardChild,
     );
@@ -1132,7 +1188,7 @@ class MyTableCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       //margin: const EdgeInsets.only(top: 8.0),
-      width: 90,
+      width: 100,
 
       child: celChild,
     );
@@ -1142,16 +1198,20 @@ class MyTableCell extends StatelessWidget {
 class MyTableCol extends StatelessWidget {
   final String name;
   final double largeur;
-  MyTableCol({required this.name, this.largeur = 90.0});
+  MyTableCol({required this.name, this.largeur = 110.0});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        alignment: Alignment.center,
-        margin: EdgeInsets.only(bottom: 8.0),
-        // margin: const EdgeInsets.symmetric(horizontal: 5.0),
-        width: largeur,
-        child: Text(name));
+      alignment: Alignment.center,
+      margin: const EdgeInsets.only(bottom: 8.0),
+      // margin: const EdgeInsets.symmetric(horizontal: 5.0),
+      width: largeur,
+      child: Text(
+        name,
+        style: kLabelStyle,
+      ),
+    );
   }
 }
 
