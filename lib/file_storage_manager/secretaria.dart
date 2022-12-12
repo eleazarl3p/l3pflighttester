@@ -14,6 +14,7 @@ abstract class OurDataStorage {
 
   static Future writeDocument(String document, Map<String, dynamic> data) async {
     await File("${await documentsDirectoryPath}/$document.json").writeAsString(jsonEncode(data));
+    print('saved');
   }
 
   static Future writeTemporary(String document, Map<String, dynamic> data) async {

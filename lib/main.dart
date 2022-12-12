@@ -11,11 +11,23 @@ import 'models/Projects.dart';
 import 'models/flight_map.dart';
 import 'models/project.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
+  await Firebase.initializeApp();
 
-  );
+  Projects savedProjects = Projects();
+  // try {
+  //   await  OurDataStorage.readDocument('MyProjects');
+  //
+  // } catch(error) {
+  //   print(error);
+  // }
+  await OurDataStorage.readDocument('MyProjects').then((value) {
+    //print(value['projects']);
+    value['projects'].forEach((element) => savedProjects.massiveUpdate(Project.fromJson(element)));
+  }).catchError((e) {
+
+  });
 
   runApp(MultiProvider(
     providers: [
@@ -23,38 +35,46 @@ void main() async{
       ChangeNotifierProvider(create: (context) => Project()),
       ChangeNotifierProvider(create: (context) => FlightMap())
     ],
-    child:  const MyApp(),
+    child: MyApp(
+      ldP: savedProjects,
+    ),
   ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key, required this.ldP});
+
+  bool load = true;
+  Projects ldP;
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // final tempProjects = Projects();
+    final pjsProvider = context.read<Projects>();
+    if (load) {
+      ldP.projects.forEach((element) => pjsProvider.massiveUpdate(element));
+      load = false;
+    }
 
-    final tempProjects = Projects();
+    // OurDataStorage.readDocument('MyProjects').then((value) {
+    //   pjsProvider.resetProject();
+    //   //print(value['projects']);
+    //   value['projects'].forEach((element) => pjsProvider.massiveUpdate(Project.fromJson(element)));
+    // }).catchError((e) {
+    //   print(e);
+    // });
 
-    OurDataStorage.readDocument('MyProjects').then((value) {
-      tempProjects.resetProject();
-      //print(value['projects']);
-      value['projects'].forEach((element) => tempProjects.massiveUpdate(Project.fromJson(element)));
-    });
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
         scaffoldBackgroundColor: Colors.blueGrey.shade50,
-
       ),
 
       //home: const Home(),
-      routes: {
-        '/' : (context) => ProjectsPage(tempProjects: tempProjects)
-      },
+      routes: {'/': (context) => ProjectsPage()},
     );
   }
 }
-

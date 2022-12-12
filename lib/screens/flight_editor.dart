@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:l3pflighttester/models/project.dart';
 import 'package:l3pflighttester/screens/dibujo.dart';
+import 'package:provider/provider.dart';
 
 // import '/models/project.dart';
 // import 'package:provider/provider.dart';
@@ -15,10 +17,11 @@ import 'package:l3pflighttester/screens/dibujo.dart';
 // import '../Utils/flight_data_input_on_dev.dart';
 // import '../Utils/stair_painter.dart';
 import '../constants.dart';
+import '../file_storage_manager/secretaria.dart';
+import '../models/Projects.dart';
 import '../models/flight_map.dart';
+import '../widget/CustomActionButton.dart';
 import 'Home.dart';
-
-
 
 final _formKey = GlobalKey<FormState>();
 
@@ -60,6 +63,7 @@ class _FlightEditorState extends State<FlightEditor> {
   FocusNode upperPostQFocus = FocusNode();
   FocusNode rampPostQFocus = FocusNode();
   FocusNode lastNoseDistFocus = FocusNode();
+
   // FocusNode riserFocus = FocusNode();
   int cp = 2;
 
@@ -247,7 +251,6 @@ class _FlightEditorState extends State<FlightEditor> {
                       return '';
                     }
 
-
                     double noseValue = double.parse(value);
                     if (double.tryParse(lastNoseDistance.text) != null) {
                       if (noseValue >= double.parse(lastNoseDistance.text)) {
@@ -394,87 +397,69 @@ class _FlightEditorState extends State<FlightEditor> {
 
         centerTitle: true,
         actions: [
-          TextButton(
+          CustomActionButton(
+            txt: 'open',
             onPressed: () {
+              print(widget.template);
               Navigator.of(context).push(MaterialPageRoute(builder: (context) => Dibujo(widget.template)));
             },
-            child: Container(
-              width: 40.0,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(60.0)),
-              child: const Icon(Icons.stairs_outlined),
-            ),
           ),
-          const SizedBox(
-            width: 20,
-          ),
-          TextButton(
+          CustomActionButton(
+            txt: 'Cancel',
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Container(
-              width: 100.0,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5.0)),
-              child: const Text(
-                "Cancel",
-                style: TextStyle(color: Colors.blueGrey, fontSize: 16.0),
-              ),
-            ),
           ),
-          const SizedBox(
-            width: 20,
-          ),
-          TextButton(
-            onPressed: () {
+          CustomActionButton(
+            txt: 'Save',
+            onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 // If the form is valid, display a snackbar. In the real world,
                 // you'd often call a server or save the information in a database.
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Processing Data'),
-                    backgroundColor: Colors.blueGrey.shade400,
-                  ),
-                );
+                Provider.of<Projects>(context, listen: false)
+                    .projects[widget.pIndex]
+                    .stairs[widget.sIndex]
+                    .flights[widget.fIndex]
+                    .update(widget.template);
+                Navigator.pop(context);
+                await OurDataStorage.writeDocument(
+                    "MyProjects", Provider.of<Projects>(context, listen: false).toJson());
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   SnackBar(
+                //     content: const Text('Processing Data'),
+                //     backgroundColor: Colors.blueGrey.shade400,
+                //   ),
+                // );
               }
             },
-            child: Container(
-              width: 100.0,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5.0)),
-              child: const Text(
-                "Save",
-                style: TextStyle(color: Colors.blueGrey, fontSize: 16.0),
-              ),
-            ),
           ),
           const SizedBox(
             width: 20,
           )
         ],
       ),
-      drawer: Drawer(
-        child: ListView(padding: EdgeInsets.zero, children: [
-          ListTile(
-            leading: Icon(Icons.list),
-            title: Text('READ'),
-            onTap: () {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (BuildContext context) => const Home(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.search),
-            title: Text('SELECT'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-        ]),
-      ),
+      // drawer: Drawer(
+      //   child: ListView(padding: EdgeInsets.zero, children: [
+      //     ListTile(
+      //       leading: const Icon(Icons.list),
+      //       title: const Text('READ'),
+      //       onTap: () {
+      //         Navigator.of(context).pushReplacement(
+      //           MaterialPageRoute(
+      //             builder: (BuildContext context) => const Home(),
+      //           ),
+      //         );
+      //       },
+      //     ),
+      //     ListTile(
+      //       leading: Icon(Icons.search),
+      //       title: Text('SELECT'),
+      //       onTap: () {
+      //         Navigator.pop(context);
+      //       },
+      //     ),
+      //   ]),
+      // ),
       body: Form(
         key: _formKey,
         child: ListView(children: [
@@ -503,6 +488,15 @@ class _FlightEditorState extends State<FlightEditor> {
                                       focusNode: riserFocus,
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       controller: riserController,
+                                      // onChanged: (value) {
+                                      //   if (double.tryParse(value) != null) {
+                                      //     setState(() {
+                                      //       widget.template['riser'] = riserController.text;
+                                      //       double hypotenuse = sqrt(121 + pow(double.parse(riserController.text), 2));
+                                      //       widget.template['hypotenuse'] = hypotenuse;
+                                      //     });
+                                      //   }
+                                      // },
                                       validator: (value) {
                                         if (double.tryParse(value!) == null) {
                                           return '';
@@ -522,9 +516,11 @@ class _FlightEditorState extends State<FlightEditor> {
                                         if (double.tryParse(riserController.text) == null) {
                                           riserFocus.requestFocus();
                                         } else {
-                                          widget.template['riser'] = riserController.text;
-                                          double hypotenuse = sqrt(121 + pow(double.parse(riserController.text), 2));
-                                          widget.template['hypotenuse'] = hypotenuse;
+                                          setState(() {
+                                            widget.template['riser'] = riserController.text;
+                                            double hypotenuse = sqrt(121 + pow(double.parse(riserController.text), 2));
+                                            widget.template['hypotenuse'] = hypotenuse;
+                                          });
                                         }
                                       }
                                     },
@@ -558,7 +554,9 @@ class _FlightEditorState extends State<FlightEditor> {
                                         if (double.tryParse(bevelController.text) == null) {
                                           bevelFocus.requestFocus();
                                         } else {
-                                          widget.template['bevel'] = bevelController.text;
+                                          setState(() {
+                                            widget.template['bevel'] = bevelController.text;
+                                          });
                                         }
                                       }
                                     },
@@ -1168,7 +1166,9 @@ class _FlightEditorState extends State<FlightEditor> {
 
 class PostCard extends StatelessWidget {
   PostCard(this.postCardChild);
+
   final Widget postCardChild;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1182,6 +1182,7 @@ class PostCard extends StatelessWidget {
 
 class MyTableCell extends StatelessWidget {
   final celChild;
+
   MyTableCell(this.celChild);
 
   @override
@@ -1198,6 +1199,7 @@ class MyTableCell extends StatelessWidget {
 class MyTableCol extends StatelessWidget {
   final String name;
   final double largeur;
+
   MyTableCol({required this.name, this.largeur = 110.0});
 
   @override

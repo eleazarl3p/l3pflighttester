@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
-
 import 'flight_map.dart';
 //
-
 
 class Flight extends ChangeNotifier {
   String id;
@@ -16,33 +14,41 @@ class Flight extends ChangeNotifier {
   bool topCrotch;
   bool bottomCrotch;
   bool bottomCrotchPost;
+  bool topCrotchPost;
   bool onHold;
 
-  int numberOfSteps;
+  int stepsCount;
 
-  List<Post> bottomPostList;
-  List<Post> topPostList;
+  double lastNoseDistance;
+
+  double hypotenuse;
+
+  List<Post> lowerFlatPost;
+  List<Post> upperFlatPost;
   List<RampPost> rampPostList;
 
   Flight({
     this.id = '',
     this.riser = 6.7835,
     this.bevel = 7.3154,
-    this.topCrotch = true,
+    this.topCrotch = false,
     this.topCrotchDistance = 0.0,
+    this.topCrotchPost = false,
     this.bottomCrotch = true,
     this.bottomCrotchDistance = 0.0,
     this.bottomCrotchPost = false,
-    this.numberOfSteps = 12,
-    this.bottomPostList = const <Post>[],
+    this.stepsCount = 12,
+    this.lastNoseDistance = 200.0,
+    this.lowerFlatPost = const <Post>[],
     this.rampPostList = const <RampPost>[],
-    this.topPostList = const <Post>[],
+    this.upperFlatPost = const <Post>[],
     this.onHold = true,
+    this.hypotenuse = 12.8575,
   });
 
   factory Flight.copy(Flight obj) {
     return Flight(
-        id: obj.id,
+        id: "${obj.id} copy",
         riser: obj.riser,
         bevel: obj.bevel,
         topCrotch: obj.topCrotch,
@@ -50,10 +56,10 @@ class Flight extends ChangeNotifier {
         bottomCrotch: obj.bottomCrotch,
         bottomCrotchDistance: obj.bottomCrotchDistance,
         bottomCrotchPost: obj.bottomCrotchPost,
-        numberOfSteps: obj.numberOfSteps,
-        bottomPostList: obj.bottomPostList,
+        stepsCount: obj.stepsCount,
+        lowerFlatPost: obj.lowerFlatPost,
         rampPostList: obj.rampPostList,
-        topPostList: obj.topPostList);
+        upperFlatPost: obj.upperFlatPost);
   }
 
   void updateFlight(Map flt) {
@@ -65,18 +71,17 @@ class Flight extends ChangeNotifier {
     topCrotch = flt['topCrotch'];
     bottomCrotch = flt['bottomCrotch'];
     bottomCrotchPost = flt['hasBottomCrotchPost'];
-    numberOfSteps = int.parse(flt['stairsCount']);
+    stepsCount = int.parse(flt['stairsCount']);
 
-    bottomPostList = flt['lowerFlatPost'];
+    lowerFlatPost = flt['lowerFlatPost'];
     rampPostList = flt['rampPost'];
-    topPostList = flt['upperFlatPost'];
+    upperFlatPost = flt['upperFlatPost'];
     notifyListeners();
   }
 
   Map toJson() {
-
-    List<Map> bottomPosts = bottomPostList.map((e) => e.toJson()).toList();
-    List<Map> topPosts = topPostList.map((e) => e.toJson()).toList();
+    List<Map> bottomPosts = lowerFlatPost.map((e) => e.toJson()).toList();
+    List<Map> topPosts = upperFlatPost.map((e) => e.toJson()).toList();
     List<Map> rampPosts = rampPostList.map((e) => e.toJson()).toList();
 
     return {
@@ -88,35 +93,71 @@ class Flight extends ChangeNotifier {
       "topCrotch": topCrotch,
       "bottomCrotch": bottomCrotch,
       "bottomCrotchPost": bottomCrotchPost,
-      "numberOfSteps" : numberOfSteps,
-      "bottomPostList": bottomPosts,
-      "topPostList": topPosts,
-      "rampPostList": rampPosts,
+      "stepsCount": stepsCount,
+      "lowerFlatPost": bottomPosts,
+      "upperFlatPost": topPosts,
+      "rampPost": rampPosts,
     };
   }
 
   factory Flight.fromJson(Map<String, dynamic> json) {
-
     return Flight(
-        id: json['id'],
-        riser: json['riser'],
-        bevel: json['bevel'],
-        topCrotch: json['topCrotch'],
-        topCrotchDistance: json['topCrotchDistance'],
-        bottomCrotch: json['bottomCrotch'],
-        bottomCrotchDistance: json['bottomCrotchDistance'],
-        bottomCrotchPost: json['bottomCrotchPost'],
-        numberOfSteps: json['numberOfSteps'],
-        // bottomPostList: obj.bottomPostList,
-        // rampPostList: obj.rampPostList,
-        // topPostList: obj.topPostList);
+      id: json['id'],
+      riser: json['riser'],
+      bevel: json['bevel'],
+      topCrotch: json['topCrotch'],
+      topCrotchDistance: json['topCrotchDistance'],
+      bottomCrotch: json['bottomCrotch'],
+      bottomCrotchDistance: json['bottomCrotchDistance'],
+      bottomCrotchPost: json['bottomCrotchPost'],
+      stepsCount: json['stepsCount'],
+      // lowerFlatPost: obj.lowerFlatPost,
+      // rampPostList: obj.rampPostList,
+      // upperFlatPost: obj.upperFlatPost);
     );
   }
-// set setFlightName (String flightName) {
-//   _flightName = flightName;
-//   notifyListeners();
-// }
 
+  Map<String, dynamic> template() => {
+        'id': id.toString(),
+        "riser": riser.toString(), //
+        "bevel": bevel.toString(),
+
+        "topCrotch": topCrotch,
+        "topCrotchLength": topCrotchDistance.toString(),
+        'hasBottomCrotchPost': topCrotchPost,
+
+        "bottomCrotch": bottomCrotch,
+        "bottomCrotchLength": bottomCrotchDistance.toString(),
+        'hasTopCrotchPost': bottomCrotchPost,
+
+        "lowerFlatPost": <Post>[],
+        "rampPost": <RampPost>[],
+        "upperFlatPost": <Post>[],
+        "stepsCount": stepsCount.toString(),
+        "lastNoseDistance": lastNoseDistance.toString(),
+        'hypotenuse': hypotenuse
+      };
+
+  void update(Map<String, dynamic> template) {
+    id = template['id'];
+    riser = double.parse(template["riser"]); //
+    bevel = double.parse(template["bevel"]);
+
+    topCrotch = template['topCrotch'];
+    topCrotchDistance = double.parse(template['topCrotchLength']);
+    topCrotchPost = template['hasBottomCrotchPost'];
+
+    bottomCrotch = template['bottomCrotch'];
+    bottomCrotchDistance = double.parse(template['bottomCrotchLength']);
+    bottomCrotchPost = template['hasTopCrotchPost'];
+
+    lowerFlatPost = [...template['lowerFlatPost']];
+    rampPostList = [...template['rampPost']];
+    upperFlatPost = [...template['upperFlatPost']];
+    //stepsCount = template['hasTopCrotchPost'];
+    lastNoseDistance = double.parse(template['lastNoseDistance']);
+    print(template);
+  }
 }
 
 class PostObj {}

@@ -21,7 +21,7 @@ class Project extends ChangeNotifier {
   }
 
   factory Project.copy(Project pj) {
-    return Project(id: pj._id, stairs: pj._stairs);
+    return Project(id: "${pj._id} copy" , stairs: pj._stairs);
   }
 
   void addStair(Stair stair) {

@@ -1,4 +1,5 @@
 import 'dart:math';
+
 //import 'dart:ui';
 import 'package:flutter/material.dart';
 
@@ -10,9 +11,11 @@ class Cuadro extends StatelessWidget {
   const Cuadro(this.data);
 
   final data;
+
   @override
   Widget build(BuildContext context) {
     //final data = context.watch<FlightMap>().textFormFields;
+    print(' data $data');
 
     String urlI = "https://upload.wikimedia.org/wikipedia/en/1/13/PinkFloydWallCoverOriginalNoText.jpg";
 
@@ -171,7 +174,7 @@ class _Dibujo extends CustomPainter {
         as double; //[40, bottomCrotchExtension, bottomFlatLength, topCrotchExtension, topFlatLength].reduce((value, element) => value > element ? value : element) * factor;
     //double firstEscalonX = [40, bottomCrotchExtension, bottomFlatLength].reduce((value, element) => value > element ? value : element) * factor;
 
-    double riser = 6.7031 * factor;//(double.parse(data['riser']) * 6.6875 / 6.75) * factor;
+    double riser = 6.7031 * factor; //(double.parse(data['riser']) * 6.6875 / 6.75) * factor;
     double bevel = 7.3125 * factor;
 
     bool hasTopCrotch = data['topCrotch'];
@@ -316,7 +319,7 @@ class _Dibujo extends CustomPainter {
       px = firstEscalonX - factor - xp;
 
       //labelHeigth = size.height - postHeight - riser + 0 * factor;
-      labelHeigth = size.height - postHeight +  7 * factor;
+      labelHeigth = size.height - postHeight + 7 * factor;
 
       if (value != 0) {
         if (!hasBottomCrotch) {
@@ -329,7 +332,7 @@ class _Dibujo extends CustomPainter {
           addLabel(
               x: px - 6,
               //y: labelHeigth + 10 * factor,
-              y: labelHeigth ,
+              y: labelHeigth,
               label: label,
               nose: false);
           addTubePlate(px, tubePlateY, tubePlate);
@@ -342,7 +345,7 @@ class _Dibujo extends CustomPainter {
             aPost.lineTo(px, size.height - postHeight);
 
             canvas.drawPath(aPost, postPen);
-            addLabel(x: px - 6, y: labelHeigth , label: label, nose: false);
+            addLabel(x: px - 6, y: labelHeigth, label: label, nose: false);
             addTubePlate(px, tubePlateY, tubePlate);
             // addLabel(x: px + value / 2 - factor, y: labelHeigth, label: alphabet.removeAt(0));
             postFlatLower.add([px, size.height - postHeight]);
@@ -512,7 +515,6 @@ class _Dibujo extends CustomPainter {
 
     // lower Flat Post
     if (lowerFlatPost.isNotEmpty) {
-
       for (Post post in lowerFlatPost) {
         addFlatLowerPost(post.distance * factor, post.embeddedType, "B${lowerFlatPost.indexOf(post) + 1}");
       }
@@ -624,7 +626,6 @@ class _Dibujo extends CustomPainter {
     }
     if (data['hasTopCrotchPost'] && data['topCrotch']) {
       postFlatUpper.add([lastX + topCrotchLength, size.height - postHeight - lastY + landingHeight]);
-
     }
 
     if (postFlatUpper.isNotEmpty) {
@@ -681,7 +682,7 @@ class _Dibujo extends CustomPainter {
       required double dy,
       required Paint pen}) {
     canvas.save();
-    canvas.translate(dx, dy + (7.5/3) * factor);
+    canvas.translate(dx, dy + (7.5 / 3) * factor);
     //canvas.translate(dx , dy );
 
     angle = atan(bevel / 12);

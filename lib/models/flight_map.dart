@@ -23,8 +23,7 @@ class FlightMap extends ChangeNotifier {
     "lowerFlatPost": <Post>[
       //Post(distance: 5.0, embeddedType: 'none')
     ], //Post(distance: 10.0, embeddedType: 'sleeve')
-    "rampPost": <
-        RampPost>[], //RampPost(nosingDistance: 0.0, balusterDistance: 0.0, embeddedType: 'none', step: 5)
+    "rampPost": <RampPost>[], //RampPost(nosingDistance: 0.0, balusterDistance: 0.0, embeddedType: 'none', step: 5)
     "upperFlatPost": <Post>[
       //Post(distance: 6.0, embeddedType: 'none')
     ], //Post(distance: 10.0, embeddedType: 'none')
@@ -36,6 +35,7 @@ class FlightMap extends ChangeNotifier {
     'enableBtn': true,
     'hasBottomCrotchPost': false
   };
+
   get textFormFields => _textFormFields;
 
   void updateFields(key, value) {
@@ -51,16 +51,15 @@ class FlightMap extends ChangeNotifier {
     _textFormFields['topCrotchLength'] = obj.topCrotchDistance.toString();
     _textFormFields['bottomCrotch'] = obj.bottomCrotch;
     _textFormFields['bottomCrotchLength'] = obj.bottomCrotchDistance.toString();
-    _textFormFields['lowerFlatPost'] = [...obj.bottomPostList];
+    _textFormFields['lowerFlatPost'] = [...obj.lowerFlatPost];
     _textFormFields['rampPost'] = [...obj.rampPostList];
-    _textFormFields['upperFlatPost'] = obj.topPostList;
+    _textFormFields['upperFlatPost'] = obj.upperFlatPost;
     _textFormFields['hasBottomCrotchPost'] = obj.bottomCrotchPost;
-    _textFormFields['stairsCount'] = obj.numberOfSteps.toString();
+    _textFormFields['stairsCount'] = obj.stepsCount.toString();
     _textFormFields['id'] = obj.id.toString();
 
     notifyListeners();
   }
-
 }
 
 //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -80,6 +79,7 @@ class FlatPostTable extends StatefulWidget {
   final VoidCallback resetView;
   final List alphabet;
   bool enableLosBtn;
+
   //late FocusNode upFocus;
 
   @override
@@ -113,14 +113,14 @@ class _FlatPostTableState extends State<FlatPostTable> {
   }
 
   bool showRow = true;
+
   @override
   Widget build(BuildContext context) {
     final userInputsProvider = context.watch<FlightMap>();
     itemList = userInputsProvider.textFormFields[widget.flatposition];
     //actualFocus = userInputsProvider.textFormFields['currentFocus'];
     //postDistance = 0;
-    _enableBtn =
-        userInputsProvider.textFormFields['enableBtn']; //widget.enableLosBtn;
+    _enableBtn = userInputsProvider.textFormFields['enableBtn']; //widget.enableLosBtn;
 
     //userInputsProvider.textFormFields['enableBtn'];
     //print('post enable ${widget.enableLosBtn}');
@@ -128,8 +128,7 @@ class _FlatPostTableState extends State<FlatPostTable> {
     if (widget.flatposition == 'lowerFlatPost') {
       side = 'bottom';
       initialLabel = 'B';
-      crotchDistance =
-          double.parse(userInputsProvider.textFormFields['bottomCrotchLength']);
+      crotchDistance = double.parse(userInputsProvider.textFormFields['bottomCrotchLength']);
       //distError = userInputsProvider.textFormFields['btmError'];
       if (userInputsProvider.textFormFields['bottomCrotch']) {
         crotch = true;
@@ -137,8 +136,7 @@ class _FlatPostTableState extends State<FlatPostTable> {
         crotch = false;
       }
     } else {
-      crotchDistance =
-          double.parse(userInputsProvider.textFormFields['topCrotchLength']);
+      crotchDistance = double.parse(userInputsProvider.textFormFields['topCrotchLength']);
       side = 'up';
       initialLabel = 'U';
       //distError = userInputsProvider.textFormFields['upFlatError'];
@@ -191,28 +189,21 @@ class _FlatPostTableState extends State<FlatPostTable> {
                     label: Text("$initialLabel${index + 1}"),
                     border: const OutlineInputBorder(),
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 10.0, horizontal: 10.0)),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0)),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: ((value) {
-                  if (value == null ||
-                      double.tryParse(value) == null ||
-                      value.isEmpty) {
+                  if (value == null || double.tryParse(value) == null || value.isEmpty) {
                     itemList[index].error = true;
                     return '';
                   }
 
                   if (crotch) {
                     List sublista = itemList.sublist(0, index + 1);
-                    sumDistance = sublista.fold(
-                        0,
-                        (sum, element) =>
-                            sum.toDouble() +
-                            double.parse(element.pController.text));
+                    sumDistance =
+                        sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.pController.text));
 
                     double.parse(value);
-                    if (sumDistance >= crotchDistance &&
-                        double.parse(value) != 0) {
+                    if (sumDistance >= crotchDistance && double.parse(value) != 0) {
                       itemList[index].error = true;
                       return "";
                     }
@@ -222,10 +213,8 @@ class _FlatPostTableState extends State<FlatPostTable> {
                   return null;
                 }),
                 onTap: (() {
-                  itemList[index].pController.selection = TextSelection(
-                      baseOffset: 0,
-                      extentOffset:
-                          itemList[index].pController.value.text.length);
+                  itemList[index].pController.selection =
+                      TextSelection(baseOffset: 0, extentOffset: itemList[index].pController.value.text.length);
                 }),
                 onEditingComplete: () {},
               ),
@@ -233,10 +222,8 @@ class _FlatPostTableState extends State<FlatPostTable> {
                 // if (_enable) {
                 if (!value) {
                   if (!itemList[index].error) {
-                    itemList[index].distance =
-                        double.parse(itemList[index].pController.text);
-                    userInputsProvider.updateFields(
-                        widget.flatposition, itemList);
+                    itemList[index].distance = double.parse(itemList[index].pController.text);
+                    userInputsProvider.updateFields(widget.flatposition, itemList);
                   } else {
                     itemList[index].pFocusNode.requestFocus();
                   }
@@ -271,8 +258,7 @@ class _FlatPostTableState extends State<FlatPostTable> {
                     if (value is String) {
                       setState(() {
                         itemList[index].embeddedType = value;
-                        userInputsProvider.updateFields(
-                            widget.flatposition, itemList);
+                        userInputsProvider.updateFields(widget.flatposition, itemList);
                       });
                       //widget.resetView();
                     }
@@ -280,16 +266,14 @@ class _FlatPostTableState extends State<FlatPostTable> {
           ),
         ),
         DataCell(TextButton(
-            style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all(Colors.black)),
+            style: ButtonStyle(foregroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: !_enableBtn //&& !itemList[index].pFocusNode.hasFocus
                 ? null
                 : () {
                     //itemList[index].pController.text = '2';
                     itemList.removeAt(index);
 
-                    userInputsProvider.updateFields(
-                        widget.flatposition, itemList);
+                    userInputsProvider.updateFields(widget.flatposition, itemList);
                     //widget.resetView();
                   },
             child: const Icon(Icons.delete)))
@@ -303,8 +287,7 @@ class Post {
   late String initialValue;
   late String embeddedType;
   bool error = false;
-  TextEditingController pController =
-      TextEditingController(); // distance from post to previous post or starting point
+  TextEditingController pController = TextEditingController(); // distance from post to previous post or starting point
   FocusNode pFocusNode = FocusNode();
   FocusNode buttonFocuse = FocusNode();
 
@@ -323,16 +306,12 @@ class Post {
     pFocusNode.dispose();
   }
 
-  valid(
-      String? value, bool crotch, List itemList, crotchDistance, String side) {
+  valid(String? value, bool crotch, List itemList, crotchDistance, String side) {
     if (value!.isEmpty || double.tryParse(value) == null) {
       error = true;
       return "";
     } else if (crotch) {
-      double sumDistance = itemList.fold(
-          0,
-          (sum, element) =>
-              sum.toDouble() + double.parse(element.pController.text));
+      double sumDistance = itemList.fold(0, (sum, element) => sum.toDouble() + double.parse(element.pController.text));
 
       if (crotchDistance - sumDistance <= 0) {
         error = true;
@@ -357,11 +336,7 @@ class Post {
 // ***************************************** Ramp Post ********************************************
 
 class RampPostTable extends StatefulWidget {
-  RampPostTable(
-      {super.key,
-      required this.postList,
-      required this.resetView,
-      required this.enableLosBtn});
+  RampPostTable({super.key, required this.postList, required this.resetView, required this.enableLosBtn});
 
   late List<RampPost> postList;
   final VoidCallback resetView;
@@ -394,6 +369,7 @@ class _RampPostTableState extends State<RampPostTable> {
   }
 
   bool showRow = true;
+
   @override
   Widget build(BuildContext context) {
     final userInputsProvider = context.read<FlightMap>();
@@ -403,11 +379,8 @@ class _RampPostTableState extends State<RampPostTable> {
 
     //userInputsProvider.textFormFields['active'];
 
-    List<String> minAlphabet =
-        List.generate(26, (index) => String.fromCharCode(index + 65));
+    List<String> minAlphabet = List.generate(26, (index) => String.fromCharCode(index + 65));
     //curFocus = userInputsProvider.textFormFields['currentFocus'];
-
-
 
     Widget buildPTable() {
       final columns = [
@@ -427,12 +400,8 @@ class _RampPostTableState extends State<RampPostTable> {
       ];
       return DataTable(
         columns: const [
-          DataColumn(
-              label: Text(
-                  "Dist.\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}")),
-          DataColumn(
-              label: Text(
-                  'Bal.\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}')),
+          DataColumn(label: Text("Dist.\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}")),
+          DataColumn(label: Text('Bal.\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}')),
           DataColumn(label: Text("Step\u{00A0}\u{00A0}\u{00A0}#\u{00A0}")),
           DataColumn(label: Text("Emb.\u{00A0}Type")),
           DataColumn(label: Text(''))
@@ -454,12 +423,10 @@ class _RampPostTableState extends State<RampPostTable> {
                                   label: Text(minAlphabet.removeAt(0)),
                                   border: const OutlineInputBorder(),
                                   isDense: true,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 10.0)),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0)),
                               autofocus: true,
                               autocorrect: true,
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
                               validator: ((value) {
                                 if (value == null ||
                                     value.isEmpty ||
@@ -470,32 +437,18 @@ class _RampPostTableState extends State<RampPostTable> {
                                   return '';
                                 }
                                 itemList[index].noseError = false;
-                                itemList[index].nosingDistance =
-                                    double.parse(value);
+                                itemList[index].nosingDistance = double.parse(value);
                                 return null;
                               }),
-                              onTap: () =>
-                                  itemList[index].noseController.selection =
-                                      TextSelection(
-                                          baseOffset: 0,
-                                          extentOffset: itemList[index]
-                                              .noseController
-                                              .value
-                                              .text
-                                              .length),
+                              onTap: () => itemList[index].noseController.selection = TextSelection(
+                                  baseOffset: 0, extentOffset: itemList[index].noseController.value.text.length),
                             ),
                             onFocusChange: (value) {
                               if (!value) {
                                 nodeDistanceValidator(userInputsProvider);
                               } else {
-                                itemList[index].noseController.selection =
-                                    TextSelection(
-                                        baseOffset: 0,
-                                        extentOffset: itemList[index]
-                                            .noseController
-                                            .value
-                                            .text
-                                            .length);
+                                itemList[index].noseController.selection = TextSelection(
+                                    baseOffset: 0, extentOffset: itemList[index].noseController.value.text.length);
                               }
                             },
                           ),
@@ -514,12 +467,10 @@ class _RampPostTableState extends State<RampPostTable> {
                                   //helperText: ' ',
                                   border: OutlineInputBorder(),
                                   isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 10.0)),
+                                  contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0)),
                               //autofocus: true,
                               autocorrect: true,
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
                               validator: ((value) {
                                 if (value == null ||
                                     value.isEmpty ||
@@ -530,20 +481,12 @@ class _RampPostTableState extends State<RampPostTable> {
                                   return '';
                                 }
                                 itemList[index].balusterError = false;
-                                itemList[index].balusterDistance =
-                                    double.parse(value);
+                                itemList[index].balusterDistance = double.parse(value);
 
                                 return null;
                               }),
-                              onTap: () =>
-                                  itemList[index].balusterController.selection =
-                                      TextSelection(
-                                          baseOffset: 0,
-                                          extentOffset: itemList[index]
-                                              .balusterController
-                                              .value
-                                              .text
-                                              .length),
+                              onTap: () => itemList[index].balusterController.selection = TextSelection(
+                                  baseOffset: 0, extentOffset: itemList[index].balusterController.value.text.length),
                               // onEditingComplete: () {
                               //   balusterDistanceValidator(userInputsProvider);
                               // },
@@ -552,14 +495,8 @@ class _RampPostTableState extends State<RampPostTable> {
                               if (!value) {
                                 balusterDistanceValidator(userInputsProvider);
                               } else {
-                                itemList[index].balusterController.selection =
-                                    TextSelection(
-                                        baseOffset: 0,
-                                        extentOffset: itemList[index]
-                                            .balusterController
-                                            .value
-                                            .text
-                                            .length);
+                                itemList[index].balusterController.selection = TextSelection(
+                                    baseOffset: 0, extentOffset: itemList[index].balusterController.value.text.length);
                               }
                             },
                           ),
@@ -578,12 +515,10 @@ class _RampPostTableState extends State<RampPostTable> {
                                   //helperText: ' ',
                                   border: OutlineInputBorder(),
                                   isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 10.0)),
+                                  contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0)),
                               //autofocus: true,
                               autocorrect: true,
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
                               validator: ((value) {
                                 if (value == null ||
                                     value.isEmpty ||
@@ -598,15 +533,8 @@ class _RampPostTableState extends State<RampPostTable> {
 
                                 return null;
                               }),
-                              onTap: () =>
-                                  itemList[index].stepController.selection =
-                                      TextSelection(
-                                          baseOffset: 0,
-                                          extentOffset: itemList[index]
-                                              .stepController
-                                              .value
-                                              .text
-                                              .length),
+                              onTap: () => itemList[index].stepController.selection = TextSelection(
+                                  baseOffset: 0, extentOffset: itemList[index].stepController.value.text.length),
                               // onEditingComplete: () {
                               //   stepValidator(userInputsProvider);
                               // },
@@ -615,14 +543,8 @@ class _RampPostTableState extends State<RampPostTable> {
                               if (!value) {
                                 stepValidator(userInputsProvider);
                               } else {
-                                itemList[index].stepController.selection =
-                                    TextSelection(
-                                        baseOffset: 0,
-                                        extentOffset: itemList[index]
-                                            .stepController
-                                            .value
-                                            .text
-                                            .length);
+                                itemList[index].stepController.selection = TextSelection(
+                                    baseOffset: 0, extentOffset: itemList[index].stepController.value.text.length);
                               }
                             },
                           ),
@@ -650,8 +572,7 @@ class _RampPostTableState extends State<RampPostTable> {
                                 if (value is String) {
                                   setState(() {
                                     itemList[index].embeddedType = value;
-                                    userInputsProvider.updateFields(
-                                        'rampPost', itemList);
+                                    userInputsProvider.updateFields('rampPost', itemList);
                                   });
 
                                   //widget.resetView();
@@ -661,25 +582,21 @@ class _RampPostTableState extends State<RampPostTable> {
                       DataCell(SizedBox(
                         width: 30.0,
                         child: TextButton(
-                            style: ButtonStyle(
-                                foregroundColor:
-                                    MaterialStateProperty.all(Colors.black)),
+                            style: ButtonStyle(foregroundColor: MaterialStateProperty.all(Colors.black)),
                             // style: ElevatedButton.styleFrom(
                             //   backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
                             //   foregroundColor: Colors.black,
                             //   elevation: 0.0,
                             // ),
-                            onPressed:
-                                _enable // userInputsProvider.textFormFields['active']
-                                    ? () {
-                                        setState(() {
-                                          itemList.removeAt(index);
-                                          userInputsProvider.updateFields(
-                                              'rampPost', itemList);
-                                        });
-                                        //widget.resetView();
-                                      }
-                                    : null,
+                            onPressed: _enable // userInputsProvider.textFormFields['active']
+                                ? () {
+                                    setState(() {
+                                      itemList.removeAt(index);
+                                      userInputsProvider.updateFields('rampPost', itemList);
+                                    });
+                                    //widget.resetView();
+                                  }
+                                : null,
                             child: const Icon(
                               Icons.delete,
                             )),
@@ -706,9 +623,7 @@ class _RampPostTableState extends State<RampPostTable> {
 
     if (!_error) {
       var seen = <String>{}; // remove duplicate step
-      List<RampPost> filteredList = itemList
-          .where((element) => seen.add(element.step.toString()))
-          .toList();
+      List<RampPost> filteredList = itemList.where((element) => seen.add(element.step.toString())).toList();
 
       setState(() {
         userInputsProvider.updateFields('rampPost', filteredList);
@@ -769,10 +684,7 @@ class RampPost {
 
   //late int? stair;
   RampPost(
-      {required this.nosingDistance,
-      required this.balusterDistance,
-      required this.embeddedType,
-      required this.step}) {
+      {required this.nosingDistance, required this.balusterDistance, required this.embeddedType, required this.step}) {
     noseController.text = nosingDistance.toString();
     balusterController.text = balusterDistance.toString();
     stepController.text = step.toString();
@@ -800,4 +712,3 @@ class RampPost {
         "step": step
       };
 }
-

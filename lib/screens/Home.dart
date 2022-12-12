@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:l3pflighttester/screens/flight_editor.dart';
+import 'package:provider/provider.dart';
 import '../models/flight_map.dart';
 import '/file_storage_manager/secretaria.dart';
 import '../models/project.dart';
@@ -19,7 +20,8 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     //print('object');
     final tempProjects = Projects();
-    print('build');
+
+
     OurDataStorage.readDocument('MyProjects').then((value) {
       tempProjects.resetProject();
       //print(value['projects']);
@@ -56,13 +58,13 @@ class Home extends StatelessWidget {
               width: 100,
               child: ElevatedButton(
                 onPressed: () async {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          CloudProjects(tempProjects: tempProjects),
-                    ),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) =>
+                  //         //CloudProjects(tempProjects: tempProjects),
+                  //   ),
+                  // );
                 },
                 child: const Text('Cloud'),
               ),
