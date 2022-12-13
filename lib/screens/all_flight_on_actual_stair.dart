@@ -22,7 +22,9 @@ class FlightOnActualStair extends StatefulWidget {
 class _FlightOnActualStairState extends State<FlightOnActualStair> {
   @override
   Widget build(BuildContext context) {
-    final currentStair = context.watch<Projects>().projects[widget.pIndex].stairs[widget.sIndex];
+    final currentStair = context
+        .watch<Projects>()
+        .projects[widget.pIndex].stairs[widget.sIndex];
 
     return Scaffold(
       appBar: AppBar(
@@ -114,22 +116,24 @@ class _FlightOnActualStairState extends State<FlightOnActualStair> {
                                     // fmap.updateMap(currentStair.flights[index]);
                                     // print(fmap.te.runtimeType);
 
-                                    Map<String, dynamic> template = Provider.of<Projects>(context, listen: false)
+                                    Map<String, dynamic> template = Provider
+                                        .of<Projects>(context, listen: false)
                                         .projects[widget.pIndex]
                                         .stairs[widget.sIndex]
                                         .flights[index]
                                         .template();
-                                    print('temp $template');
+
 
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => FlightEditor(
-                                          pIndex: widget.pIndex,
-                                          sIndex: widget.sIndex,
-                                          fIndex: index,
-                                          template: template,
-                                        ),
+                                        builder: (context) =>
+                                            FlightEditor(
+                                              pIndex: widget.pIndex,
+                                              sIndex: widget.sIndex,
+                                              fIndex: index,
+                                              template: template,
+                                            ),
                                       ),
                                     );
                                   },
@@ -154,7 +158,7 @@ class _FlightOnActualStairState extends State<FlightOnActualStair> {
                                           TextButton.icon(
                                             onPressed: () {
                                               setState(
-                                                () {
+                                                    () {
                                                   currentStair.removeFlight(currentStair.flights[index]);
                                                 },
                                               );

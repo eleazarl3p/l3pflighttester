@@ -121,7 +121,7 @@ class _FlightEditorState extends State<FlightEditor> {
   Widget build(BuildContext context) {
     // String selectedItem;
     // int selectedItemPosition = 0;
-    print(templatel);
+
     List<DataColumn> createColumns() {
       return [
         const DataColumn(label: Text('Id')),
@@ -136,87 +136,92 @@ class _FlightEditorState extends State<FlightEditor> {
 
       return List<DataRow>.generate(
         templatel[campo].length,
-        (index) => DataRow(cells: [
-          DataCell(Text('$letter${index + 1}')),
-          DataCell(
-            Container(
-              height: 80,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.only(
-                top: 5.0,
-              ),
-              child: Focus(
-                child: TextFormField(
-                  focusNode: templatel[campo][index].pFocusNode,
-                  controller: templatel[campo][index].pController,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onTap: () => templatel[campo][index].pController.selection =
-                      TextSelection(baseOffset: 0, extentOffset: templatel[campo][index].pController.value.text.length),
-                  validator: (value) {
-                    if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      templatel[campo][index].error = true;
-                      return '';
-                    }
+            (index) =>
+            DataRow(cells: [
+              DataCell(Text('$letter${index + 1}')),
+              DataCell(
+                Container(
+                  height: 80,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.only(
+                    top: 5.0,
+                  ),
+                  child: Focus(
+                    child: TextFormField(
+                      focusNode: templatel[campo][index].pFocusNode,
+                      controller: templatel[campo][index].pController,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      onTap: () =>
+                      templatel[campo][index].pController.selection =
+                          TextSelection(
+                              baseOffset: 0, extentOffset: templatel[campo][index].pController.value.text.length),
+                      validator: (value) {
+                        print(crotchDistance);
+                        if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                          templatel[campo][index].error = true;
+                          return '';
+                        }
 
-                    if (crotch) {
-                      List sublista = templatel[campo].sublist(0, index + 1);
-                      sumDistance =
-                          sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.pController.text));
+                        if (crotch) {
+                          List sublista = templatel[campo].sublist(0, index + 1);
+                          sumDistance =
+                              sublista.fold(0, (sum, element) =>
+                              sum.toDouble() + double.parse(element.pController.text));
 
-                      if (sumDistance >= crotchDistance && double.parse(value) != 0) {
-                        templatel[campo][index].error = true;
+                          if (sumDistance >= crotchDistance && double.parse(value) != 0) {
+                            templatel[campo][index].error = true;
 
-                        return "";
+                            return "";
+                          }
+                        }
+
+                        templatel[campo][index].error = false;
+                        return null;
+                      },
+                      decoration: kInputDec,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    onFocusChange: (value) {
+                      if (!value) {
+                        if (!templatel[campo][index].error) {
+                          templatel[campo][index].distance = double.parse(templatel[campo][index].pController.text);
+                        } else {
+                          templatel[campo][index].pFocusNode.requestFocus();
+                        }
                       }
-                    }
-
-                    templatel[campo][index].error = false;
-                    return null;
-                  },
-                  decoration: kInputDec,
-                  style: const TextStyle(fontSize: 14),
+                    },
+                  ),
                 ),
-                onFocusChange: (value) {
-                  if (!value) {
-                    if (!templatel[campo][index].error) {
-                      templatel[campo][index].distance = double.parse(templatel[campo][index].pController.text);
-                    } else {
-                      templatel[campo][index].pFocusNode.requestFocus();
-                    }
-                  }
-                },
               ),
-            ),
-          ),
-          DataCell(
-            DropdownButton(
-                isExpanded: false,
-                items: const [
-                  DropdownMenuItem(
-                    value: "none",
-                    child: Text("None"),
-                  ),
-                  DropdownMenuItem(
-                    value: "plate",
-                    child: Text("Plate"),
-                  ),
-                  DropdownMenuItem(
-                    value: "sleeve",
-                    child: Text("Sleeve"),
-                  )
-                ],
-                value: templatel[campo][index].embeddedType,
-                onChanged: (value) {
-                  setState(() {
-                    templatel[campo][index].embeddedType = value;
-                  });
-                }
+              DataCell(
+                DropdownButton(
+                    isExpanded: false,
+                    items: const [
+                      DropdownMenuItem(
+                        value: "none",
+                        child: Text("None"),
+                      ),
+                      DropdownMenuItem(
+                        value: "plate",
+                        child: Text("Plate"),
+                      ),
+                      DropdownMenuItem(
+                        value: "sleeve",
+                        child: Text("Sleeve"),
+                      )
+                    ],
+                    value: templatel[campo][index].embeddedType,
+                    onChanged: (value) {
+                      setState(() {
+                        templatel[campo][index].embeddedType = value;
+                      });
+                    }
 
-                //widget.resetView();
+                  //widget.resetView();
 
                 ),
-          ),
-        ]),
+              ),
+            ]),
       );
     }
 
@@ -239,134 +244,139 @@ class _FlightEditorState extends State<FlightEditor> {
 
       return List<DataRow>.generate(
         templatel['rampPost'].length,
-        (index) => DataRow(cells: [
-          DataCell(Text(alphabet[index])),
-          DataCell(
-            Container(
-              height: 80,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.only(
-                top: 5.0,
-              ),
-              child: Focus(
-                child: TextFormField(
-                  focusNode: templatel['rampPost'][index].noseFocus,
-                  controller: templatel['rampPost'][index].noseController,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onTap: () => templatel['rampPost'][index].noseController.selection = TextSelection(
-                      baseOffset: 0, extentOffset: templatel['rampPost'][index].noseController.value.text.length),
-                  validator: (value) {
-                    if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      templatel['rampPost'][index].noseError = true;
-                      return '';
-                    }
-
-                    double noseValue = double.parse(value);
-                    if (double.tryParse(lastNoseDistance.text) != null) {
-                      if (noseValue >= double.parse(lastNoseDistance.text)) {
-                        templatel['rampPost'][index].noseError = true;
-                        return "";
-                      }
-                    }
-
-                    templatel['rampPost'][index].noseError = false;
-                    int step = (noseValue / hypotenuse).round()..toInt();
-
-                    templatel['rampPost'][index].step = step + 1;
-                    templatel['rampPost'][index].nosingDistance = double.parse(value);
-                    return null;
-                  },
-                  decoration: kInputDec,
-                  style: const TextStyle(fontSize: 14),
-                ),
-                onFocusChange: (value) {
-                  if (!lastNoseError) {
-                    if (!value) {
-                      if (templatel['rampPost'][index].noseError) {
-                        templatel['rampPost'][index].noseFocus.requestFocus();
-                      }
-                    }
-                  }
-                },
-              ),
-            ),
-          ),
-          DataCell(
-            Container(
-              height: 80,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.only(
-                top: 5.0,
-              ),
-              child: Focus(
-                child: TextFormField(
-                  focusNode: templatel['rampPost'][index].balusterFocus,
-                  controller: templatel['rampPost'][index].balusterController,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onTap: () => templatel['rampPost'][index].balusterController.selection = TextSelection(
-                      baseOffset: 0, extentOffset: templatel['rampPost'][index].balusterController.value.text.length),
-                  validator: (value) {
-                    if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      templatel['rampPost'][index].balusterError = true;
-                      return '';
-                    }
-
-                    // List sublista =templatel['ramPost'].sublist(0, index + 1);
-                    // sumDistance =
-                    //     sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.noseController.text));
-                    double noseValue = double.parse(value);
-                    if (noseValue >= 10) {
-                      templatel['rampPost'][index].balusterError = true;
-                      return "";
-                    }
-
-                    templatel['rampPost'][index].balusterError = false;
-                    templatel['rampPost'][index].balusterDistance = double.parse(value);
-
-                    return null;
-                  },
-                  decoration: kInputDec,
-                  style: const TextStyle(fontSize: 14),
-                ),
-                onFocusChange: (value) {
-                  if (!value) {
-                    if (templatel['rampPost'][index].balusterError) {
-                      templatel['rampPost'][index].balusterFocus.requestFocus();
-                    }
-                  }
-                },
-              ),
-            ),
-          ),
-          DataCell(
-            DropdownButton(
-                isExpanded: false,
-                items: const [
-                  DropdownMenuItem(
-                    value: "none",
-                    child: Text("None"),
+            (index) =>
+            DataRow(cells: [
+              DataCell(Text(alphabet[index])),
+              DataCell(
+                Container(
+                  height: 80,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.only(
+                    top: 5.0,
                   ),
-                  DropdownMenuItem(
-                    value: "plate",
-                    child: Text("Plate"),
-                  ),
-                  DropdownMenuItem(
-                    value: "sleeve",
-                    child: Text("Sleeve"),
-                  )
-                ],
-                value: templatel['rampPost'][index].embeddedType,
-                onChanged: (value) {
-                  setState(() {
-                    templatel['rampPost'][index].embeddedType = value;
-                  });
-                }
+                  child: Focus(
+                    child: TextFormField(
+                      focusNode: templatel['rampPost'][index].noseFocus,
+                      controller: templatel['rampPost'][index].noseController,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      onTap: () =>
+                      templatel['rampPost'][index].noseController.selection = TextSelection(
+                          baseOffset: 0, extentOffset: templatel['rampPost'][index].noseController.value.text.length),
+                      validator: (value) {
+                        if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                          templatel['rampPost'][index].noseError = true;
+                          return '';
+                        }
 
-                //widget.resetView();
+                        double noseValue = double.parse(value);
+                        if (double.tryParse(lastNoseDistance.text) != null) {
+                          if (noseValue >= double.parse(lastNoseDistance.text)) {
+                            templatel['rampPost'][index].noseError = true;
+                            return "";
+                          }
+                        }
+
+                        templatel['rampPost'][index].noseError = false;
+                        int step = (noseValue / hypotenuse).round()
+                          ..toInt();
+
+                        templatel['rampPost'][index].step = step + 1;
+                        templatel['rampPost'][index].nosingDistance = double.parse(value);
+                        return null;
+                      },
+                      decoration: kInputDec,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    onFocusChange: (value) {
+                      if (!lastNoseError) {
+                        if (!value) {
+                          if (templatel['rampPost'][index].noseError) {
+                            templatel['rampPost'][index].noseFocus.requestFocus();
+                          }
+                        }
+                      }
+                    },
+                  ),
+                ),
+              ),
+              DataCell(
+                Container(
+                  height: 80,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.only(
+                    top: 5.0,
+                  ),
+                  child: Focus(
+                    child: TextFormField(
+                      focusNode: templatel['rampPost'][index].balusterFocus,
+                      controller: templatel['rampPost'][index].balusterController,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      onTap: () =>
+                      templatel['rampPost'][index].balusterController.selection = TextSelection(
+                          baseOffset: 0,
+                          extentOffset: templatel['rampPost'][index].balusterController.value.text.length),
+                      validator: (value) {
+                        if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                          templatel['rampPost'][index].balusterError = true;
+                          return '';
+                        }
+
+                        // List sublista =templatel['ramPost'].sublist(0, index + 1);
+                        // sumDistance =
+                        //     sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.noseController.text));
+                        double noseValue = double.parse(value);
+                        if (noseValue >= 10) {
+                          templatel['rampPost'][index].balusterError = true;
+                          return "";
+                        }
+
+                        templatel['rampPost'][index].balusterError = false;
+                        templatel['rampPost'][index].balusterDistance = double.parse(value);
+
+                        return null;
+                      },
+                      decoration: kInputDec,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    onFocusChange: (value) {
+                      if (!value) {
+                        if (templatel['rampPost'][index].balusterError) {
+                          templatel['rampPost'][index].balusterFocus.requestFocus();
+                        }
+                      }
+                    },
+                  ),
+                ),
+              ),
+              DataCell(
+                DropdownButton(
+                    isExpanded: false,
+                    items: const [
+                      DropdownMenuItem(
+                        value: "none",
+                        child: Text("None"),
+                      ),
+                      DropdownMenuItem(
+                        value: "plate",
+                        child: Text("Plate"),
+                      ),
+                      DropdownMenuItem(
+                        value: "sleeve",
+                        child: Text("Sleeve"),
+                      )
+                    ],
+                    value: templatel['rampPost'][index].embeddedType,
+                    onChanged: (value) {
+                      setState(() {
+                        templatel['rampPost'][index].embeddedType = value;
+                      });
+                    }
+
+                  //widget.resetView();
 
                 ),
-          ),
-        ]),
+              ),
+            ]),
       );
     }
 
@@ -391,16 +401,16 @@ class _FlightEditorState extends State<FlightEditor> {
     }
 
     TextStyle kCardLabelStyle =
-        const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, letterSpacing: 1.5, color: Colors.white);
+    const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, letterSpacing: 1.5, color: Colors.white);
 
     return Scaffold(
       appBar: AppBar(
         //leading: const Text(''),
         title: const ListTile(
           title: Text('Flight'
-              //'Flight : ${Provider.of<Projects>(context).projects[pIndex].stairs[sIndex].flights[fIndex].id}',
-              //style: const TextStyle(color: Colors.white),
-              ),
+            //'Flight : ${Provider.of<Projects>(context).projects[pIndex].stairs[sIndex].flights[fIndex].id}',
+            //style: const TextStyle(color: Colors.white),
+          ),
           subtitle: Text('Local > Projects > Stair > FLight', style: TextStyle(color: Colors.white)),
         ),
 
@@ -447,7 +457,7 @@ class _FlightEditorState extends State<FlightEditor> {
 
                 context
                     .read<Projects>()
-                    // Provider.of<Projects>(context, listen: false)
+                // Provider.of<Projects>(context, listen: false)
                     .projects[widget.pIndex]
                     .stairs[widget.sIndex]
                     .flights[widget.fIndex]
@@ -534,7 +544,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                         }
                                         return null;
                                       },
-                                      onTap: () => riserController.selection =
+                                      onTap: () =>
+                                      riserController.selection =
                                           TextSelection(baseOffset: 0, extentOffset: riserController.value.text.length),
                                       keyboardType: TextInputType.phone,
                                       decoration: kInputDec,
@@ -568,7 +579,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                       focusNode: bevelFocus,
                                       controller: bevelController,
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      onTap: () => bevelController.selection =
+                                      onTap: () =>
+                                      bevelController.selection =
                                           TextSelection(baseOffset: 0, extentOffset: bevelController.value.text.length),
                                       validator: (value) {
                                         if (double.tryParse(value!) == null) {
@@ -607,8 +619,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                             double sumDistance = 0;
                                             sumDistance = templatel['lowerFlatPost'].fold(
                                                 0,
-                                                (sum, element) =>
-                                                    sum.toDouble() + double.parse(element.pController.text));
+                                                    (sum, element) =>
+                                                sum.toDouble() + double.parse(element.pController.text));
 
                                             if (sumDistance >= double.parse(templatel['bottomCrotchLength'])) {
                                               return;
@@ -632,7 +644,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                       controller: btcController,
                                       enabled: templatel['bottomCrotch'],
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      onTap: () => btcController.selection =
+                                      onTap: () =>
+                                      btcController.selection =
                                           TextSelection(baseOffset: 0, extentOffset: btcController.value.text.length),
                                       validator: (value) {
                                         if (value == null || value.isEmpty || double.tryParse(value) == null) {
@@ -667,7 +680,9 @@ class _FlightEditorState extends State<FlightEditor> {
                                         if (bottomFlatDistanceError) {
                                           btcFocus.requestFocus();
                                         } else {
-                                          templatel['bottomCrotchLength'] = btcController.text;
+                                          setState(() {
+                                            templatel['bottomCrotchLength'] = btcController.text;
+                                          });
                                         }
                                       }
                                     },
@@ -683,10 +698,10 @@ class _FlightEditorState extends State<FlightEditor> {
                                       value: templatel['hasBottomCrotchPost'],
                                       onChanged: templatel['bottomCrotch']
                                           ? (value) {
-                                              setState(() {
-                                                templatel['hasBottomCrotchPost'] = !templatel['hasBottomCrotchPost'];
-                                              });
-                                            }
+                                        setState(() {
+                                          templatel['hasBottomCrotchPost'] = !templatel['hasBottomCrotchPost'];
+                                        });
+                                      }
                                           : null),
                                 ),
                               ],
@@ -703,8 +718,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                             double sumDistance = 0;
                                             sumDistance = templatel['upperFlatPost'].fold(
                                                 0,
-                                                (sum, element) =>
-                                                    sum.toDouble() + double.parse(element.pController.text));
+                                                    (sum, element) =>
+                                                sum.toDouble() + double.parse(element.pController.text));
 
                                             if (sumDistance >= double.parse(templatel['topCrotchLength'])) {
                                               return;
@@ -728,7 +743,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                       controller: tcController,
                                       enabled: templatel['topCrotch'],
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      onTap: () => tcController.selection =
+                                      onTap: () =>
+                                      tcController.selection =
                                           TextSelection(baseOffset: 0, extentOffset: tcController.value.text.length),
                                       validator: (value) {
                                         if (value == null || value.isEmpty || double.tryParse(value) == null) {
@@ -746,7 +762,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                           }
                                         }
 
-                                        templatel['topCrotchLength'] = tcController.text;
+
                                         topFlatDistanceError = false;
                                         return null;
                                       },
@@ -760,6 +776,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                       if (!value) {
                                         if (topFlatDistanceError) {
                                           tcFocus.requestFocus();
+                                        } else {
+                                          templatel['topCrotchLength'] = tcController.text;
                                         }
                                       }
                                     },
@@ -775,10 +793,10 @@ class _FlightEditorState extends State<FlightEditor> {
                                       value: templatel['hasTopCrotchPost'],
                                       onChanged: templatel['topCrotch']
                                           ? (value) {
-                                              setState(() {
-                                                templatel['hasTopCrotchPost'] = !templatel['hasTopCrotchPost'];
-                                              });
-                                            }
+                                        setState(() {
+                                          templatel['hasTopCrotchPost'] = !templatel['hasTopCrotchPost'];
+                                        });
+                                      }
                                           : null),
                                 ),
                               ],
@@ -793,7 +811,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                       autocorrect: true,
                                       controller: lastNoseDistance,
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      onTap: () => lastNoseDistance.selection = TextSelection(
+                                      onTap: () =>
+                                      lastNoseDistance.selection = TextSelection(
                                           baseOffset: 0, extentOffset: lastNoseDistance.value.text.length),
                                       validator: (value) {
                                         lastNoseError = false;
@@ -809,9 +828,10 @@ class _FlightEditorState extends State<FlightEditor> {
                                           return '';
                                         }
                                         if (templatel['rampPost'].isNotEmpty) {
-                                          templatel['rampPost'].forEach((rp) => {
-                                                if (rp.nosingDistance > parseVal) {lastNoseError = true}
-                                              });
+                                          templatel['rampPost'].forEach((rp) =>
+                                          {
+                                            if (rp.nosingDistance > parseVal) {lastNoseError = true}
+                                          });
 
                                           if (lastNoseError) {
                                             return '';
