@@ -7,18 +7,19 @@ class Stair extends ChangeNotifier {
   bool selected = false;
   bool onHold = false;
   List<Flight> _flights = [];
+  TextEditingController controller = TextEditingController();
 
   Stair({id = ''}) {
     _id = id;
     _flights = flights;
-   // _onHold = onHold;
+    // _onHold = onHold;
   }
 
   get id => _id;
+
   set setId(String id) {
     _id = id;
   }
-
 
   get flights => [..._flights];
 
@@ -38,8 +39,14 @@ class Stair extends ChangeNotifier {
   }
 
   factory Stair.copy(Stair obj) {
-    Stair newStair = Stair(id: "${obj._id} copy");
-    newStair._flights = [...obj.flights];
+    Stair newStair = Stair(
+      id: obj._id,
+    );
+    newStair.controller.text = obj._id;
+
+    //newStair._flights = obj.flights.map((item) => Flight.copy(item)).toList();
+    newStair._flights = [...obj.flights.map((item) => Flight.copy(item)).toList()];
+
     return newStair;
   }
 
@@ -49,15 +56,13 @@ class Stair extends ChangeNotifier {
   }
 
   //Stair.fromJson(Map<String , dynamic> json) : _id = json['id'], _flights = json['flights'];
-  factory Stair.fromJson(Map<String , dynamic> json) {
-
-    final st = Stair(id:  json['id']);
+  factory Stair.fromJson(Map<String, dynamic> json) {
+    final st = Stair(id: json['id']);
     for (var fl in json['flights']) {
       st.addFlight(Flight.fromJson(fl));
     }
     st.onHold = json['onHold'];
 
     return st;
-
   }
 }

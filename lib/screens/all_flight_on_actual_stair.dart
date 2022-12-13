@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../constants.dart';
 import '../file_storage_manager/secretaria.dart';
 import '/models/flight_map.dart';
 import '/screens/flight_editor.dart';
@@ -28,14 +29,8 @@ class _FlightOnActualStairState extends State<FlightOnActualStair> {
 
     return Scaffold(
       appBar: AppBar(
-        title: ListTile(
-          title: Text(
-            'Stair : ${currentStair.id}',
-            style: const TextStyle(color: Colors.white),
-          ),
-          subtitle: const Text('Projects > Project > Stair', style: TextStyle(color: Colors.white)),
-        ),
-        centerTitle: true,
+        title: const Text('FLIGHTS'),
+        //centerTitle: true,
         actions: [
           CustomActionButton(
             txt: 'Add Flight',
@@ -48,6 +43,13 @@ class _FlightOnActualStairState extends State<FlightOnActualStair> {
           CustomActionButton(
               txt: "Save",
               onPressed: () async {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 1),
+                    content: const Text('Processing Data'),
+                    backgroundColor: Colors.blueGrey.shade400,
+                  ),
+                );
                 await OurDataStorage.writeDocument(
                     "MyProjects", Provider.of<Projects>(context, listen: false).toJson());
               }),
@@ -57,12 +59,55 @@ class _FlightOnActualStairState extends State<FlightOnActualStair> {
         ],
       ),
       body: Column(children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10.0),
+          height: 50.0,
+          child: Card(
+            child: Container(
+              padding: const EdgeInsets.all(10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Project : ',
+                    style: kLabel600,
+                  ),
+                  Text(
+                    '${Provider
+                        .of<Projects>(context, listen: false)
+                        .projects[widget.pIndex].id} >',
+                    style: kLabelStyle,
+                  ),
+                  const SizedBox(
+                    width: 10.0,
+                  ),
+                  Text(
+                    'Stair : ',
+                    style: kLabel600,
+                  ),
+                  Text(
+                    '${Provider
+                        .of<Projects>(context, listen: false)
+                        .projects[widget.pIndex].stairs[widget.sIndex].id}',
+                    style: kLabelStyle,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 13.0),
+
+          child: const Divider(),
+        ),
         Expanded(
           child: Container(
             margin: const EdgeInsets.all(15),
+
             //padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.grey[200],
+              //color: Colors.grey[200],
               border: Border.all(width: 2.0, color: Colors.blueGrey),
               borderRadius: BorderRadius.circular(8.0),
             ),
@@ -89,10 +134,14 @@ class _FlightOnActualStairState extends State<FlightOnActualStair> {
                                   borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
                                 ),
                               ),
-                              controller: TextEditingController(text: currentStair.flights[index].id),
+                              controller: currentStair.flights[index].controller,
                               onChanged: (value) {
                                 currentStair.flights[index].id = value;
                               },
+                              onTap: () =>
+                              currentStair.flights[index].controller.selection = TextSelection(
+                                  baseOffset: 0,
+                                  extentOffset: currentStair.flights[index].controller.value.text.length),
                             ),
                           ),
                           trailing: Row(
@@ -122,7 +171,6 @@ class _FlightOnActualStairState extends State<FlightOnActualStair> {
                                         .stairs[widget.sIndex]
                                         .flights[index]
                                         .template();
-
 
                                     Navigator.push(
                                       context,
@@ -181,7 +229,11 @@ class _FlightOnActualStairState extends State<FlightOnActualStair> {
                                   );
                                 },
                                 icon: const Icon(Icons.delete),
-                                label: const Text('Delete'),
+                                label: Container(
+                                    padding: const EdgeInsets.only(right: 10.0),
+                                    child: const Text(
+                                      'Delete',
+                                    )),
                               ),
                             ],
                           ),

@@ -27,6 +27,7 @@ class Flight extends ChangeNotifier {
 
   List<Post> upperFlatPost = [];
   List<RampPost> rampPostList = [];
+  TextEditingController controller = TextEditingController();
 
   Flight({
     this.id = '',
@@ -38,8 +39,8 @@ class Flight extends ChangeNotifier {
     this.bottomCrotch = true,
     this.bottomCrotchDistance = 0.0,
     this.bottomCrotchPost = false,
-    this.stepsCount = 12,
-    this.lastNoseDistance = 200.0,
+    this.stepsCount = 15,
+    this.lastNoseDistance = 193.1625,
     // this.lowerFlatPost = [],
     // this.rampPostList =  <RampPost>[],
     // this.upperFlatPost = const <Post>[],
@@ -49,7 +50,7 @@ class Flight extends ChangeNotifier {
 
   factory Flight.copy(Flight obj) {
     Flight fl = Flight(
-      id: "${obj.id} copy",
+      id: obj.id,
       riser: obj.riser,
       bevel: obj.bevel,
       topCrotch: obj.topCrotch,
@@ -57,14 +58,31 @@ class Flight extends ChangeNotifier {
       bottomCrotch: obj.bottomCrotch,
       bottomCrotchDistance: obj.bottomCrotchDistance,
       bottomCrotchPost: obj.bottomCrotchPost,
-      stepsCount: obj.stepsCount,
+      //stepsCount: obj.stepsCount,
+      lastNoseDistance: obj.lastNoseDistance,
       // lowerFlatPost: obj.lowerFlatPost,
       // rampPostList: obj.rampPostList,
       // upperFlatPost: obj.upperFlatPost
     );
-    fl.lowerFlatPost = [...obj.lowerFlatPost];
-    fl.rampPostList = [...obj.rampPostList];
-    fl.upperFlatPost = [...obj.upperFlatPost];
+    fl.controller.text = obj.id;
+    fl.lowerFlatPost = [
+      ...obj.lowerFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()
+    ];
+    fl.rampPostList = [
+      ...obj.rampPostList
+          .map((item) => RampPost(
+              nosingDistance: item.nosingDistance,
+              balusterDistance: item.balusterDistance,
+              embeddedType: item.embeddedType,
+              step: item.step))
+          .toList()
+    ];
+    fl.upperFlatPost = [
+      ...obj.upperFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()
+    ];
+    // fl.lowerFlatPost = [...obj.lowerFlatPost];
+    // fl.rampPostList = [...obj.rampPostList];
+    // fl.upperFlatPost = [...obj.upperFlatPost];
     return fl;
   }
 
@@ -99,28 +117,30 @@ class Flight extends ChangeNotifier {
       "topCrotch": topCrotch,
       "bottomCrotch": bottomCrotch,
       "bottomCrotchPost": bottomCrotchPost,
-      "stepsCount": stepsCount,
+      //"stepsCount": stepsCount,
       "lowerFlatPost": bottomPosts,
       "upperFlatPost": topPosts,
       "rampPost": rampPosts,
+      "lastNoseDistance": lastNoseDistance
     };
   }
 
   factory Flight.fromJson(Map<String, dynamic> json) {
     return Flight(
-      id: json['id'],
-      riser: json['riser'],
-      bevel: json['bevel'],
-      topCrotch: json['topCrotch'],
-      topCrotchDistance: json['topCrotchDistance'],
-      bottomCrotch: json['bottomCrotch'],
-      bottomCrotchDistance: json['bottomCrotchDistance'],
-      bottomCrotchPost: json['bottomCrotchPost'],
-      stepsCount: json['stepsCount'],
-      // lowerFlatPost: obj.lowerFlatPost,
-      // rampPostList: obj.rampPostList,
-      // upperFlatPost: obj.upperFlatPost);
-    );
+        id: json['id'],
+        riser: json['riser'],
+        bevel: json['bevel'],
+        topCrotch: json['topCrotch'],
+        topCrotchDistance: json['topCrotchDistance'],
+        bottomCrotch: json['bottomCrotch'],
+        bottomCrotchDistance: json['bottomCrotchDistance'],
+        bottomCrotchPost: json['bottomCrotchPost'],
+        lastNoseDistance: json['lastNoseDistance']
+        //stepsCount: json['stepsCount'],
+        // lowerFlatPost: obj.lowerFlatPost,
+        // rampPostList: obj.rampPostList,
+        // upperFlatPost: obj.upperFlatPost);
+        );
   }
 
   Map<String, dynamic> template() => {
@@ -139,7 +159,7 @@ class Flight extends ChangeNotifier {
         "lowerFlatPost": lowerFlatPost,
         "rampPost": rampPostList,
         "upperFlatPost": upperFlatPost,
-        "stepsCount": stepsCount.toString(),
+        //"stepsCount": stepsCount.toString(),
         "lastNoseDistance": lastNoseDistance.toString(),
         'hypotenuse': hypotenuse
       };

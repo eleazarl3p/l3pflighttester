@@ -18,12 +18,7 @@ class FlightDataInput extends StatefulWidget {
   int fIndex;
   final bool cloud;
 
-  FlightDataInput(
-      {Key? key,
-      required this.pIndex,
-      required this.sIndex,
-      required this.fIndex,
-      this.cloud = false})
+  FlightDataInput({Key? key, required this.pIndex, required this.sIndex, required this.fIndex, this.cloud = false})
       : super(key: key);
 
   //String flightName;
@@ -41,17 +36,13 @@ class _FlightDataInputState extends State<FlightDataInput> {
   late TextEditingController riserController = TextEditingController();
   late TextEditingController bevelController = TextEditingController();
 
-  late TextEditingController topCrotchLengthController =
-      TextEditingController();
-  late TextEditingController bottomCrotchLengthController =
-      TextEditingController();
+  late TextEditingController topCrotchLengthController = TextEditingController();
+  late TextEditingController bottomCrotchLengthController = TextEditingController();
 
   late TextEditingController stairsCountController = TextEditingController();
-  late TextEditingController lowerFlatPostCountController =
-      TextEditingController();
+  late TextEditingController lowerFlatPostCountController = TextEditingController();
   late TextEditingController rampPostCountController = TextEditingController();
-  late TextEditingController upperFlatPostCountController =
-      TextEditingController();
+  late TextEditingController upperFlatPostCountController = TextEditingController();
 
   late TextEditingController stairNumberController = TextEditingController();
   late TextEditingController postDistanceController = TextEditingController();
@@ -90,6 +81,7 @@ class _FlightDataInputState extends State<FlightDataInput> {
   late FocusNode globalFocus;
 
   bool btmError = false;
+
   //bool upFlatError = false;
 
   @override
@@ -137,6 +129,7 @@ class _FlightDataInputState extends State<FlightDataInput> {
   bool _enableBtn = true;
 
   final _formKkey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     final userInputsProvider = context.read<FlightMap>();
@@ -172,8 +165,7 @@ class _FlightDataInputState extends State<FlightDataInput> {
     double totDistance = 0;
     //print('reload $bottomCrotchLength | $topCrotchLength | total $totDistance');
 
-    List<String> alphabet =
-        List.generate(26, (index) => String.fromCharCode(index + 65));
+    List<String> alphabet = List.generate(26, (index) => String.fromCharCode(index + 65));
 
     void resetView() {
       setState(() {});
@@ -224,55 +216,41 @@ class _FlightDataInputState extends State<FlightDataInput> {
                   padding: const EdgeInsets.only(top: 10.0),
                   child: Column(
                     children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text("Top Crotch:"),
-                            Checkbox(
-                                fillColor: MaterialStateProperty.all<Color>(
-                                    Colors.blueGrey),
-                                value: _hasTopCrotch,
-                                onChanged: (value) {
-                                  _enableBtn
-                                      //userInputsProvider.textFormFields['active']
-                                      ? setState(() {
-                                          _hasTopCrotch = !_hasTopCrotch;
-                                          userInputsProvider.updateFields(
-                                              'topCrotch', _hasTopCrotch);
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        const Text("Top Crotch:"),
+                        Checkbox(
+                            fillColor: MaterialStateProperty.all<Color>(Colors.blueGrey),
+                            value: _hasTopCrotch,
+                            onChanged: (value) {
+                              _enableBtn
+                                  //userInputsProvider.textFormFields['active']
+                                  ? setState(() {
+                                      _hasTopCrotch = !_hasTopCrotch;
+                                      userInputsProvider.updateFields('topCrotch', _hasTopCrotch);
 
-                                          if (_upperFlatPost.isNotEmpty) {
-                                            totDistance = 0;
-                                            totDistance = _upperFlatPost.fold(
-                                                0,
-                                                (previousValue, element) =>
-                                                    previousValue +
-                                                    element.distance);
+                                      if (_upperFlatPost.isNotEmpty) {
+                                        totDistance = 0;
+                                        totDistance = _upperFlatPost.fold(
+                                            0, (previousValue, element) => previousValue + element.distance);
 
-                                            if (double.parse(
-                                                    topCrotchLengthController
-                                                        .text) <=
-                                                totDistance) {
-                                              userInputsProvider.updateFields(
-                                                  'active', false);
-                                              topFlatPostEnable = false;
-                                              upFlatFocus.requestFocus();
-                                            }
-                                          }
-                                        })
-                                      : null;
-                                })
-                          ]),
+                                        if (double.parse(topCrotchLengthController.text) <= totDistance) {
+                                          userInputsProvider.updateFields('active', false);
+                                          topFlatPostEnable = false;
+                                          upFlatFocus.requestFocus();
+                                        }
+                                      }
+                                    })
+                                  : null;
+                            })
+                      ]),
                       if (_hasTopCrotch) ...{
                         Focus(
                           child: TextFormField(
                             //onChanged: (value) {},
                             focusNode: upFlatFocus,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  double.tryParse(value) == null) {
+                              if (value == null || value.isEmpty || double.tryParse(value) == null) {
                                 topFlatDistanceError = true;
                                 return "Please enter valid number";
                               }
@@ -280,12 +258,9 @@ class _FlightDataInputState extends State<FlightDataInput> {
                               if (_upperFlatPost.isNotEmpty) {
                                 totDistance = 0;
                                 totDistance = _upperFlatPost.fold(
-                                    0,
-                                    (previousValue, element) =>
-                                        previousValue + element.distance);
+                                    0, (previousValue, element) => previousValue + element.distance);
 
-                                if (double.parse(value) <= totDistance &&
-                                    totDistance != 0) {
+                                if (double.parse(value) <= totDistance && totDistance != 0) {
                                   topFlatDistanceError = true;
                                   return "";
                                 }
@@ -297,31 +272,22 @@ class _FlightDataInputState extends State<FlightDataInput> {
                               return null;
                             },
                             onTap: () => topCrotchLengthController.selection =
-                                TextSelection(
-                                    baseOffset: 0,
-                                    extentOffset: topCrotchLengthController
-                                        .value.text.length),
+                                TextSelection(baseOffset: 0, extentOffset: topCrotchLengthController.value.text.length),
                             controller: topCrotchLengthController,
                             onChanged: (value) {},
-                            decoration:
-                                const InputDecoration(labelText: "Distance"),
+                            decoration: const InputDecoration(labelText: "Distance"),
                             onEditingComplete: () {},
                           ),
                           onFocusChange: (value) {
                             if (!value) {
                               if (!topFlatDistanceError) {
-                                userInputsProvider.updateFields(
-                                    'topCrotchLength',
-                                    topCrotchLengthController.text);
+                                userInputsProvider.updateFields('topCrotchLength', topCrotchLengthController.text);
                               } else {
                                 upFlatFocus.requestFocus();
                               }
                             } else {
-                              topCrotchLengthController.selection =
-                                  TextSelection(
-                                      baseOffset: 0,
-                                      extentOffset: topCrotchLengthController
-                                          .value.text.length);
+                              topCrotchLengthController.selection = TextSelection(
+                                  baseOffset: 0, extentOffset: topCrotchLengthController.value.text.length);
                             }
                           },
                         ),
@@ -338,60 +304,45 @@ class _FlightDataInputState extends State<FlightDataInput> {
                   padding: const EdgeInsets.only(top: 10.0),
                   child: Column(
                     children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text("Bottom Crotch:"),
-                            Checkbox(
-                                fillColor: MaterialStateProperty.all<Color>(
-                                    Colors.blueGrey),
-                                value: _hasBottomCrotch,
-                                onChanged: (value) {
-                                  _enableBtn //userInputsProvider.textFormFields['active']
-                                      ? setState(() {
-                                          _hasBottomCrotch = !_hasBottomCrotch;
-                                          userInputsProvider.updateFields(
-                                              'bottomCrotch', _hasBottomCrotch);
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        const Text("Bottom Crotch:"),
+                        Checkbox(
+                            fillColor: MaterialStateProperty.all<Color>(Colors.blueGrey),
+                            value: _hasBottomCrotch,
+                            onChanged: (value) {
+                              _enableBtn //userInputsProvider.textFormFields['active']
+                                  ? setState(() {
+                                      _hasBottomCrotch = !_hasBottomCrotch;
+                                      userInputsProvider.updateFields('bottomCrotch', _hasBottomCrotch);
 
-                                          if (_lowerFlatPost.isNotEmpty) {
-                                            totDistance = 0;
-                                            totDistance = _lowerFlatPost.fold(
-                                                0,
-                                                (previousValue, element) =>
-                                                    previousValue +
-                                                    element.distance);
+                                      if (_lowerFlatPost.isNotEmpty) {
+                                        totDistance = 0;
+                                        totDistance = _lowerFlatPost.fold(
+                                            0, (previousValue, element) => previousValue + element.distance);
 
-                                            if (double.parse(
-                                                    bottomCrotchLengthController
-                                                        .text) <=
-                                                totDistance) {
-                                              userInputsProvider.updateFields(
-                                                  'active', false);
-                                              bottomFlatPostEnable = false;
-                                              btmFocus.requestFocus();
-                                            }
-                                          }
-                                        })
-                                      : null;
-                                })
-                          ]),
+                                        if (double.parse(bottomCrotchLengthController.text) <= totDistance) {
+                                          userInputsProvider.updateFields('active', false);
+                                          bottomFlatPostEnable = false;
+                                          btmFocus.requestFocus();
+                                        }
+                                      }
+                                    })
+                                  : null;
+                            })
+                      ]),
                       if (_hasBottomCrotch) ...{
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text("Bottom Crotch Post:"),
                             Checkbox(
-                              fillColor: MaterialStateProperty.all<Color>(
-                                  Colors.blueGrey),
+                              fillColor: MaterialStateProperty.all<Color>(Colors.blueGrey),
                               value: _hasBottomCrotchPost,
                               onChanged: (value) {
                                 _enableBtn //userInputsProvider.textFormFields['active']
                                     ? setState(() {
-                                        _hasBottomCrotchPost =
-                                            !_hasBottomCrotchPost;
-                                        userInputsProvider.updateFields(
-                                            'hasBottomCrotchPost',
-                                            _hasBottomCrotchPost);
+                                        _hasBottomCrotchPost = !_hasBottomCrotchPost;
+                                        userInputsProvider.updateFields('hasBottomCrotchPost', _hasBottomCrotchPost);
                                       })
                                     : null;
                               },
@@ -402,13 +353,10 @@ class _FlightDataInputState extends State<FlightDataInput> {
                           child: TextFormField(
                             //onChanged: (value) {},
                             focusNode: btmFocus,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             validator: (value) {
                               if (btmFocus.hasFocus) {
-                                if (value == null ||
-                                    value.isEmpty ||
-                                    double.tryParse(value) == null) {
+                                if (value == null || value.isEmpty || double.tryParse(value) == null) {
                                   bottomFlatDistanceError = true;
                                   return "Please enter valid number";
                                 }
@@ -416,12 +364,9 @@ class _FlightDataInputState extends State<FlightDataInput> {
                                 if (_lowerFlatPost.isNotEmpty) {
                                   totDistance = 0;
                                   totDistance = _lowerFlatPost.fold(
-                                      0,
-                                      (previousValue, element) =>
-                                          previousValue + element.distance);
+                                      0, (previousValue, element) => previousValue + element.distance);
 
-                                  if (double.parse(value) <= totDistance &&
-                                      totDistance != 0) {
+                                  if (double.parse(value) <= totDistance && totDistance != 0) {
                                     bottomFlatDistanceError = true;
                                     return "";
                                   }
@@ -433,33 +378,23 @@ class _FlightDataInputState extends State<FlightDataInput> {
                               // //currentFocus = globalFocus;
                               return null;
                             },
-                            onTap: () => bottomCrotchLengthController
-                                    .selection =
-                                TextSelection(
-                                    baseOffset: 0,
-                                    extentOffset: bottomCrotchLengthController
-                                        .value.text.length),
+                            onTap: () => bottomCrotchLengthController.selection = TextSelection(
+                                baseOffset: 0, extentOffset: bottomCrotchLengthController.value.text.length),
                             controller: bottomCrotchLengthController,
                             onChanged: (value) {},
-                            decoration:
-                                const InputDecoration(labelText: "Distance"),
+                            decoration: const InputDecoration(labelText: "Distance"),
                             onEditingComplete: () {},
                           ),
                           onFocusChange: (value) {
                             if (!value) {
                               if (!bottomFlatDistanceError) {
-                                userInputsProvider.updateFields(
-                                    'bottomCrotchLength',
-                                    bottomCrotchLength.toString());
+                                userInputsProvider.updateFields('bottomCrotchLength', bottomCrotchLength.toString());
                               } else {
                                 btmFocus.requestFocus();
                               }
                             } else {
-                              bottomCrotchLengthController.selection =
-                                  TextSelection(
-                                      baseOffset: 0,
-                                      extentOffset: bottomCrotchLengthController
-                                          .value.text.length);
+                              bottomCrotchLengthController.selection = TextSelection(
+                                  baseOffset: 0, extentOffset: bottomCrotchLengthController.value.text.length);
                             }
                           },
                         ),
@@ -477,18 +412,13 @@ class _FlightDataInputState extends State<FlightDataInput> {
                     autocorrect: true,
                     autofocus: true,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration:
-                        const InputDecoration(labelText: "Number of steps"),
+                    decoration: const InputDecoration(labelText: "Number of steps"),
                     controller: stairsCountController,
                     focusNode: stepFocus,
                     onTap: () => stairsCountController.selection =
-                        TextSelection(
-                            baseOffset: 0,
-                            extentOffset:
-                                stairsCountController.value.text.length),
+                        TextSelection(baseOffset: 0, extentOffset: stairsCountController.value.text.length),
                     validator: (value) {
-                      if (int.tryParse(value.toString()) == null ||
-                          int.parse(value.toString()) <= 0) {
+                      if (int.tryParse(value.toString()) == null || int.parse(value.toString()) <= 0) {
                         return "Please enter valid number";
                       }
 
@@ -498,8 +428,7 @@ class _FlightDataInputState extends State<FlightDataInput> {
                       bool error = false;
                       if (int.tryParse(stairsCountController.text) != null) {
                         if (int.parse(stairsCountController.text) >= 1) {
-                          userInputsProvider.updateFields(
-                              'stairsCount', stairsCountController.text);
+                          userInputsProvider.updateFields('stairsCount', stairsCountController.text);
                         } else {
                           error = true;
                         }
@@ -517,8 +446,7 @@ class _FlightDataInputState extends State<FlightDataInput> {
                       bool error = false;
                       if (int.tryParse(stairsCountController.text) != null) {
                         if (int.parse(stairsCountController.text) >= 1) {
-                          userInputsProvider.updateFields(
-                              'stairsCount', stairsCountController.text);
+                          userInputsProvider.updateFields('stairsCount', stairsCountController.text);
                         } else {
                           error = true;
                         }
@@ -551,8 +479,7 @@ class _FlightDataInputState extends State<FlightDataInput> {
                           child: SizedBox(
                               width: containerWidth,
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     'Lower Flat Post',
@@ -561,31 +488,24 @@ class _FlightDataInputState extends State<FlightDataInput> {
                                   TextButton(
                                       onPressed: () {
                                         setState(() {
-                                          showbottomFlatPost =
-                                              !showbottomFlatPost;
+                                          showbottomFlatPost = !showbottomFlatPost;
                                         });
                                       },
                                       child: showbottomFlatPost
                                           ? const Icon(Icons.remove)
-                                          : const Icon(
-                                              Icons.remove_red_eye_outlined)),
+                                          : const Icon(Icons.remove_red_eye_outlined)),
                                   ElevatedButton(
-                                      onPressed:
-                                          _enableBtn //userInputsProvider.textFormFields['active']
-                                              ? () {
-                                                  setState(() {
-                                                    Post newPost = Post(
-                                                        distance: 0.0,
-                                                        embeddedType: 'none');
-                                                    newPost.pController.text =
-                                                        "0.0";
-                                                    newPost.embeddedType =
-                                                        "none";
-                                                    _lowerFlatPost.add(newPost);
-                                                  });
-                                                  //newFlatPost(Post(distance: 0.0));
-                                                }
-                                              : null,
+                                      onPressed: _enableBtn //userInputsProvider.textFormFields['active']
+                                          ? () {
+                                              setState(() {
+                                                Post newPost = Post(distance: 0.0, embeddedType: 'none');
+                                                newPost.pController.text = "0.0";
+                                                newPost.embeddedType = "none";
+                                                _lowerFlatPost.add(newPost);
+                                              });
+                                              //newFlatPost(Post(distance: 0.0));
+                                            }
+                                          : null,
                                       child: const Icon(Icons.add))
                                 ],
                               )),
@@ -596,8 +516,7 @@ class _FlightDataInputState extends State<FlightDataInput> {
                         const Divider(
                           height: 2.0,
                         ),
-                        if (_lowerFlatPost.isNotEmpty &&
-                            showbottomFlatPost) ...[
+                        if (_lowerFlatPost.isNotEmpty && showbottomFlatPost) ...[
                           const SizedBox(
                             height: 10.0,
                           ),
@@ -633,8 +552,7 @@ class _FlightDataInputState extends State<FlightDataInput> {
                           child: SizedBox(
                               width: containerWidth,
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     'Post \u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}\u{00A0}',
@@ -648,32 +566,27 @@ class _FlightDataInputState extends State<FlightDataInput> {
                                       },
                                       child: showRampPost
                                           ? const Icon(Icons.remove)
-                                          : const Icon(
-                                              Icons.remove_red_eye_outlined)),
+                                          : const Icon(Icons.remove_red_eye_outlined)),
                                   ElevatedButton(
                                       style: const ButtonStyle(),
-                                      onPressed:
-                                          _enableBtn //userInputsProvider.textFormFields['active']
-                                              ? () {
-                                                  RampPost rPost = RampPost(
-                                                      nosingDistance: 0.0,
-                                                      step: 0,
-                                                      balusterDistance: 6.0,
-                                                      embeddedType: 'none');
-                                                  rPost.balusterController
-                                                      .text = '5.5';
-                                                  rPost.noseController.text =
-                                                      '0.0';
-                                                  rPost.stepController.text =
-                                                      '0';
+                                      onPressed: _enableBtn //userInputsProvider.textFormFields['active']
+                                          ? () {
+                                              RampPost rPost = RampPost(
+                                                  nosingDistance: 0.0,
+                                                  step: 0,
+                                                  balusterDistance: 6.0,
+                                                  embeddedType: 'none');
+                                              rPost.balusterController.text = '5.5';
+                                              rPost.noseController.text = '0.0';
+                                              rPost.stepController.text = '0';
 
-                                                  setState(() {
-                                                    _rampPost.add(rPost);
-                                                    //_rampPost.sort(((a, b) => a.step.compareTo(b.step)));
-                                                    //_rampPost;
-                                                  });
-                                                }
-                                              : null,
+                                              setState(() {
+                                                _rampPost.add(rPost);
+                                                //_rampPost.sort(((a, b) => a.step.compareTo(b.step)));
+                                                //_rampPost;
+                                              });
+                                            }
+                                          : null,
                                       child: const Icon(Icons.add))
                                 ],
                               )),
@@ -717,8 +630,7 @@ class _FlightDataInputState extends State<FlightDataInput> {
                           child: SizedBox(
                               width: containerWidth,
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     'Upper Flat Post',
@@ -727,30 +639,23 @@ class _FlightDataInputState extends State<FlightDataInput> {
                                   TextButton(
                                       onPressed: () {
                                         setState(() {
-                                          showupperFlatPost =
-                                              !showupperFlatPost;
+                                          showupperFlatPost = !showupperFlatPost;
                                         });
                                       },
                                       child: showupperFlatPost
                                           ? const Icon(Icons.remove)
-                                          : const Icon(
-                                              Icons.remove_red_eye_outlined)),
+                                          : const Icon(Icons.remove_red_eye_outlined)),
                                   ElevatedButton(
-                                      onPressed:
-                                          _enableBtn //userInputsProvider.textFormFields['active']
-                                              ? () {
-                                                  setState(() {
-                                                    Post newPost = Post(
-                                                        distance: 0.0,
-                                                        embeddedType: 'none');
-                                                    newPost.pController.text =
-                                                        "0.0";
-                                                    newPost.embeddedType =
-                                                        "none";
-                                                    _upperFlatPost.add(newPost);
-                                                  });
-                                                }
-                                              : null,
+                                      onPressed: _enableBtn //userInputsProvider.textFormFields['active']
+                                          ? () {
+                                              setState(() {
+                                                Post newPost = Post(distance: 0.0, embeddedType: 'none');
+                                                newPost.pController.text = "0.0";
+                                                newPost.embeddedType = "none";
+                                                _upperFlatPost.add(newPost);
+                                              });
+                                            }
+                                          : null,
                                       child: const Icon(Icons.add))
                                 ],
                               )),
@@ -802,30 +707,29 @@ class _FlightDataInputState extends State<FlightDataInput> {
                       onPressed: () {
                         if (_formKkey.currentState!.validate()) {
                           if (widget.cloud) {
-                            Project pjc = Provider.of<Projects>(context, listen: false)
-                                .projects[widget.pIndex];
-                            FBDB.update(
-                              collection: 'projects',
-                              document: pjc.id,
-                              data: {'data': pjc.toJson()},
-                            );
-
-                            FBDB.create(
-                              'log',
-                              DateTime.now().toString(),
-                              {
-                                "user": 1,
-                                'action': 'update',
-                                'project': pjc.id
-                              },
-                            );
+                            // Project pjc = Provider.of<Projects>(context, listen: false)
+                            //     .projects[widget.pIndex];
+                            // FBDB.update(
+                            //   collection: 'projects',
+                            //   document: pjc.id,
+                            //   data: {'data': pjc.toJson()},
+                            // );
+                            //
+                            // FBDB.create(
+                            //   'log',
+                            //   DateTime.now().toString(),
+                            //   {
+                            //     "user": 1,
+                            //     'action': 'update',
+                            //     'project': pjc.id
+                            //   },
+                            // );
                           } else {
                             Provider.of<Projects>(context, listen: false)
                                 .projects[widget.pIndex]
                                 .stairs[widget.sIndex]
                                 .flights[widget.fIndex]
-                                .updateFlight(
-                                    userInputsProvider.textFormFields);
+                                .updateFlight(userInputsProvider.textFormFields);
                           }
                           //   Map flight = Map.from(userInputsProvider.textFormFields);
                           //   myFlights.addFlight(widget.flightName, flight);
@@ -873,6 +777,7 @@ class TextFormInput extends StatelessWidget {
   //final VoidCallback resetView;
   //final String validator;
   final VoidCallback resetView;
+
   //late FocusNode currentFocus;
   final FocusNode myFocus;
   bool _error = false;
@@ -891,9 +796,7 @@ class TextFormInput extends StatelessWidget {
             //autocorrect: true,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
-              if (value == null ||
-                  value.isEmpty ||
-                  double.tryParse(value) == null) {
+              if (value == null || value.isEmpty || double.tryParse(value) == null) {
                 //currentFocus = myFocus;
                 _error = true;
                 //provider.updateFields('active', false);
@@ -906,8 +809,8 @@ class TextFormInput extends StatelessWidget {
               //provider.updateFields('active', true);
               return null;
             },
-            onTap: () => controller.selection = TextSelection(
-                baseOffset: 0, extentOffset: controller.value.text.length),
+            onTap: () =>
+                controller.selection = TextSelection(baseOffset: 0, extentOffset: controller.value.text.length),
             controller: controller,
             decoration: InputDecoration(
               labelText: inputLabel,
@@ -921,8 +824,7 @@ class TextFormInput extends StatelessWidget {
           onFocusChange: (value) {
             if (!value) {
               if (!_error) {
-                if (controller.value.text.trim().isNotEmpty ||
-                    double.tryParse(controller.value.text) != null) {
+                if (controller.value.text.trim().isNotEmpty || double.tryParse(controller.value.text) != null) {
                   provider.updateFields(field, controller.text);
 
                   resetView();

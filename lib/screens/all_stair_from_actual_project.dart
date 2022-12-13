@@ -9,6 +9,7 @@ import 'package:l3pflighttester/widget/CustomActionButton.dart';
 import 'package:provider/provider.dart';
 import '../DB/projectCollection.dart';
 
+import '../constants.dart';
 import '../file_storage_manager/secretaria.dart';
 import '/screens/all_flight_on_actual_stair.dart';
 
@@ -37,17 +38,8 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
-        centerTitle: true,
-        title: ListTile(
-          title: Text(
-            'Project : ${currentProject.id}',
-            style: const TextStyle(color: Colors.white),
-          ),
-          subtitle: const Text(
-            'Projects > Project',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
+        //centerTitle: true,
+        title: const Text("STAIRS"),
         actions: [
           CustomActionButton(
               txt: 'Add Stair',
@@ -89,6 +81,31 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
       ),
       body: Column(
         children: [
+          Container(
+            height: 50.0,
+            child: Card(
+              child: Container(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Project : ',
+                      style: kLabel600,
+                    ),
+                    Text(
+                      '${Provider.of<Projects>(context, listen: false).projects[widget.pIndex].id} ',
+                      style: kLabelStyle,
+                    ),
+                    const SizedBox(
+                      width: 10.0,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const Divider(),
           Expanded(
             child: Container(
               margin: const EdgeInsets.all(15),
@@ -112,30 +129,64 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                           //color: Colors.brown.shade100,
 
                           child: ListTile(
-                            leading: Checkbox(
-                                value: currentProject.stairs[index].selected,
-                                onChanged: (value) {
-                                  setState(() {
-                                    currentProject.stairs[index].selected = !currentProject.stairs[index].selected;
-                                  });
-                                }),
-                            title: Focus(
-                              child: TextField(
-                                autofocus: true,
-                                decoration: const InputDecoration(
-                                  labelText: "Stair Id",
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.all(8),
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
-                                  ),
-                                ),
-                                controller: TextEditingController(text: currentProject.stairs[index].id),
-                                onChanged: (value) {
-                                  currentProject.stairs[index].setId = value;
-                                },
+                            minLeadingWidth: 200.0,
+                            leading: SizedBox(
+                              width: 200.0,
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                      value: currentProject.stairs[index].selected,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          currentProject.stairs[index].selected =
+                                              !currentProject.stairs[index].selected;
+                                        });
+                                      }),
+                                  Expanded(
+                                    child: Focus(
+                                      child: TextField(
+                                        autofocus: true,
+                                        decoration: const InputDecoration(
+                                          labelText: "Stair Id",
+                                          isDense: true,
+                                          contentPadding: EdgeInsets.all(8),
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
+                                          ),
+                                        ),
+                                        controller: currentProject.stairs[index].controller,
+                                        onChanged: (value) {
+                                          currentProject.stairs[index].setId = value;
+                                        },
+                                        onTap: () => currentProject.stairs[index].controller.selection = TextSelection(
+                                            baseOffset: 0,
+                                            extentOffset: currentProject.stairs[index].controller.value.text.length),
+                                      ),
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
+                            // title: Focus(
+                            //   child: TextField(
+                            //     autofocus: true,
+                            //     decoration: const InputDecoration(
+                            //       labelText: "Stair Id",
+                            //       isDense: true,
+                            //       contentPadding: EdgeInsets.all(8),
+                            //       border: OutlineInputBorder(
+                            //         borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
+                            //       ),
+                            //     ),
+                            //     controller: currentProject.stairs[index].controller,
+                            //     onChanged: (value) {
+                            //       currentProject.stairs[index].setId = value;
+                            //     },
+                            //     onTap: () => currentProject.stairs[index].controller.selection = TextSelection(
+                            //         baseOffset: 0,
+                            //         extentOffset: currentProject.stairs[index].controller.value.text.length),
+                            //   ),
+                            // ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -214,7 +265,11 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                                     );
                                   },
                                   icon: const Icon(Icons.delete),
-                                  label: const Text('Delete'),
+                                  label: Container(
+                                      padding: const EdgeInsets.only(right: 10.0),
+                                      child: const Text(
+                                        'Delete',
+                                      )),
                                 ),
                               ],
                             ),

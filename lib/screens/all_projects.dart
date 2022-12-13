@@ -48,8 +48,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Projects'),
-        centerTitle: true,
+        title: const Text('PROJECTS'),
+        //centerTitle: true,
         actions: [
           CustomActionButton(
             txt: "New",
@@ -118,8 +118,18 @@ class _ProjectsPageState extends State<ProjectsPage> {
           ),
           CustomActionButton(
               txt: "Save",
-              onPressed: () {
-                OurDataStorage.writeDocument("MyProjects", Provider.of<Projects>(context, listen: false).toJson());
+              onPressed: () async {
+                print(Provider.of<Projects>(context, listen: false).toJson());
+                await OurDataStorage.writeDocument(
+                    "MyProjects", Provider.of<Projects>(context, listen: false).toJson());
+
+                Projects savedProjects = Projects();
+
+                await OurDataStorage.readDocument('MyProjects').then((value) {
+                  //print(value['projects']);
+                  value['projects'].forEach((element) => savedProjects.massiveUpdate(Project.fromJson(element)));
+                }).catchError((e) {});
+                print('savvvv ${savedProjects.projects}');
               }),
           const SizedBox(
             width: 25.0,
@@ -164,21 +174,45 @@ class _ProjectsPageState extends State<ProjectsPage> {
                             return Card(
                               //color: Colors.brown.shade100,
                               child: ListTile(
-                                leading: Checkbox(
-                                  //activeColor: Colors.blueGrey,
-                                  fillColor: MaterialStateProperty.all(Colors.blueGrey),
-                                  checkColor: Colors.white,
-                                  value: context.read<Projects>().projects[index].selected,
-                                  onChanged: (value) {
-                                    context.read<Projects>().projects[index].selected =
-                                        !context.read<Projects>().projects[index].selected;
-                                  },
+                                leading: SizedBox(
+                                  width: 200,
+                                  child: TextField(
+                                    autofocus: true,
+                                    decoration: const InputDecoration(
+                                      labelText: "Project Id",
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.all(8),
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
+                                      ),
+                                    ),
+                                    controller: context.read<Projects>().projects[index].controller,
+                                    onChanged: (value) {
+                                      context.read<Projects>().projects[index].setId = value;
+                                    },
+                                    onTap: () => context.read<Projects>().projects[index].controller.selection =
+                                        TextSelection(
+                                            baseOffset: 0,
+                                            extentOffset:
+                                                context.read<Projects>().projects[index].controller.value.text.length),
+                                  ),
                                 ),
-                                title: Text(
-                                  context.read<Projects>().projects[index].id,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold, fontSize: 18.0, color: Colors.blueGrey),
-                                ),
+                                // Checkbox(
+                                //   //activeColor: Colors.blueGrey,
+                                //   fillColor: MaterialStateProperty.all(Colors.blueGrey),
+                                //   checkColor: Colors.white,
+                                //   value: context.read<Projects>().projects[index].selected,
+                                //   onChanged: (value) {
+                                //     context.read<Projects>().projects[index].selected =
+                                //         !context.read<Projects>().projects[index].selected;
+                                //   },
+                                // )
+
+                                // title: Text(
+                                //   context.read<Projects>().projects[index].id,
+                                //   style: const TextStyle(
+                                //       fontWeight: FontWeight.bold, fontSize: 18.0, color: Colors.blueGrey),
+                                // ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [

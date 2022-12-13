@@ -1,4 +1,4 @@
-import 'package:firebase_core/firebase_core.dart';
+//import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
 import '/screens/all_projects.dart';
@@ -12,8 +12,8 @@ import 'models/flight_map.dart';
 import 'models/project.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
 
   Projects savedProjects = Projects();
   // try {
@@ -25,9 +25,9 @@ void main() async {
   await OurDataStorage.readDocument('MyProjects').then((value) {
     //print(value['projects']);
     value['projects'].forEach((element) => savedProjects.massiveUpdate(Project.fromJson(element)));
-  }).catchError((e) {
+  }).catchError((e) {});
 
-  });
+  print('saved: ${savedProjects.projects[0].id} 00');
 
   runApp(MultiProvider(
     providers: [
@@ -52,8 +52,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // final tempProjects = Projects();
     final pjsProvider = context.read<Projects>();
+    print('object');
     if (load) {
       ldP.projects.forEach((element) => pjsProvider.massiveUpdate(element));
+
       load = false;
     }
 
@@ -76,5 +78,14 @@ class MyApp extends StatelessWidget {
       //home: const Home(),
       routes: {'/': (context) => ProjectsPage()},
     );
+  }
+}
+
+class HomeSt extends StatelessWidget {
+  const HomeSt({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }

@@ -15,7 +15,7 @@ class Cuadro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //final data = context.watch<FlightMap>().textFormFields;
-    print(' data $data');
+
 
     String urlI = "https://upload.wikimedia.org/wikipedia/en/1/13/PinkFloydWallCoverOriginalNoText.jpg";
 
@@ -171,7 +171,7 @@ class _Dibujo extends CustomPainter {
     double factor = size.width / (sumStairsLength + flatup + flatdown);
 
     double firstEscalonX = factor * flatdown
-        as double; //[40, bottomCrotchExtension, bottomFlatLength, topCrotchExtension, topFlatLength].reduce((value, element) => value > element ? value : element) * factor;
+    as double; //[40, bottomCrotchExtension, bottomFlatLength, topCrotchExtension, topFlatLength].reduce((value, element) => value > element ? value : element) * factor;
     //double firstEscalonX = [40, bottomCrotchExtension, bottomFlatLength].reduce((value, element) => value > element ? value : element) * factor;
 
     double riser = 6.7031 * factor; //(double.parse(data['riser']) * 6.6875 / 6.75) * factor;
@@ -224,15 +224,14 @@ class _Dibujo extends CustomPainter {
 
     // ---------------------------------------------------------------------
     // ----------------------------- Functions -----------------------------
-    void addLabel(
-        {double x = 0.0,
-        double y = 0.0,
-        String label = '',
-        Color couleur = Colors.white,
-        Color bgc = Colors.blueGrey,
-        double fontS = 8,
-        bool nose = true,
-        bool dimension = false}) {
+    void addLabel({double x = 0.0,
+      double y = 0.0,
+      String label = '',
+      Color couleur = Colors.white,
+      Color bgc = Colors.blueGrey,
+      double fontS = 8,
+      bool nose = true,
+      bool dimension = false}) {
       labelCircle.color = bgc;
 
       late TextStyle textStyle;
@@ -575,8 +574,12 @@ class _Dibujo extends CustomPainter {
             size: size,
             factor: factor,
             offset: const Offset(0, 0),
-            dx: dx1 + ((dx1 - dx2).abs() / 2) - (rpt.nosingDistance.toString().length) * factor,
-            dy: dy1 - ((dy1 - dy2).abs() / 2) + (rpt.nosingDistance.toString().length) * factor,
+            dx: dx1 + ((dx1 - dx2).abs() / 2) - (rpt.nosingDistance
+                .toString()
+                .length) * factor,
+            dy: dy1 - ((dy1 - dy2).abs() / 2) + (rpt.nosingDistance
+                .toString()
+                .length) * factor,
             canvas: canvas,
             angle: 0,
             pen: postPen);
@@ -668,19 +671,18 @@ class _Dibujo extends CustomPainter {
     }
   }
 
-  void dimensionLabel(
-      {required String value,
-      required Size size,
-      required Canvas canvas,
-      required Offset offset,
-      required factor,
-      double fontSise = 15.0,
-      Color color = Colors.red,
-      double angle = 0,
-      double bevel = 7.3125,
-      required double dx,
-      required double dy,
-      required Paint pen}) {
+  void dimensionLabel({required String value,
+    required Size size,
+    required Canvas canvas,
+    required Offset offset,
+    required factor,
+    double fontSise = 15.0,
+    Color color = Colors.red,
+    double angle = 0,
+    double bevel = 7.3125,
+    required double dx,
+    required double dy,
+    required Paint pen}) {
     canvas.save();
     canvas.translate(dx, dy + (7.5 / 3) * factor);
     //canvas.translate(dx , dy );
@@ -702,13 +704,12 @@ class _Dibujo extends CustomPainter {
     canvas.restore();
   }
 
-  void dimensionLabelBaluster(
-      {required String value,
-      required Size size,
-      required Canvas canvas,
-      required Offset offset,
-      double fontSise = 15.0,
-      Color color = Colors.red}) {
+  void dimensionLabelBaluster({required String value,
+    required Size size,
+    required Canvas canvas,
+    required Offset offset,
+    double fontSise = 15.0,
+    Color color = Colors.red}) {
     TextStyle textStyle = TextStyle(color: color, fontSize: fontSise, backgroundColor: Colors.white);
     final textSpan = TextSpan(text: value, style: textStyle);
     TextPainter(text: textSpan, textDirection: TextDirection.ltr)

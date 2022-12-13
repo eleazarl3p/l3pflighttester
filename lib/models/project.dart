@@ -7,13 +7,16 @@ class Project extends ChangeNotifier {
   String _id = '';
   List<Stair> _stairs = [];
   bool selected = true;
+  TextEditingController controller = TextEditingController();
 
   Project({id = '', stairs = const <Stair>[]}) {
     _id = id;
     _stairs = stairs;
+    controller.text = id;
   }
 
   get id => _id;
+
   get stairs => _stairs;
 
   set setId(String id) {
@@ -21,7 +24,9 @@ class Project extends ChangeNotifier {
   }
 
   factory Project.copy(Project pj) {
-    return Project(id: "${pj._id} copy" , stairs: pj._stairs);
+    List sts = pj.stairs.map((item) => Stair.copy(item)).toList();
+
+    return Project(id: pj._id, stairs: <Stair>[...sts]);
   }
 
   void addStair(Stair stair) {
@@ -46,7 +51,6 @@ class Project extends ChangeNotifier {
     List<Stair> myStairs = [];
 
     for (var st in json['stairs']) {
-
       myStairs.add(Stair.fromJson(st));
     }
     return Project(id: json['id'], stairs: myStairs);
