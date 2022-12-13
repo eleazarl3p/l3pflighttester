@@ -23,9 +23,10 @@ class Flight extends ChangeNotifier {
 
   double hypotenuse;
 
-  List<Post> lowerFlatPost;
-  List<Post> upperFlatPost;
-  List<RampPost> rampPostList;
+  List<Post> lowerFlatPost = [];
+
+  List<Post> upperFlatPost = [];
+  List<RampPost> rampPostList = [];
 
   Flight({
     this.id = '',
@@ -39,27 +40,32 @@ class Flight extends ChangeNotifier {
     this.bottomCrotchPost = false,
     this.stepsCount = 12,
     this.lastNoseDistance = 200.0,
-    this.lowerFlatPost = const <Post>[],
-    this.rampPostList = const <RampPost>[],
-    this.upperFlatPost = const <Post>[],
+    // this.lowerFlatPost = [],
+    // this.rampPostList =  <RampPost>[],
+    // this.upperFlatPost = const <Post>[],
     this.onHold = true,
     this.hypotenuse = 12.8575,
   });
 
   factory Flight.copy(Flight obj) {
-    return Flight(
-        id: "${obj.id} copy",
-        riser: obj.riser,
-        bevel: obj.bevel,
-        topCrotch: obj.topCrotch,
-        topCrotchDistance: obj.topCrotchDistance,
-        bottomCrotch: obj.bottomCrotch,
-        bottomCrotchDistance: obj.bottomCrotchDistance,
-        bottomCrotchPost: obj.bottomCrotchPost,
-        stepsCount: obj.stepsCount,
-        lowerFlatPost: obj.lowerFlatPost,
-        rampPostList: obj.rampPostList,
-        upperFlatPost: obj.upperFlatPost);
+    Flight fl = Flight(
+      id: "${obj.id} copy",
+      riser: obj.riser,
+      bevel: obj.bevel,
+      topCrotch: obj.topCrotch,
+      topCrotchDistance: obj.topCrotchDistance,
+      bottomCrotch: obj.bottomCrotch,
+      bottomCrotchDistance: obj.bottomCrotchDistance,
+      bottomCrotchPost: obj.bottomCrotchPost,
+      stepsCount: obj.stepsCount,
+      // lowerFlatPost: obj.lowerFlatPost,
+      // rampPostList: obj.rampPostList,
+      // upperFlatPost: obj.upperFlatPost
+    );
+    fl.lowerFlatPost = [...obj.lowerFlatPost];
+    fl.rampPostList = [...obj.rampPostList];
+    fl.upperFlatPost = [...obj.upperFlatPost];
+    return fl;
   }
 
   void updateFlight(Map flt) {
@@ -130,15 +136,15 @@ class Flight extends ChangeNotifier {
         "bottomCrotchLength": bottomCrotchDistance.toString(),
         'hasTopCrotchPost': bottomCrotchPost,
 
-        "lowerFlatPost": <Post>[],
-        "rampPost": <RampPost>[],
-        "upperFlatPost": <Post>[],
+        "lowerFlatPost": lowerFlatPost,
+        "rampPost": rampPostList,
+        "upperFlatPost": upperFlatPost,
         "stepsCount": stepsCount.toString(),
         "lastNoseDistance": lastNoseDistance.toString(),
         'hypotenuse': hypotenuse
       };
 
-  void update(Map<String, dynamic> template) {
+  void updateFl(Map<String, dynamic> template) {
     id = template['id'];
     riser = double.parse(template["riser"]); //
     bevel = double.parse(template["bevel"]);
@@ -156,7 +162,8 @@ class Flight extends ChangeNotifier {
     upperFlatPost = [...template['upperFlatPost']];
     //stepsCount = template['hasTopCrotchPost'];
     lastNoseDistance = double.parse(template['lastNoseDistance']);
-    print(template);
+
+    notifyListeners();
   }
 }
 

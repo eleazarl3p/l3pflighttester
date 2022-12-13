@@ -32,7 +32,7 @@ class FlightEditor extends StatefulWidget {
   int pIndex;
   int sIndex;
   int fIndex;
-  final Map<String, dynamic> template;
+  Map<String, dynamic> template;
 
   List k = ["None", "Plate", 'Tube'];
   List<Post> lowerPost = [
@@ -74,6 +74,10 @@ class _FlightEditorState extends State<FlightEditor> {
   bool rampQuantityError = false;
   bool lastNoseError = false;
 
+  final double hypotenuse = 12.8575;
+
+  Map<String, dynamic> templatel = {};
+
   @override
   void initState() {
     super.initState();
@@ -85,6 +89,11 @@ class _FlightEditorState extends State<FlightEditor> {
     upperPostQuantity.text = widget.template['upperFlatPost'].length.toString();
     rampPostQuantity.text = widget.template['rampPost'].length.toString();
     lastNoseDistance.text = widget.template['lastNoseDistance'];
+
+    // templatel['lowerFlatPost'] =templatel['lowerFlatPost'];
+    // templatel['upperFlatPost'] =templatel['upperFlatPost'];
+    // templatel['rampPost'] =templatel['rampPost'];
+    templatel = widget.template;
   }
 
   @override
@@ -112,7 +121,7 @@ class _FlightEditorState extends State<FlightEditor> {
   Widget build(BuildContext context) {
     // String selectedItem;
     // int selectedItemPosition = 0;
-
+    print(templatel);
     List<DataColumn> createColumns() {
       return [
         const DataColumn(label: Text('Id')),
@@ -124,8 +133,9 @@ class _FlightEditorState extends State<FlightEditor> {
     List<DataRow> createRows({required bool crotch, required String campo, required double crotchDistance}) {
       double sumDistance = 0;
       String letter = campo == "lowerFlatPost" ? 'B' : "U";
+
       return List<DataRow>.generate(
-        widget.template[campo].length,
+        templatel[campo].length,
         (index) => DataRow(cells: [
           DataCell(Text('$letter${index + 1}')),
           DataCell(
@@ -137,30 +147,30 @@ class _FlightEditorState extends State<FlightEditor> {
               ),
               child: Focus(
                 child: TextFormField(
-                  focusNode: widget.template[campo][index].pFocusNode,
-                  controller: widget.template[campo][index].pController,
+                  focusNode: templatel[campo][index].pFocusNode,
+                  controller: templatel[campo][index].pController,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onTap: () => widget.template[campo][index].pController.selection = TextSelection(
-                      baseOffset: 0, extentOffset: widget.template[campo][index].pController.value.text.length),
+                  onTap: () => templatel[campo][index].pController.selection =
+                      TextSelection(baseOffset: 0, extentOffset: templatel[campo][index].pController.value.text.length),
                   validator: (value) {
                     if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      widget.template[campo][index].error = true;
+                      templatel[campo][index].error = true;
                       return '';
                     }
 
                     if (crotch) {
-                      List sublista = widget.template[campo].sublist(0, index + 1);
+                      List sublista = templatel[campo].sublist(0, index + 1);
                       sumDistance =
                           sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.pController.text));
 
                       if (sumDistance >= crotchDistance && double.parse(value) != 0) {
-                        widget.template[campo][index].error = true;
+                        templatel[campo][index].error = true;
 
                         return "";
                       }
                     }
 
-                    widget.template[campo][index].error = false;
+                    templatel[campo][index].error = false;
                     return null;
                   },
                   decoration: kInputDec,
@@ -168,11 +178,10 @@ class _FlightEditorState extends State<FlightEditor> {
                 ),
                 onFocusChange: (value) {
                   if (!value) {
-                    if (!widget.template[campo][index].error) {
-                      widget.template[campo][index].distance =
-                          double.parse(widget.template[campo][index].pController.text);
+                    if (!templatel[campo][index].error) {
+                      templatel[campo][index].distance = double.parse(templatel[campo][index].pController.text);
                     } else {
-                      widget.template[campo][index].pFocusNode.requestFocus();
+                      templatel[campo][index].pFocusNode.requestFocus();
                     }
                   }
                 },
@@ -196,10 +205,10 @@ class _FlightEditorState extends State<FlightEditor> {
                     child: Text("Sleeve"),
                   )
                 ],
-                value: widget.template[campo][index].embeddedType,
+                value: templatel[campo][index].embeddedType,
                 onChanged: (value) {
                   setState(() {
-                    widget.template[campo][index].embeddedType = value;
+                    templatel[campo][index].embeddedType = value;
                   });
                 }
 
@@ -227,8 +236,9 @@ class _FlightEditorState extends State<FlightEditor> {
 
     List<DataRow> rampRows({required int steps}) {
       List<String> alphabet = List.generate(26, (index) => String.fromCharCode(index + 65));
+
       return List<DataRow>.generate(
-        widget.template['rampPost'].length,
+        templatel['rampPost'].length,
         (index) => DataRow(cells: [
           DataCell(Text(alphabet[index])),
           DataCell(
@@ -240,30 +250,30 @@ class _FlightEditorState extends State<FlightEditor> {
               ),
               child: Focus(
                 child: TextFormField(
-                  focusNode: widget.template['rampPost'][index].noseFocus,
-                  controller: widget.template['rampPost'][index].noseController,
+                  focusNode: templatel['rampPost'][index].noseFocus,
+                  controller: templatel['rampPost'][index].noseController,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onTap: () => widget.template['rampPost'][index].noseController.selection = TextSelection(
-                      baseOffset: 0, extentOffset: widget.template['rampPost'][index].noseController.value.text.length),
+                  onTap: () => templatel['rampPost'][index].noseController.selection = TextSelection(
+                      baseOffset: 0, extentOffset: templatel['rampPost'][index].noseController.value.text.length),
                   validator: (value) {
                     if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      widget.template['rampPost'][index].noseError = true;
+                      templatel['rampPost'][index].noseError = true;
                       return '';
                     }
 
                     double noseValue = double.parse(value);
                     if (double.tryParse(lastNoseDistance.text) != null) {
                       if (noseValue >= double.parse(lastNoseDistance.text)) {
-                        widget.template['rampPost'][index].noseError = true;
+                        templatel['rampPost'][index].noseError = true;
                         return "";
                       }
                     }
 
-                    widget.template['rampPost'][index].noseError = false;
-                    int step = (noseValue / widget.template['hypotenuse']).round()..toInt();
-                    print('$step - $noseValue ${widget.template['hypotenuse']}');
-                    widget.template['rampPost'][index].step = step + 1;
-                    widget.template['rampPost'][index].nosingDistance = double.parse(value);
+                    templatel['rampPost'][index].noseError = false;
+                    int step = (noseValue / hypotenuse).round()..toInt();
+
+                    templatel['rampPost'][index].step = step + 1;
+                    templatel['rampPost'][index].nosingDistance = double.parse(value);
                     return null;
                   },
                   decoration: kInputDec,
@@ -272,8 +282,8 @@ class _FlightEditorState extends State<FlightEditor> {
                 onFocusChange: (value) {
                   if (!lastNoseError) {
                     if (!value) {
-                      if (widget.template['rampPost'][index].noseError) {
-                        widget.template['rampPost'][index].noseFocus.requestFocus();
+                      if (templatel['rampPost'][index].noseError) {
+                        templatel['rampPost'][index].noseFocus.requestFocus();
                       }
                     }
                   }
@@ -290,29 +300,28 @@ class _FlightEditorState extends State<FlightEditor> {
               ),
               child: Focus(
                 child: TextFormField(
-                  focusNode: widget.template['rampPost'][index].balusterFocus,
-                  controller: widget.template['rampPost'][index].balusterController,
+                  focusNode: templatel['rampPost'][index].balusterFocus,
+                  controller: templatel['rampPost'][index].balusterController,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onTap: () => widget.template['rampPost'][index].balusterController.selection = TextSelection(
-                      baseOffset: 0,
-                      extentOffset: widget.template['rampPost'][index].balusterController.value.text.length),
+                  onTap: () => templatel['rampPost'][index].balusterController.selection = TextSelection(
+                      baseOffset: 0, extentOffset: templatel['rampPost'][index].balusterController.value.text.length),
                   validator: (value) {
                     if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      widget.template['rampPost'][index].balusterError = true;
+                      templatel['rampPost'][index].balusterError = true;
                       return '';
                     }
 
-                    // List sublista = widget.template['ramPost'].sublist(0, index + 1);
+                    // List sublista =templatel['ramPost'].sublist(0, index + 1);
                     // sumDistance =
                     //     sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.noseController.text));
                     double noseValue = double.parse(value);
                     if (noseValue >= 10) {
-                      widget.template['rampPost'][index].balusterError = true;
+                      templatel['rampPost'][index].balusterError = true;
                       return "";
                     }
 
-                    widget.template['rampPost'][index].balusterError = false;
-                    widget.template['rampPost'][index].balusterDistance = double.parse(value);
+                    templatel['rampPost'][index].balusterError = false;
+                    templatel['rampPost'][index].balusterDistance = double.parse(value);
 
                     return null;
                   },
@@ -321,8 +330,8 @@ class _FlightEditorState extends State<FlightEditor> {
                 ),
                 onFocusChange: (value) {
                   if (!value) {
-                    if (widget.template['rampPost'][index].balusterError) {
-                      widget.template['rampPost'][index].balusterFocus.requestFocus();
+                    if (templatel['rampPost'][index].balusterError) {
+                      templatel['rampPost'][index].balusterFocus.requestFocus();
                     }
                   }
                 },
@@ -346,10 +355,10 @@ class _FlightEditorState extends State<FlightEditor> {
                     child: Text("Sleeve"),
                   )
                 ],
-                value: widget.template['rampPost'][index].embeddedType,
+                value: templatel['rampPost'][index].embeddedType,
                 onChanged: (value) {
                   setState(() {
-                    widget.template['rampPost'][index].embeddedType = value;
+                    templatel['rampPost'][index].embeddedType = value;
                   });
                 }
 
@@ -400,8 +409,7 @@ class _FlightEditorState extends State<FlightEditor> {
           CustomActionButton(
             txt: 'open',
             onPressed: () {
-              print(widget.template);
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => Dibujo(widget.template)));
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => Dibujo(templatel)));
             },
           ),
           CustomActionButton(
@@ -416,11 +424,34 @@ class _FlightEditorState extends State<FlightEditor> {
               if (_formKey.currentState!.validate()) {
                 // If the form is valid, display a snackbar. In the real world,
                 // you'd often call a server or save the information in a database.
-                Provider.of<Projects>(context, listen: false)
+                Map<String, dynamic> tempFlight = {
+                  'id': templatel['id'],
+                  "riser": riserController.text, //
+                  "bevel": bevelController.text,
+
+                  "topCrotch": templatel['topCrotch'],
+                  "topCrotchLength": tcController.text,
+                  'hasBottomCrotchPost': templatel['topCrotch'],
+                  //
+                  "bottomCrotch": templatel['bottomCrotch'],
+                  "bottomCrotchLength": btcController.text,
+                  'hasTopCrotchPost': templatel['hasBottomCrotchPost'],
+                  //
+                  "lowerFlatPost": templatel['lowerFlatPost'],
+                  "rampPost": templatel['rampPost'],
+                  "upperFlatPost": templatel['upperFlatPost'],
+                  // "stepsCount": stepsCount.toString(),
+                  "lastNoseDistance": lastNoseDistance.text,
+                  'hypotenuse': hypotenuse
+                };
+
+                context
+                    .read<Projects>()
+                    // Provider.of<Projects>(context, listen: false)
                     .projects[widget.pIndex]
                     .stairs[widget.sIndex]
                     .flights[widget.fIndex]
-                    .update(widget.template);
+                    .updateFl(tempFlight);
                 Navigator.pop(context);
                 await OurDataStorage.writeDocument(
                     "MyProjects", Provider.of<Projects>(context, listen: false).toJson());
@@ -491,9 +522,9 @@ class _FlightEditorState extends State<FlightEditor> {
                                       // onChanged: (value) {
                                       //   if (double.tryParse(value) != null) {
                                       //     setState(() {
-                                      //       widget.template['riser'] = riserController.text;
+                                      //      templatel['riser'] = riserController.text;
                                       //       double hypotenuse = sqrt(121 + pow(double.parse(riserController.text), 2));
-                                      //       widget.template['hypotenuse'] = hypotenuse;
+                                      //      templatel['hypotenuse'] = hypotenuse;
                                       //     });
                                       //   }
                                       // },
@@ -517,9 +548,9 @@ class _FlightEditorState extends State<FlightEditor> {
                                           riserFocus.requestFocus();
                                         } else {
                                           setState(() {
-                                            widget.template['riser'] = riserController.text;
-                                            double hypotenuse = sqrt(121 + pow(double.parse(riserController.text), 2));
-                                            widget.template['hypotenuse'] = hypotenuse;
+                                            templatel['riser'] = riserController.text;
+                                            // double hypotenuse = sqrt(121 + pow(double.parse(riserController.text), 2));
+                                            // templatel['hypotenuse'] = hypotenuse;
                                           });
                                         }
                                       }
@@ -555,7 +586,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                           bevelFocus.requestFocus();
                                         } else {
                                           setState(() {
-                                            widget.template['bevel'] = bevelController.text;
+                                            templatel['bevel'] = bevelController.text;
                                           });
                                         }
                                       }
@@ -569,23 +600,23 @@ class _FlightEditorState extends State<FlightEditor> {
                                 MyTableCol(name: 'Bot. Crotch'),
                                 MyTableCell(
                                   Checkbox(
-                                      value: widget.template['bottomCrotch'],
+                                      value: templatel['bottomCrotch'],
                                       onChanged: (value) {
                                         if (value != null) {
-                                          if (widget.template['lowerFlatPost'].isNotEmpty) {
+                                          if (templatel['lowerFlatPost'].isNotEmpty) {
                                             double sumDistance = 0;
-                                            sumDistance = widget.template['lowerFlatPost'].fold(
+                                            sumDistance = templatel['lowerFlatPost'].fold(
                                                 0,
                                                 (sum, element) =>
                                                     sum.toDouble() + double.parse(element.pController.text));
 
-                                            if (sumDistance >= double.parse(widget.template['bottomCrotchLength'])) {
+                                            if (sumDistance >= double.parse(templatel['bottomCrotchLength'])) {
                                               return;
                                             }
                                           }
                                         }
                                         setState(() {
-                                          widget.template['bottomCrotch'] = !widget.template['bottomCrotch'];
+                                          templatel['bottomCrotch'] = !templatel['bottomCrotch'];
                                         });
                                       }),
                                 ),
@@ -599,7 +630,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                     child: TextFormField(
                                       focusNode: btcFocus,
                                       controller: btcController,
-                                      enabled: widget.template['bottomCrotch'],
+                                      enabled: templatel['bottomCrotch'],
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       onTap: () => btcController.selection =
                                           TextSelection(baseOffset: 0, extentOffset: btcController.value.text.length),
@@ -609,9 +640,9 @@ class _FlightEditorState extends State<FlightEditor> {
                                           return "";
                                         }
 
-                                        if (widget.template['lowerFlatPost'].isNotEmpty) {
+                                        if (templatel['lowerFlatPost'].isNotEmpty) {
                                           double totDistance = 0;
-                                          totDistance = widget.template['lowerFlatPost']
+                                          totDistance = templatel['lowerFlatPost']
                                               .fold(0, (previousValue, element) => previousValue + element.distance);
 
                                           if (double.parse(value) <= totDistance && totDistance != 0) {
@@ -619,7 +650,6 @@ class _FlightEditorState extends State<FlightEditor> {
                                             return "";
                                           }
                                         }
-                                        widget.template['bottomCrotchLength'] = btcController.text;
 
                                         bottomFlatDistanceError = false;
 
@@ -627,16 +657,17 @@ class _FlightEditorState extends State<FlightEditor> {
                                         return null;
                                       },
                                       keyboardType: TextInputType.phone,
-                                      decoration: widget.template['bottomCrotch'] ? kInputDec : kInputDecDisable,
+                                      decoration: templatel['bottomCrotch'] ? kInputDec : kInputDecDisable,
                                       style: TextStyle(
                                           fontSize: 14,
-                                          color:
-                                              widget.template['bottomCrotch'] ? Colors.black : Colors.blueGrey.shade50),
+                                          color: templatel['bottomCrotch'] ? Colors.black : Colors.blueGrey.shade50),
                                     ),
                                     onFocusChange: (value) {
                                       if (!value) {
                                         if (bottomFlatDistanceError) {
                                           btcFocus.requestFocus();
+                                        } else {
+                                          templatel['bottomCrotchLength'] = btcController.text;
                                         }
                                       }
                                     },
@@ -649,12 +680,11 @@ class _FlightEditorState extends State<FlightEditor> {
                                 MyTableCol(name: "Bot\u{00A0}Cr.\u{00A0}Post"),
                                 MyTableCell(
                                   Checkbox(
-                                      value: widget.template['hasBottomCrotchPost'],
-                                      onChanged: widget.template['bottomCrotch']
+                                      value: templatel['hasBottomCrotchPost'],
+                                      onChanged: templatel['bottomCrotch']
                                           ? (value) {
                                               setState(() {
-                                                widget.template['hasBottomCrotchPost'] =
-                                                    !widget.template['hasBottomCrotchPost'];
+                                                templatel['hasBottomCrotchPost'] = !templatel['hasBottomCrotchPost'];
                                               });
                                             }
                                           : null),
@@ -666,23 +696,23 @@ class _FlightEditorState extends State<FlightEditor> {
                                 MyTableCol(name: "Top\u{00A0}Crotch"),
                                 MyTableCell(
                                   Checkbox(
-                                      value: widget.template['topCrotch'],
+                                      value: templatel['topCrotch'],
                                       onChanged: (value) {
                                         if (value != null) {
-                                          if (widget.template['upperFlatPost'].isNotEmpty) {
+                                          if (templatel['upperFlatPost'].isNotEmpty) {
                                             double sumDistance = 0;
-                                            sumDistance = widget.template['upperFlatPost'].fold(
+                                            sumDistance = templatel['upperFlatPost'].fold(
                                                 0,
                                                 (sum, element) =>
                                                     sum.toDouble() + double.parse(element.pController.text));
 
-                                            if (sumDistance >= double.parse(widget.template['topCrotchLength'])) {
+                                            if (sumDistance >= double.parse(templatel['topCrotchLength'])) {
                                               return;
                                             }
                                           }
                                         }
                                         setState(() {
-                                          widget.template['topCrotch'] = !widget.template['topCrotch'];
+                                          templatel['topCrotch'] = !templatel['topCrotch'];
                                         });
                                       }),
                                 ),
@@ -696,7 +726,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                     child: TextFormField(
                                       focusNode: tcFocus,
                                       controller: tcController,
-                                      enabled: widget.template['topCrotch'],
+                                      enabled: templatel['topCrotch'],
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       onTap: () => tcController.selection =
                                           TextSelection(baseOffset: 0, extentOffset: tcController.value.text.length),
@@ -705,9 +735,9 @@ class _FlightEditorState extends State<FlightEditor> {
                                           topFlatDistanceError = true;
                                           return "";
                                         }
-                                        if (widget.template['upperFlatPost'].isNotEmpty) {
+                                        if (templatel['upperFlatPost'].isNotEmpty) {
                                           double totDistance = 0;
-                                          totDistance = widget.template['upperFlatPost']
+                                          totDistance = templatel['upperFlatPost']
                                               .fold(0, (previousValue, element) => previousValue + element.distance);
 
                                           if (double.parse(value) <= totDistance && totDistance != 0) {
@@ -716,15 +746,15 @@ class _FlightEditorState extends State<FlightEditor> {
                                           }
                                         }
 
-                                        widget.template['topCrotchLength'] = tcController.text;
+                                        templatel['topCrotchLength'] = tcController.text;
                                         topFlatDistanceError = false;
                                         return null;
                                       },
                                       keyboardType: TextInputType.phone,
-                                      decoration: widget.template['topCrotch'] ? kInputDec : kInputDecDisable,
+                                      decoration: templatel['topCrotch'] ? kInputDec : kInputDecDisable,
                                       style: TextStyle(
                                           fontSize: 14,
-                                          color: widget.template['topCrotch'] ? Colors.black : Colors.blueGrey.shade50),
+                                          color: templatel['topCrotch'] ? Colors.black : Colors.blueGrey.shade50),
                                     ),
                                     onFocusChange: (value) {
                                       if (!value) {
@@ -742,12 +772,11 @@ class _FlightEditorState extends State<FlightEditor> {
                                 MyTableCol(name: "Top\u{00A0}Cr.\u{00A0}Post"),
                                 MyTableCell(
                                   Checkbox(
-                                      value: widget.template['hasTopCrotchPost'],
-                                      onChanged: widget.template['topCrotch']
+                                      value: templatel['hasTopCrotchPost'],
+                                      onChanged: templatel['topCrotch']
                                           ? (value) {
                                               setState(() {
-                                                widget.template['hasTopCrotchPost'] =
-                                                    !widget.template['hasTopCrotchPost'];
+                                                templatel['hasTopCrotchPost'] = !templatel['hasTopCrotchPost'];
                                               });
                                             }
                                           : null),
@@ -762,6 +791,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                     child: TextFormField(
                                       focusNode: lastNoseDistFocus,
                                       autocorrect: true,
+                                      controller: lastNoseDistance,
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       onTap: () => lastNoseDistance.selection = TextSelection(
                                           baseOffset: 0, extentOffset: lastNoseDistance.value.text.length),
@@ -773,15 +803,14 @@ class _FlightEditorState extends State<FlightEditor> {
                                           return '';
                                         }
                                         double parseVal = double.parse(value!);
-                                        if (parseVal < widget.template['hypotenuse']) {
+                                        if (parseVal < hypotenuse) {
                                           lastNoseError = true;
 
                                           return '';
                                         }
-                                        if (widget.template['rampPost'].isNotEmpty) {
-                                          widget.template['rampPost'].forEach((rp) => {
-                                                if (rp.nosingDistance > parseVal)
-                                                  {lastNoseError = true, print(rp.nosingDistance)}
+                                        if (templatel['rampPost'].isNotEmpty) {
+                                          templatel['rampPost'].forEach((rp) => {
+                                                if (rp.nosingDistance > parseVal) {lastNoseError = true}
                                               });
 
                                           if (lastNoseError) {
@@ -792,7 +821,6 @@ class _FlightEditorState extends State<FlightEditor> {
                                         lastNoseError = false;
                                         return null;
                                       },
-                                      controller: lastNoseDistance,
                                       keyboardType: TextInputType.phone,
                                       decoration: kInputDec,
                                       style: const TextStyle(fontSize: 14),
@@ -800,14 +828,14 @@ class _FlightEditorState extends State<FlightEditor> {
                                     onFocusChange: (value) {
                                       if (!lastNoseError) {
                                         double? lnd = double.tryParse(lastNoseDistance.text);
-                                        double hypotenuse = widget.template['hypotenuse'];
 
                                         if (!(lnd == null)) {
                                           if (lnd >= hypotenuse) {
                                             int numSteps = (lnd / hypotenuse).round() + 1;
 
                                             setState(() {
-                                              widget.template['stepsCount'] = numSteps.toString();
+                                              templatel['stepsCount'] = numSteps.toString();
+                                              templatel['lastNoseDistance'] = lastNoseDistance.text;
                                             });
                                           } else {
                                             lastNoseDistFocus.requestFocus();
@@ -892,24 +920,23 @@ class _FlightEditorState extends State<FlightEditor> {
                                                       if (!value) {
                                                         if (!lowerQuantityError) {
                                                           int numLP = int.parse(lowerPostQuantity.text);
-                                                          int listLpLen = widget.template['lowerFlatPost'].length;
+                                                          int listLpLen = templatel['lowerFlatPost'].length;
                                                           if (numLP > 0) {
-                                                            if (widget.template['lowerFlatPost'].length < numLP) {
+                                                            if (templatel['lowerFlatPost'].length < numLP) {
                                                               for (int i = 0; i < (numLP - listLpLen); i++) {
-                                                                widget.template['lowerFlatPost']
+                                                                templatel['lowerFlatPost']
                                                                     .add(Post(distance: 0, embeddedType: 'none'));
                                                               }
                                                               setState(() {});
-                                                            } else if (widget.template['lowerFlatPost'].length >
-                                                                numLP) {
+                                                            } else if (templatel['lowerFlatPost'].length > numLP) {
                                                               setState(() {
-                                                                widget.template['lowerFlatPost'] =
-                                                                    widget.template['lowerFlatPost'].sublist(0, numLP);
+                                                                templatel['lowerFlatPost'] =
+                                                                    templatel['lowerFlatPost'].sublist(0, numLP);
                                                               });
                                                             }
                                                           } else {
                                                             setState(() {
-                                                              widget.template['lowerFlatPost'].clear();
+                                                              templatel['lowerFlatPost'].clear();
                                                             });
                                                           }
                                                         } else {
@@ -929,9 +956,9 @@ class _FlightEditorState extends State<FlightEditor> {
                                   ),
                                   if (int.parse(lowerPostQuantity.text) > 0) ...[
                                     buildTable(
-                                        crotch: widget.template['bottomCrotch'],
+                                        crotch: templatel['bottomCrotch'],
                                         campo: 'lowerFlatPost',
-                                        crotchDistance: double.parse(widget.template['bottomCrotchLength']))
+                                        crotchDistance: double.parse(templatel['bottomCrotchLength']))
                                   ],
                                 ],
                               ),
@@ -985,7 +1012,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                                         }
 
                                                         int numRP = int.parse(rampPostQuantity.text);
-                                                        int stepsCount = int.parse(widget.template['stepsCount']);
+                                                        int stepsCount = int.parse(templatel['stepsCount']);
                                                         if (numRP > 0) {
                                                           // If number of post to add is minor than the amount of steps
                                                           if (numRP > stepsCount) {
@@ -1001,7 +1028,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                                     ),
                                                     onFocusChange: (value) {
                                                       if (!value) {
-                                                        int listRpLen = widget.template['rampPost'].length;
+                                                        int listRpLen = templatel['rampPost'].length;
                                                         int numRP = int.parse(rampPostQuantity.text);
 
                                                         if (!rampQuantityError) {
@@ -1010,7 +1037,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                                             // If number of post to add is minor than the amount of steps
                                                             if (numRP > listRpLen) {
                                                               for (int i = 0; i < (numRP - listRpLen); i++) {
-                                                                widget.template['rampPost'].add(RampPost(
+                                                                templatel['rampPost'].add(RampPost(
                                                                     nosingDistance: 0.0,
                                                                     balusterDistance: 5.5,
                                                                     embeddedType: 'none',
@@ -1019,13 +1046,13 @@ class _FlightEditorState extends State<FlightEditor> {
                                                               setState(() {});
                                                             } else {
                                                               setState(() {
-                                                                widget.template['rampPost'] =
-                                                                    widget.template['rampPost'].sublist(0, numRP);
+                                                                templatel['rampPost'] =
+                                                                    templatel['rampPost'].sublist(0, numRP);
                                                               });
                                                             }
                                                           } else {
                                                             setState(() {
-                                                              widget.template['rampPost'].clear();
+                                                              templatel['rampPost'].clear();
                                                             });
                                                           }
                                                         } else {
@@ -1047,9 +1074,9 @@ class _FlightEditorState extends State<FlightEditor> {
                                     rampPostTable(steps: int.parse(rampPostQuantity.text))
                                   ]
                                   // BuildTable(
-                                  //     crotch: widget.template['Crotch'],
+                                  //     crotch:templatel['Crotch'],
                                   //     campo: 'upperFlatPost',
-                                  //     crotchDistance: double.parse(widget.template['topCrotchLength']))
+                                  //     crotchDistance: double.parse(templatel['topCrotchLength']))
                                 ],
                               ),
                             ),
@@ -1107,23 +1134,23 @@ class _FlightEditorState extends State<FlightEditor> {
                                                     onFocusChange: (value) {
                                                       if (!value) {
                                                         int numLP = int.parse(upperPostQuantity.text);
-                                                        int listLpLen = widget.template['upperFlatPost'].length;
+                                                        int listLpLen = templatel['upperFlatPost'].length;
                                                         if (numLP > 0) {
-                                                          if (widget.template['upperFlatPost'].length < numLP) {
+                                                          if (templatel['upperFlatPost'].length < numLP) {
                                                             for (int i = 0; i < (numLP - listLpLen); i++) {
-                                                              widget.template['upperFlatPost']
+                                                              templatel['upperFlatPost']
                                                                   .add(Post(distance: 0, embeddedType: 'none'));
                                                             }
                                                             setState(() {});
-                                                          } else if (widget.template['upperFlatPost'].length > numLP) {
+                                                          } else if (templatel['upperFlatPost'].length > numLP) {
                                                             setState(() {
-                                                              widget.template['upperFlatPost'] =
-                                                                  widget.template['upperFlatPost'].sublist(0, numLP);
+                                                              templatel['upperFlatPost'] =
+                                                                  templatel['upperFlatPost'].sublist(0, numLP);
                                                             });
                                                           }
                                                         } else {
                                                           setState(() {
-                                                            widget.template['upperFlatPost'].clear();
+                                                            templatel['upperFlatPost'].clear();
                                                           });
                                                         }
                                                       }
@@ -1140,9 +1167,9 @@ class _FlightEditorState extends State<FlightEditor> {
                                   ),
                                   if (int.parse(upperPostQuantity.text) > 0) ...[
                                     buildTable(
-                                        crotch: widget.template['topCrotch'],
+                                        crotch: templatel['topCrotch'],
                                         campo: 'upperFlatPost',
-                                        crotchDistance: double.parse(widget.template['topCrotchLength']))
+                                        crotchDistance: double.parse(templatel['topCrotchLength']))
                                   ]
                                 ],
                               ),
