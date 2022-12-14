@@ -470,6 +470,7 @@ class _FlightEditorState extends State<FlightEditor> {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
+                    duration: const Duration(milliseconds: 500),
                     content: const Text('Processing Data'),
                     backgroundColor: Colors.blueGrey.shade400,
                   ),

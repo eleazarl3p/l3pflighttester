@@ -14,10 +14,10 @@ import 'package:l3pflighttester/models/Projects.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    Projects ppp = Projects();
+    //Projects ppp = Projects();
     await tester.pumpWidget(MyApp(
-      ldP: ppp,
-    ));
+        //ldP: ppp,
+        ));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

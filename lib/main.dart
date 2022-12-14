@@ -15,19 +15,21 @@ void main() async {
   // WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp();
 
-  Projects savedProjects = Projects();
+  // Projects savedProjects = Projects();
+  // OurDataStorage.readDocument('MyProjects');
+  //print(anss);
   // try {
   //   await  OurDataStorage.readDocument('MyProjects');
   //
   // } catch(error) {
   //   print(error);
   // }
-  await OurDataStorage.readDocument('MyProjects').then((value) {
-    //print(value['projects']);
-    value['projects'].forEach((element) => savedProjects.massiveUpdate(Project.fromJson(element)));
-  }).catchError((e) {});
 
-  print('saved: ${savedProjects.projects[0].id} 00');
+  /*try {
+    print('saveddd: ${savedProjects.projects[0].id} 00');
+  } catch (e) {
+    print(e);
+  }*/
 
   runApp(MultiProvider(
     providers: [
@@ -35,37 +37,27 @@ void main() async {
       ChangeNotifierProvider(create: (context) => Project()),
       ChangeNotifierProvider(create: (context) => FlightMap())
     ],
-    child: MyApp(
-      ldP: savedProjects,
-    ),
+    child: MyApp(),
   ));
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key, required this.ldP});
+  MyApp({super.key});
 
   bool load = true;
-  Projects ldP;
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // final tempProjects = Projects();
-    final pjsProvider = context.read<Projects>();
-    print('object');
     if (load) {
-      ldP.projects.forEach((element) => pjsProvider.massiveUpdate(element));
-
+      Projects pjs = context.read<Projects>();
+      OurDataStorage.readDocument('MyProjects').then((value) {
+        value['projects'].forEach((element) => pjs.addProject(Project.fromJson(element)));
+        //print('local file ${pjs.projects}');
+      }).catchError((e) {
+        print('error ->  $e');
+      });
       load = false;
     }
-
-    // OurDataStorage.readDocument('MyProjects').then((value) {
-    //   pjsProvider.resetProject();
-    //   //print(value['projects']);
-    //   value['projects'].forEach((element) => pjsProvider.massiveUpdate(Project.fromJson(element)));
-    // }).catchError((e) {
-    //   print(e);
-    // });
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -76,16 +68,25 @@ class MyApp extends StatelessWidget {
       ),
 
       //home: const Home(),
-      routes: {'/': (context) => ProjectsPage()},
+      routes: {'/': (context) => const ProjectsPage()},
     );
   }
 }
 
-class HomeSt extends StatelessWidget {
-  const HomeSt({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
+// class HomeSt extends StatelessWidget {
+//   const HomeSt({Key? key}) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     Projects pjs = context.read<Projects>();
+//     //print(' homest');
+//
+//     OurDataStorage.readDocument('MyProjects').then((value) {
+//       value['projects'].forEach((element) => pjs.addProject(Project.fromJson(element)));
+//       print('local file ${pjs.projects}');
+//     }).catchError((e) {
+//       print('error ->  $e');
+//     });
+//     return const ProjectsPage();
+//   }
+// }

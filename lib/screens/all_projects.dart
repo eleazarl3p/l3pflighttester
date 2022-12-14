@@ -18,7 +18,7 @@ import 'all_stair_from_actual_project.dart';
 //import '../Utils/dbConn.dart';
 
 class ProjectsPage extends StatefulWidget {
-  ProjectsPage({
+  const ProjectsPage({
     Key? key,
   }) : super(key: key);
 
@@ -46,6 +46,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
   @override
   Widget build(BuildContext context) {
+    Projects ppj = context.watch<Projects>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('PROJECTS'),
@@ -166,10 +168,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     // ),
                     Expanded(
                       child: ListView.builder(
-                          itemCount: context
-                              .read<Projects>()
-                              .projects
-                              .length, //.projects.length, //context.select((Projects pj) => pj.projects.length),
+                          itemCount: ppj.projects.length,
+                          // itemCount: context
+                          //     .watch()<Projects>()
+                          //     .projects
+                          //     .length, //.projects.length, //context.select((Projects pj) => pj.projects.length),
                           itemBuilder: (context, index) {
                             return Card(
                               //color: Colors.brown.shade100,

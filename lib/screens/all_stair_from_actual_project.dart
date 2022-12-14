@@ -28,7 +28,7 @@ class StairOnCurrentProject extends StatefulWidget {
 class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
   @override
   Widget build(BuildContext context) {
-    final currentProject = Provider.of<Projects>(context, listen: false).projects[widget.pIndex];
+    final currentProject = Provider.of<Projects>(context, listen: true).projects[widget.pIndex];
 
     return Scaffold(
       appBar: AppBar(
@@ -51,28 +51,34 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
           CustomActionButton(
               txt: "Mail",
               onPressed: () async {
-                await OurDataStorage.clearTemporary();
-                List<String> direcciones = [];
-                var data;
-                var docpath = await OurDataStorage.temporaryDirectoryPath;
+                try {
+                  await OurDataStorage.clearTemporary();
+                  List<String> direcciones = [];
+                  var data;
+                  var docpath = await OurDataStorage.temporaryDirectoryPath;
 
-                await currentProject.stairs.forEach((stair) => {
-                      //data = jsonEncode(stair.toJson()['flights']),
-                      data = stair.toJson()['flights'],
+                  await currentProject.stairs.forEach((stair) => {
+                        //data = jsonEncode(stair.toJson()['flights']),
+                        if (!stair.onHold && stair.selected)
+                          {
+                            data = stair.toJson()['flights'],
+                            OurDataStorage.writeTemporary('stair-${stair.id}', {'${stair.id}': data}),
+                            direcciones.add('${docpath}/stair-${stair.id}.json')
+                          }
+                      });
 
-                      OurDataStorage.writeTemporary('stair-${stair.id}', {'${stair.id}': data}),
-                      direcciones.add('${docpath}/stair-${stair.id}.json')
-                    });
+                  final Email email = Email(
+                    body: 'Hello, In attach ...',
+                    subject: 'Project ${currentProject.id}',
+                    recipients: [],
+                    attachmentPaths: direcciones,
+                    isHTML: false,
+                  );
 
-                final Email email = Email(
-                  body: 'Hello, In attach the following',
-                  subject: 'Project ${currentProject.id}',
-                  recipients: [],
-                  attachmentPaths: direcciones,
-                  isHTML: false,
-                );
-
-                await FlutterEmailSender.send(email);
+                  await FlutterEmailSender.send(email);
+                } catch (err) {
+                  print(err);
+                }
               }),
           const SizedBox(
             width: 25.0,

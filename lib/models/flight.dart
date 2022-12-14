@@ -15,7 +15,8 @@ class Flight extends ChangeNotifier {
   bool bottomCrotch;
   bool bottomCrotchPost;
   bool topCrotchPost;
-  bool onHold;
+
+  //bool onHold;
 
   int stepsCount;
 
@@ -36,7 +37,7 @@ class Flight extends ChangeNotifier {
     this.topCrotch = false,
     this.topCrotchDistance = 0.0,
     this.topCrotchPost = false,
-    this.bottomCrotch = true,
+    this.bottomCrotch = false,
     this.bottomCrotchDistance = 0.0,
     this.bottomCrotchPost = false,
     this.stepsCount = 15,
@@ -44,7 +45,7 @@ class Flight extends ChangeNotifier {
     // this.lowerFlatPost = [],
     // this.rampPostList =  <RampPost>[],
     // this.upperFlatPost = const <Post>[],
-    this.onHold = true,
+    //this.onHold = true,
     this.hypotenuse = 12.8575,
   });
 
@@ -126,7 +127,7 @@ class Flight extends ChangeNotifier {
   }
 
   factory Flight.fromJson(Map<String, dynamic> json) {
-    return Flight(
+    Flight fjs = Flight(
         id: json['id'],
         riser: json['riser'],
         bevel: json['bevel'],
@@ -141,6 +142,8 @@ class Flight extends ChangeNotifier {
         // rampPostList: obj.rampPostList,
         // upperFlatPost: obj.upperFlatPost);
         );
+    fjs.controller.text = json['id'];
+    return fjs;
   }
 
   Map<String, dynamic> template() => {

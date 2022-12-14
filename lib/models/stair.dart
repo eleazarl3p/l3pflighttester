@@ -12,6 +12,7 @@ class Stair extends ChangeNotifier {
   Stair({id = ''}) {
     _id = id;
     _flights = flights;
+    controller.text = id;
     // _onHold = onHold;
   }
 
