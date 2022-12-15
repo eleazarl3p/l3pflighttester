@@ -127,7 +127,15 @@ class _FlightEditorState extends State<FlightEditor> {
     List<DataColumn> createColumns() {
       return [
         const DataColumn(label: Text('Id')),
-        const DataColumn(label: Expanded(child: SizedBox(width: 90, child: Text('Distance')))),
+        DataColumn(
+          label: Expanded(
+            child: Container(
+              width: 86,
+              alignment: Alignment.center,
+              child: const Text('Distance'),
+            ),
+          ),
+        ),
         const DataColumn(label: Text('Emb. Type')),
       ];
     }
@@ -142,11 +150,6 @@ class _FlightEditorState extends State<FlightEditor> {
           DataCell(Text('$letter${index + 1}')),
           DataCell(
             Container(
-              height: 80,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.only(
-                top: 5.0,
-              ),
               child: Focus(
                 child: TextFormField(
                   focusNode: templatel[campo][index].pFocusNode,
@@ -225,9 +228,11 @@ class _FlightEditorState extends State<FlightEditor> {
     Widget buildTable({required bool crotch, required String campo, required double crotchDistance}) {
       return Card(
         child: Container(
-          padding: const EdgeInsets.only(bottom: 12.0),
+          padding: const EdgeInsets.only(bottom: 6.0),
           child: DataTable(
-            dataRowHeight: 60.0,
+            dataRowHeight: 50.0,
+            columnSpacing: 12.0,
+            horizontalMargin: 10.0,
             columns: createColumns(),
             rows: createRows(crotch: crotch, campo: campo, crotchDistance: crotchDistance),
             //columnSpacing: 20,
@@ -244,113 +249,99 @@ class _FlightEditorState extends State<FlightEditor> {
         (index) => DataRow(cells: [
           DataCell(Text(alphabet[index])),
           DataCell(
-            Container(
-              height: 80,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.only(
-                top: 5.0,
-              ),
-              child: Focus(
-                child: TextFormField(
-                  focusNode: templatel['rampPost'][index].noseFocus,
-                  controller: templatel['rampPost'][index].noseController,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onTap: () => templatel['rampPost'][index].noseController.selection = TextSelection(
-                      baseOffset: 0, extentOffset: templatel['rampPost'][index].noseController.value.text.length),
-                  validator: (value) {
-                    if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      templatel['rampPost'][index].noseError = true;
-                      return '';
-                    }
-
-                    double noseValue = double.parse(value);
-                    if (double.tryParse(lastNoseDistance.text) != null) {
-                      if (noseValue >= double.parse(lastNoseDistance.text)) {
-                        templatel['rampPost'][index].noseError = true;
-                        return "";
-                      }
-                    }
-
-                    templatel['rampPost'][index].noseError = false;
-                    int step = (noseValue / hypotenuse).round()..toInt();
-
-                    templatel['rampPost'][index].step = step + 1;
-                    templatel['rampPost'][index].nosingDistance = double.parse(value);
-                    return null;
-                  },
-                  decoration: kInputDec,
-                  style: const TextStyle(fontSize: 14),
-                ),
-                onFocusChange: (value) {
-                  if (!lastNoseError) {
-                    if (!value) {
-                      if (templatel['rampPost'][index].noseError) {
-                        templatel['rampPost'][index].noseFocus.requestFocus();
-                      } else {
-                        setState(() {
-                          double noseValue = double.parse(lastNoseDistance.text);
-                          int step = (noseValue / hypotenuse).round()..toInt();
-
-                          templatel['rampPost'][index].step = step + 1;
-                          templatel['rampPost'][index].nosingDistance = double.parse(lastNoseDistance.text);
-                        });
-                      }
-                    }
+            Focus(
+              child: TextFormField(
+                focusNode: templatel['rampPost'][index].noseFocus,
+                controller: templatel['rampPost'][index].noseController,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onTap: () => templatel['rampPost'][index].noseController.selection = TextSelection(
+                    baseOffset: 0, extentOffset: templatel['rampPost'][index].noseController.value.text.length),
+                validator: (value) {
+                  if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                    templatel['rampPost'][index].noseError = true;
+                    return '';
                   }
-                },
-              ),
-            ),
-          ),
-          DataCell(
-            Container(
-              height: 80,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.only(
-                top: 5.0,
-              ),
-              child: Focus(
-                child: TextFormField(
-                  focusNode: templatel['rampPost'][index].balusterFocus,
-                  controller: templatel['rampPost'][index].balusterController,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onTap: () => templatel['rampPost'][index].balusterController.selection = TextSelection(
-                      baseOffset: 0, extentOffset: templatel['rampPost'][index].balusterController.value.text.length),
-                  validator: (value) {
-                    if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      templatel['rampPost'][index].balusterError = true;
-                      return '';
-                    }
 
-                    // List sublista =templatel['ramPost'].sublist(0, index + 1);
-                    // sumDistance =
-                    //     sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.noseController.text));
-                    double noseValue = double.parse(value);
-                    if (noseValue >= 10) {
-                      templatel['rampPost'][index].balusterError = true;
+                  double noseValue = double.parse(value);
+                  if (double.tryParse(lastNoseDistance.text) != null) {
+                    if (noseValue >= double.parse(lastNoseDistance.text)) {
+                      templatel['rampPost'][index].noseError = true;
                       return "";
                     }
+                  }
 
-                    templatel['rampPost'][index].balusterError = false;
-                    templatel['rampPost'][index].balusterDistance = double.parse(value);
+                  templatel['rampPost'][index].noseError = false;
+                  int step = (noseValue / hypotenuse).round()..toInt();
 
-                    return null;
-                  },
-                  decoration: kInputDec,
-                  style: const TextStyle(fontSize: 14),
-                ),
-                onFocusChange: (value) {
+                  templatel['rampPost'][index].step = step + 1;
+                  templatel['rampPost'][index].nosingDistance = double.parse(value);
+                  return null;
+                },
+                decoration: kInputDec,
+                style: const TextStyle(fontSize: 14),
+              ),
+              onFocusChange: (value) {
+                if (!lastNoseError) {
                   if (!value) {
-                    if (templatel['rampPost'][index].balusterError) {
-                      templatel['rampPost'][index].balusterFocus.requestFocus();
+                    if (templatel['rampPost'][index].noseError) {
+                      templatel['rampPost'][index].noseFocus.requestFocus();
                     } else {
                       setState(() {
-                        templatel['rampPost'][index].balusterDistance =
-                            double.parse(templatel['rampPost'][index].balusterController.text);
+                        double noseValue = double.parse(lastNoseDistance.text);
+                        int step = (noseValue / hypotenuse).round()..toInt();
+
+                        templatel['rampPost'][index].step = step + 1;
+                        templatel['rampPost'][index].nosingDistance = double.parse(lastNoseDistance.text);
                       });
                     }
                   }
+                }
+              },
+            ),
+          ),
+          DataCell(
+            Focus(
+              child: TextFormField(
+                focusNode: templatel['rampPost'][index].balusterFocus,
+                controller: templatel['rampPost'][index].balusterController,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onTap: () => templatel['rampPost'][index].balusterController.selection = TextSelection(
+                    baseOffset: 0, extentOffset: templatel['rampPost'][index].balusterController.value.text.length),
+                validator: (value) {
+                  if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                    templatel['rampPost'][index].balusterError = true;
+                    return '';
+                  }
+
+                  // List sublista =templatel['ramPost'].sublist(0, index + 1);
+                  // sumDistance =
+                  //     sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.noseController.text));
+                  double noseValue = double.parse(value);
+                  if (noseValue >= 10) {
+                    templatel['rampPost'][index].balusterError = true;
+                    return "";
+                  }
+
+                  templatel['rampPost'][index].balusterError = false;
+                  templatel['rampPost'][index].balusterDistance = double.parse(value);
+
+                  return null;
                 },
+                decoration: kInputDec,
+                style: const TextStyle(fontSize: 14),
               ),
+              onFocusChange: (value) {
+                if (!value) {
+                  if (templatel['rampPost'][index].balusterError) {
+                    templatel['rampPost'][index].balusterFocus.requestFocus();
+                  } else {
+                    setState(() {
+                      templatel['rampPost'][index].balusterDistance =
+                          double.parse(templatel['rampPost'][index].balusterController.text);
+                    });
+                  }
+                }
+              },
             ),
           ),
           DataCell(
@@ -388,15 +379,34 @@ class _FlightEditorState extends State<FlightEditor> {
     Widget rampPostTable({required int steps}) {
       return Card(
         child: Container(
-          padding: const EdgeInsets.only(bottom: 12.0),
+          padding: const EdgeInsets.only(bottom: 6.0),
           child: DataTable(
-            dataRowHeight: 60.0,
-            columnSpacing: 15.0,
-            columns: const [
-              DataColumn(label: Text('Id')),
-              DataColumn(label: Expanded(child: SizedBox(width: 80, child: Text('Distance')))),
-              DataColumn(label: Expanded(child: SizedBox(width: 80, child: Text('Baluster')))),
-              DataColumn(label: Text('Emb. Type')),
+            dataRowHeight: 50.0,
+            columnSpacing: 12.0,
+            horizontalMargin: 10.0,
+            columns: [
+              const DataColumn(
+                label: Text('Id'),
+              ),
+              DataColumn(
+                label: Expanded(
+                  child: Container(
+                    width: 86,
+                    alignment: Alignment.center,
+                    child: const Text('Distance'),
+                  ),
+                ),
+              ),
+              DataColumn(
+                label: Expanded(
+                  child: Container(
+                    width: 86,
+                    alignment: Alignment.center,
+                    child: const Text('Baluster'),
+                  ),
+                ),
+              ),
+              const DataColumn(label: Text('Emb. Type')),
             ],
             rows: rampRows(steps: steps),
             //columnSpacing: 20,
@@ -421,7 +431,7 @@ class _FlightEditorState extends State<FlightEditor> {
         //centerTitle: true,
         actions: [
           CustomActionButton(
-            txt: 'open',
+            txt: 'View',
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (context) => Dibujo(templatel)));
             },
@@ -468,15 +478,15 @@ class _FlightEditorState extends State<FlightEditor> {
                     .flights[widget.fIndex]
                     .updateFl(tempFlight);
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    duration: const Duration(milliseconds: 500),
-                    content: const Text('Processing Data'),
-                    backgroundColor: Colors.blueGrey.shade400,
-                  ),
-                );
-                await OurDataStorage.writeDocument(
-                    "MyProjects", Provider.of<Projects>(context, listen: false).toJson());
+
+                await OurDataStorage.writeDocument("MyProjects", Provider.of<Projects>(context, listen: false).toJson())
+                    .then((value) => ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            duration: const Duration(milliseconds: 1000),
+                            content: const Text('Saved!'),
+                            backgroundColor: Colors.blueGrey.shade400,
+                          ),
+                        ));
               }
             },
           ),
@@ -568,7 +578,7 @@ class _FlightEditorState extends State<FlightEditor> {
                   child: Wrap(
                     alignment: WrapAlignment.start,
 
-                    spacing: 60,
+                    spacing: 30,
                     runSpacing: 20,
                     //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -731,7 +741,7 @@ class _FlightEditorState extends State<FlightEditor> {
                       ),
                       Column(
                         children: [
-                          MyTableCol(name: "Bot\u{00A0}Cr.\u{00A0}Post"),
+                          MyTableCol(name: "Bot.\u{00A0}Cr.\u{00A0}Post"),
                           MyTableCell(
                             Checkbox(
                                 value: templatel['hasBottomCrotchPost'],
@@ -924,7 +934,7 @@ class _FlightEditorState extends State<FlightEditor> {
                     alignment: WrapAlignment.spaceBetween,
                     children: [
                       PostCard(
-                        Column(
+                        postCardChild: Column(
                           children: [
                             const SizedBox(
                               height: 6.0,
@@ -939,7 +949,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Lower Flat Post',
+                                      'LFP',
                                       style: kCardLabelStyle,
                                     ),
                                     Row(
@@ -948,62 +958,66 @@ class _FlightEditorState extends State<FlightEditor> {
                                           'Qty : ',
                                           style: kCardLabelStyle,
                                         ),
-                                        MyTableCell(
-                                          Focus(
-                                              child: TextFormField(
-                                                focusNode: lowerPostQFocus,
-                                                controller: lowerPostQuantity,
-                                                keyboardType: TextInputType.phone,
-                                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                                onTap: () {
-                                                  lowerPostQuantity.selection = TextSelection(
-                                                      baseOffset: 0, extentOffset: lowerPostQuantity.value.text.length);
-                                                },
-                                                validator: (value) {
-                                                  if (value == null) {
-                                                    lowerQuantityError = true;
+                                        SizedBox(
+                                          width: 70.0,
+                                          child: MyTableCell(
+                                            Focus(
+                                                child: TextFormField(
+                                                  focusNode: lowerPostQFocus,
+                                                  controller: lowerPostQuantity,
+                                                  keyboardType: TextInputType.phone,
+                                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                                  onTap: () {
+                                                    lowerPostQuantity.selection = TextSelection(
+                                                        baseOffset: 0,
+                                                        extentOffset: lowerPostQuantity.value.text.length);
+                                                  },
+                                                  validator: (value) {
+                                                    if (value == null) {
+                                                      lowerQuantityError = true;
 
-                                                    return '';
-                                                  }
+                                                      return '';
+                                                    }
 
-                                                  if (int.tryParse(value) == null) {
-                                                    lowerQuantityError = true;
-                                                    return '';
-                                                  }
-                                                  lowerQuantityError = false;
-                                                  return null;
-                                                },
-                                                decoration: kInputDec,
-                                                style: const TextStyle(fontSize: 14),
-                                              ),
-                                              onFocusChange: (value) {
-                                                if (!value) {
-                                                  if (!lowerQuantityError) {
-                                                    int numLP = int.parse(lowerPostQuantity.text);
-                                                    int listLpLen = templatel['lowerFlatPost'].length;
-                                                    if (numLP > 0) {
-                                                      if (templatel['lowerFlatPost'].length < numLP) {
-                                                        for (int i = 0; i < (numLP - listLpLen); i++) {
-                                                          templatel['lowerFlatPost']
-                                                              .add(Post(distance: 0, embeddedType: 'none'));
+                                                    if (int.tryParse(value) == null) {
+                                                      lowerQuantityError = true;
+                                                      return '';
+                                                    }
+                                                    lowerQuantityError = false;
+                                                    return null;
+                                                  },
+                                                  decoration: kInputDec,
+                                                  style: const TextStyle(fontSize: 14),
+                                                ),
+                                                onFocusChange: (value) {
+                                                  if (!value) {
+                                                    if (!lowerQuantityError) {
+                                                      int numLP = int.parse(lowerPostQuantity.text);
+                                                      int listLpLen = templatel['lowerFlatPost'].length;
+                                                      if (numLP > 0) {
+                                                        if (templatel['lowerFlatPost'].length < numLP) {
+                                                          for (int i = 0; i < (numLP - listLpLen); i++) {
+                                                            templatel['lowerFlatPost']
+                                                                .add(Post(distance: 0, embeddedType: 'none'));
+                                                          }
+                                                          setState(() {});
+                                                        } else if (templatel['lowerFlatPost'].length > numLP) {
+                                                          setState(() {
+                                                            templatel['lowerFlatPost'] =
+                                                                templatel['lowerFlatPost'].sublist(0, numLP);
+                                                          });
                                                         }
-                                                        setState(() {});
-                                                      } else if (templatel['lowerFlatPost'].length > numLP) {
+                                                      } else {
                                                         setState(() {
-                                                          templatel['lowerFlatPost'] =
-                                                              templatel['lowerFlatPost'].sublist(0, numLP);
+                                                          templatel['lowerFlatPost'].clear();
                                                         });
                                                       }
                                                     } else {
-                                                      setState(() {
-                                                        templatel['lowerFlatPost'].clear();
-                                                      });
+                                                      lowerPostQFocus.requestFocus();
                                                     }
-                                                  } else {
-                                                    lowerPostQFocus.requestFocus();
                                                   }
-                                                }
-                                              }),
+                                                }),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1022,9 +1036,10 @@ class _FlightEditorState extends State<FlightEditor> {
                             ],
                           ],
                         ),
+                        width: 250.0,
                       ),
                       PostCard(
-                        Column(
+                        postCardChild: Column(
                           children: [
                             const SizedBox(
                               height: 6.0,
@@ -1048,77 +1063,81 @@ class _FlightEditorState extends State<FlightEditor> {
                                           'Qty : ',
                                           style: kCardLabelStyle,
                                         ),
-                                        MyTableCell(
-                                          Focus(
-                                              child: TextFormField(
-                                                focusNode: rampPostQFocus,
-                                                controller: rampPostQuantity,
-                                                onTap: () {
-                                                  rampPostQuantity.selection = TextSelection(
-                                                      baseOffset: 0, extentOffset: rampPostQuantity.value.text.length);
-                                                },
-                                                keyboardType: TextInputType.phone,
-                                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                                validator: (value) {
-                                                  if (value == null) {
-                                                    rampQuantityError = true;
-                                                    return '';
-                                                  }
-
-                                                  if (double.tryParse(value) == null) {
-                                                    rampQuantityError = true;
-                                                    return '';
-                                                  }
-
-                                                  int numRP = int.parse(rampPostQuantity.text);
-                                                  int stepsCount = int.parse(templatel['stepsCount']);
-                                                  if (numRP > 0) {
-                                                    // If number of post to add is minor than the amount of steps
-                                                    if (numRP > stepsCount) {
+                                        SizedBox(
+                                          width: 70.0,
+                                          child: MyTableCell(
+                                            Focus(
+                                                child: TextFormField(
+                                                  focusNode: rampPostQFocus,
+                                                  controller: rampPostQuantity,
+                                                  onTap: () {
+                                                    rampPostQuantity.selection = TextSelection(
+                                                        baseOffset: 0,
+                                                        extentOffset: rampPostQuantity.value.text.length);
+                                                  },
+                                                  keyboardType: TextInputType.phone,
+                                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                                  validator: (value) {
+                                                    if (value == null) {
                                                       rampQuantityError = true;
                                                       return '';
                                                     }
-                                                  }
-                                                  rampQuantityError = false;
-                                                  return null;
-                                                },
-                                                decoration: kInputDec,
-                                                style: const TextStyle(fontSize: 14),
-                                              ),
-                                              onFocusChange: (value) {
-                                                if (!value) {
-                                                  int listRpLen = templatel['rampPost'].length;
-                                                  int numRP = int.parse(rampPostQuantity.text);
 
-                                                  if (!rampQuantityError) {
-                                                    // If number of post to add in greater than zero
+                                                    if (double.tryParse(value) == null) {
+                                                      rampQuantityError = true;
+                                                      return '';
+                                                    }
+
+                                                    int numRP = int.parse(rampPostQuantity.text);
+                                                    int stepsCount = int.parse(templatel['stepsCount']);
                                                     if (numRP > 0) {
                                                       // If number of post to add is minor than the amount of steps
-                                                      if (numRP > listRpLen) {
-                                                        for (int i = 0; i < (numRP - listRpLen); i++) {
-                                                          templatel['rampPost'].add(RampPost(
-                                                              nosingDistance: 0.0,
-                                                              balusterDistance: 5.5,
-                                                              embeddedType: 'none',
-                                                              step: 0));
+                                                      if (numRP > stepsCount) {
+                                                        rampQuantityError = true;
+                                                        return '';
+                                                      }
+                                                    }
+                                                    rampQuantityError = false;
+                                                    return null;
+                                                  },
+                                                  decoration: kInputDec,
+                                                  style: const TextStyle(fontSize: 14),
+                                                ),
+                                                onFocusChange: (value) {
+                                                  if (!value) {
+                                                    int listRpLen = templatel['rampPost'].length;
+                                                    int numRP = int.parse(rampPostQuantity.text);
+
+                                                    if (!rampQuantityError) {
+                                                      // If number of post to add in greater than zero
+                                                      if (numRP > 0) {
+                                                        // If number of post to add is minor than the amount of steps
+                                                        if (numRP > listRpLen) {
+                                                          for (int i = 0; i < (numRP - listRpLen); i++) {
+                                                            templatel['rampPost'].add(RampPost(
+                                                                nosingDistance: 0.0,
+                                                                balusterDistance: 5.5,
+                                                                embeddedType: 'none',
+                                                                step: 0));
+                                                          }
+                                                          setState(() {});
+                                                        } else {
+                                                          setState(() {
+                                                            templatel['rampPost'] =
+                                                                templatel['rampPost'].sublist(0, numRP);
+                                                          });
                                                         }
-                                                        setState(() {});
                                                       } else {
                                                         setState(() {
-                                                          templatel['rampPost'] =
-                                                              templatel['rampPost'].sublist(0, numRP);
+                                                          templatel['rampPost'].clear();
                                                         });
                                                       }
                                                     } else {
-                                                      setState(() {
-                                                        templatel['rampPost'].clear();
-                                                      });
+                                                      rampPostQFocus.requestFocus();
                                                     }
-                                                  } else {
-                                                    rampPostQFocus.requestFocus();
                                                   }
-                                                }
-                                              }),
+                                                }),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1138,9 +1157,10 @@ class _FlightEditorState extends State<FlightEditor> {
                             //     crotchDistance: double.parse(templatel['topCrotchLength']))
                           ],
                         ),
+                        width: 340.0,
                       ),
                       PostCard(
-                        Column(
+                        postCardChild: Column(
                           children: [
                             const SizedBox(
                               height: 6.0,
@@ -1155,7 +1175,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Upper Flat Post',
+                                      'UFP',
                                       style: kCardLabelStyle,
                                     ),
                                     Row(
@@ -1164,55 +1184,59 @@ class _FlightEditorState extends State<FlightEditor> {
                                           'Qty : ',
                                           style: kCardLabelStyle,
                                         ),
-                                        MyTableCell(
-                                          Focus(
-                                              child: TextFormField(
-                                                focusNode: upperPostQFocus,
-                                                controller: upperPostQuantity,
-                                                onTap: () {
-                                                  upperPostQuantity.selection = TextSelection(
-                                                      baseOffset: 0, extentOffset: upperPostQuantity.value.text.length);
-                                                },
-                                                keyboardType: TextInputType.phone,
-                                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                                validator: (value) {
-                                                  if (value == null) {
-                                                    return '';
-                                                  }
+                                        SizedBox(
+                                          width: 70,
+                                          child: MyTableCell(
+                                            Focus(
+                                                child: TextFormField(
+                                                  focusNode: upperPostQFocus,
+                                                  controller: upperPostQuantity,
+                                                  onTap: () {
+                                                    upperPostQuantity.selection = TextSelection(
+                                                        baseOffset: 0,
+                                                        extentOffset: upperPostQuantity.value.text.length);
+                                                  },
+                                                  keyboardType: TextInputType.phone,
+                                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                                  validator: (value) {
+                                                    if (value == null) {
+                                                      return '';
+                                                    }
 
-                                                  if (int.tryParse(value) == null) {
-                                                    return '';
-                                                  }
+                                                    if (int.tryParse(value) == null) {
+                                                      return '';
+                                                    }
 
-                                                  return null;
-                                                },
-                                                decoration: kInputDec,
-                                                style: const TextStyle(fontSize: 14),
-                                              ),
-                                              onFocusChange: (value) {
-                                                if (!value) {
-                                                  int numLP = int.parse(upperPostQuantity.text);
-                                                  int listLpLen = templatel['upperFlatPost'].length;
-                                                  if (numLP > 0) {
-                                                    if (templatel['upperFlatPost'].length < numLP) {
-                                                      for (int i = 0; i < (numLP - listLpLen); i++) {
-                                                        templatel['upperFlatPost']
-                                                            .add(Post(distance: 0, embeddedType: 'none'));
+                                                    return null;
+                                                  },
+                                                  decoration: kInputDec,
+                                                  style: const TextStyle(fontSize: 14),
+                                                ),
+                                                onFocusChange: (value) {
+                                                  if (!value) {
+                                                    int numLP = int.parse(upperPostQuantity.text);
+                                                    int listLpLen = templatel['upperFlatPost'].length;
+                                                    if (numLP > 0) {
+                                                      if (templatel['upperFlatPost'].length < numLP) {
+                                                        for (int i = 0; i < (numLP - listLpLen); i++) {
+                                                          templatel['upperFlatPost']
+                                                              .add(Post(distance: 0, embeddedType: 'none'));
+                                                        }
+                                                        setState(() {});
+                                                      } else if (templatel['upperFlatPost'].length > numLP) {
+                                                        setState(() {
+                                                          templatel['upperFlatPost'] =
+                                                              templatel['upperFlatPost'].sublist(0, numLP);
+                                                        });
                                                       }
-                                                      setState(() {});
-                                                    } else if (templatel['upperFlatPost'].length > numLP) {
+                                                    } else {
                                                       setState(() {
-                                                        templatel['upperFlatPost'] =
-                                                            templatel['upperFlatPost'].sublist(0, numLP);
+                                                        templatel['upperFlatPost'].clear();
                                                       });
                                                     }
-                                                  } else {
-                                                    setState(() {
-                                                      templatel['upperFlatPost'].clear();
-                                                    });
                                                   }
-                                                }
-                                              }),
+                                                }),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1231,6 +1255,7 @@ class _FlightEditorState extends State<FlightEditor> {
                             ]
                           ],
                         ),
+                        width: 250.0,
                       ),
                     ],
                   ),
@@ -1246,14 +1271,15 @@ class _FlightEditorState extends State<FlightEditor> {
 }
 
 class PostCard extends StatelessWidget {
-  PostCard(this.postCardChild);
+  const PostCard({required this.postCardChild, this.width = 360.0});
 
   final Widget postCardChild;
+  final double width;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 375,
+      width: width,
       decoration: BoxDecoration(color: Colors.blueGrey.shade300, borderRadius: BorderRadius.circular(10)),
       padding: const EdgeInsets.all(10.0),
       child: postCardChild,

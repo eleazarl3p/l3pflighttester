@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:l3pflighttester/widget/CustomActionButton.dart';
 
 import 'package:provider/provider.dart';
@@ -28,7 +29,9 @@ class StairOnCurrentProject extends StatefulWidget {
 class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
   @override
   Widget build(BuildContext context) {
-    final currentProject = Provider.of<Projects>(context, listen: true).projects[widget.pIndex];
+    final currentProject = Provider
+        .of<Projects>(context, listen: true)
+        .projects[widget.pIndex];
 
     return Scaffold(
       appBar: AppBar(
@@ -45,27 +48,34 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
               txt: 'Add Stair',
               onPressed: () {
                 setState(() {
-                  Provider.of<Projects>(context, listen: false).projects[widget.pIndex].addStair(Stair(id: ''));
+                  Provider
+                      .of<Projects>(context, listen: false)
+                      .projects[widget.pIndex].addStair(Stair(id: ''));
                 });
               }),
           CustomActionButton(
               txt: "Mail",
               onPressed: () async {
                 try {
-                  await OurDataStorage.clearTemporary();
+                  // await OurDataStorage.clearTemporary();
                   List<String> direcciones = [];
                   var data;
                   var docpath = await OurDataStorage.temporaryDirectoryPath;
 
-                  await currentProject.stairs.forEach((stair) => {
-                        //data = jsonEncode(stair.toJson()['flights']),
-                        if (!stair.onHold && stair.selected)
-                          {
-                            data = stair.toJson()['flights'],
-                            OurDataStorage.writeTemporary('stair-${stair.id}', {'${stair.id}': data}),
-                            direcciones.add('${docpath}/stair-${stair.id}.json')
-                          }
-                      });
+                  Future writeData() async {
+                    List<String> dirrc = [];
+
+                    for (Stair stair in currentProject.stairs) {
+                      if (!stair.onHold && stair.selected) {
+                        data = stair.toJson()['flights'];
+                        dirrc.add('${docpath}/stair-${stair.id}.json');
+                        await OurDataStorage.writeTemporary('stair-${stair.id}', {'${stair.id}': data});
+                      }
+                    }
+                    return dirrc;
+                  }
+
+                  direcciones = await writeData();
 
                   final Email email = Email(
                     body: 'Hello, In attach ...',
@@ -75,9 +85,88 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                     isHTML: false,
                   );
 
-                  await FlutterEmailSender.send(email);
+                  String platformResponse = '-';
+
+                  try {
+                    await FlutterEmailSender.send(email).then((value) =>
+                    // platformResponse = 'success',
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        duration: const Duration(milliseconds: 5000),
+                        content: const Text(
+                          'Success',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        backgroundColor: Colors.red.shade400,
+                      ),
+                    ));
+                  } catch (error) {
+                    print(error.toString());
+                    platformResponse = 'error 2 ${error.toString()}';
+
+                    try {
+                      final MailOptions mailOptions = MailOptions(
+                        body: 'Hello, In attach ...',
+                        subject: 'Project ${currentProject.id}',
+                        recipients: [],
+                        attachments: direcciones,
+                        isHTML: false,
+                      );
+
+                      final MailerResponse response = await FlutterMailer.send(mailOptions);
+                      switch (response) {
+                        case MailerResponse.saved:
+
+                        /// ios only
+                          platformResponse = 'mail was saved to draft';
+                          break;
+                        case MailerResponse.sent:
+
+                        /// ios only
+                          platformResponse = 'mail was sent';
+                          break;
+                        case MailerResponse.cancelled:
+
+                        /// ios only
+                          platformResponse = 'mail was cancelled';
+                          break;
+                      // case MailerResponse.android:
+                      //   platformResponse = 'intent was successful';
+                      //   break;
+                        default:
+                          platformResponse = 'unknown';
+                          break;
+                      }
+                    } catch (err) {
+                      // print(err.toString());
+                      platformResponse = 'err 3 ${err.toString()}';
+                    }
+                    //platformResponse = error.toString();
+                  }
+
+                  if (!mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      duration: const Duration(milliseconds: 5000),
+                      content: Text(
+                        platformResponse,
+                        style: const TextStyle(fontSize: 16.0),
+                      ),
+                      backgroundColor: Colors.red.shade400,
+                    ),
+                  );
                 } catch (err) {
-                  print(err);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      duration: const Duration(milliseconds: 5000),
+                      content: Text(
+                        'err1 : ${err.toString()}',
+                        style: const TextStyle(fontSize: 16.0),
+                      ),
+                      backgroundColor: Colors.red.shade400,
+                    ),
+                  );
                 }
               }),
           const SizedBox(
@@ -85,6 +174,39 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
           )
         ],
       ),
+      // body: ListView(
+      //   children: [
+      //     Row(
+      //       children: [
+      //         Expanded(
+      //           child: Card(
+      //             child: Container(
+      //               padding: const EdgeInsets.all(10.0),
+      //               child: Row(
+      //                 mainAxisAlignment: MainAxisAlignment.center,
+      //                 children: [
+      //                   Text(
+      //                     'Project : ',
+      //                     style: kLabel600,
+      //                   ),
+      //                   Text(
+      //                     '${Provider.of<Projects>(context, listen: false).projects[widget.pIndex].id} ',
+      //                     style: kLabelStyle,
+      //                   ),
+      //                   const SizedBox(
+      //                     width: 10.0,
+      //                   ),
+      //                 ],
+      //               ),
+      //             ),
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //     const Divider(),
+      //     ListView.builder(itemCount: 3, itemBuilder: (context, index) => Text('data'))
+      //   ],
+      // ),
       body: Column(
         children: [
           Container(
@@ -100,7 +222,9 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                       style: kLabel600,
                     ),
                     Text(
-                      '${Provider.of<Projects>(context, listen: false).projects[widget.pIndex].id} ',
+                      '${Provider
+                          .of<Projects>(context, listen: false)
+                          .projects[widget.pIndex].id} ',
                       style: kLabelStyle,
                     ),
                     const SizedBox(
@@ -145,7 +269,7 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                                       onChanged: (value) {
                                         setState(() {
                                           currentProject.stairs[index].selected =
-                                              !currentProject.stairs[index].selected;
+                                          !currentProject.stairs[index].selected;
                                         });
                                       }),
                                   Expanded(
@@ -164,7 +288,8 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                                         onChanged: (value) {
                                           currentProject.stairs[index].setId = value;
                                         },
-                                        onTap: () => currentProject.stairs[index].controller.selection = TextSelection(
+                                        onTap: () =>
+                                        currentProject.stairs[index].controller.selection = TextSelection(
                                             baseOffset: 0,
                                             extentOffset: currentProject.stairs[index].controller.value.text.length),
                                       ),
@@ -229,8 +354,8 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                                         ),
                                       );
                                     },
-                                    icon: const Icon(Icons.edit),
-                                    label: const Text('Edit')),
+                                    icon: const Icon(Icons.open_in_new),
+                                    label: const Text('Open')),
                                 const SizedBox(
                                   width: 10,
                                 ),
@@ -250,7 +375,7 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                                             TextButton.icon(
                                                 onPressed: () {
                                                   setState(
-                                                    () {
+                                                        () {
                                                       currentProject.removeStair(currentProject.stairs[index]);
                                                     },
                                                   );
