@@ -1,21 +1,13 @@
-import 'dart:convert';
-//import 'dart:html';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
 
 import 'package:provider/provider.dart';
 
-import '../DB/projectCollection.dart';
-import '../file_storage_manager/secretaria.dart';
+import '../file_manager/secretary.dart';
 import '../models/Projects.dart';
 import '../models/project.dart';
 import '../models/stair.dart';
 import '../widget/CustomActionButton.dart';
 import 'all_stair_from_actual_project.dart';
-
-//import '../Utils/dbConn.dart';
 
 class ProjectsPage extends StatefulWidget {
   const ProjectsPage({
@@ -121,62 +113,27 @@ class _ProjectsPageState extends State<ProjectsPage> {
           CustomActionButton(
               txt: "Save",
               onPressed: () async {
-                await OurDataStorage.writeDocument("MyProjects", Provider.of<Projects>(context, listen: false).toJson())
-                    .then((value) => ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            duration: const Duration(milliseconds: 1000),
-                            content: const Text('Saved!'),
-                            backgroundColor: Colors.blueGrey.shade400,
-                          ),
-                        ));
-
-                //  Projects savedProjects = Projects();
-
-                // await OurDataStorage.readDocument('MyProjects').then((value) {
-                //   value['projects'].forEach((element) => savedProjects.massiveUpdate(Project.fromJson(element)));
-                //
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     SnackBar(
-                //       duration: const Duration(milliseconds: 500),
-                //       content: const Text('Saved'),
-                //       backgroundColor: Colors.blueGrey.shade400,
-                //     ),
-                //   );
-                // }).catchError((e) {
-                //
-                // print('error on save ${e.toString()}');
-                // });
+                await OurDataStorage.writeDocument(
+                    "allProjects", Provider.of<Projects>(context, listen: false).toJson());
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(milliseconds: 1000),
+                    content: const Text('Saved!'),
+                    backgroundColor: Colors.blueGrey.shade400,
+                  ),
+                );
               }),
           const SizedBox(
             width: 25.0,
           )
         ],
       ),
-
-//       drawer: Drawer(
-// child: ListView(
-//   children: const [
-//     DrawerHeader(decoration: BoxDecoration(
-//       color: Colors.blue,
-//     ),
-//         child: Text('Drawer Header'))
-//   ],
-// ),
-//       ),
       body: Container(
-        margin: const EdgeInsets.all(15),
-        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-        decoration: BoxDecoration(
-          // color: Colors.red[200],
-          border: Border.all(width: 2.0, color: Colors.blueGrey),
-          borderRadius: BorderRadius.circular(8),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+        decoration: const BoxDecoration(),
         child: ListView.builder(
             itemCount: ppj.projects.length,
-            // itemCount: context
-            //     .watch()<Projects>()
-            //     .projects
-            //     .length, //.projects.length, //context.select((Projects pj) => pj.projects.length),
             itemBuilder: (context, index) {
               return Card(
                 //color: Colors.brown.shade100,
@@ -202,22 +159,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
                           extentOffset: context.read<Projects>().projects[index].controller.value.text.length),
                     ),
                   ),
-                  // Checkbox(
-                  //   //activeColor: Colors.blueGrey,
-                  //   fillColor: MaterialStateProperty.all(Colors.blueGrey),
-                  //   checkColor: Colors.white,
-                  //   value: context.read<Projects>().projects[index].selected,
-                  //   onChanged: (value) {
-                  //     context.read<Projects>().projects[index].selected =
-                  //         !context.read<Projects>().projects[index].selected;
-                  //   },
-                  // )
-
-                  // title: Text(
-                  //   context.read<Projects>().projects[index].id,
-                  //   style: const TextStyle(
-                  //       fontWeight: FontWeight.bold, fontSize: 18.0, color: Colors.blueGrey),
-                  // ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

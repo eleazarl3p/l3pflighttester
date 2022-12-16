@@ -1,60 +1,40 @@
-//import 'package:firebase_core/firebase_core.dart';
-
-import 'package:flutter/material.dart';
 import '/screens/all_projects.dart';
-import '/screens/all_stair_from_actual_project.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '/screens/Home.dart';
 
-import 'file_storage_manager/secretaria.dart';
+import 'file_manager/secretary.dart';
 import 'models/Projects.dart';
-import 'models/flight_map.dart';
+
 import 'models/project.dart';
 
-void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
-
-  // Projects savedProjects = Projects();
-  // OurDataStorage.readDocument('MyProjects');
-  //print(anss);
-  // try {
-  //   await  OurDataStorage.readDocument('MyProjects');
-  //
-  // } catch(error) {
-  //   print(error);
-  // }
-
-  /*try {
-    print('saveddd: ${savedProjects.projects[0].id} 00');
-  } catch (e) {
-    print(e);
-  }*/
-
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (context) => Projects()),
-      ChangeNotifierProvider(create: (context) => Project()),
-      ChangeNotifierProvider(create: (context) => FlightMap())
-    ],
-    child: MyApp(),
-  ));
+void main() {
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (context) => Projects()),
+    ChangeNotifierProvider(create: (context) => Project()),
+    //ChangeNotifierProvider(create: (context) => FlightMap())
+  ], child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
-  MyApp({super.key});
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   bool load = true;
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     if (load) {
       Projects pjs = context.read<Projects>();
-      OurDataStorage.readDocument('MyProjects').then((value) {
+
+      OurDataStorage.readDocument('allProjects').then((value) {
         value['projects'].forEach((element) => pjs.addProject(Project.fromJson(element)));
-        //print('local file ${pjs.projects}');
       }).catchError((e) {
-        print('error ->  $e');
+        //OurDataStorage.writeDocument('allProjects', pjs.toJson());
       });
       load = false;
     }
@@ -72,21 +52,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// class HomeSt extends StatelessWidget {
-//   const HomeSt({Key? key}) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     Projects pjs = context.read<Projects>();
-//     //print(' homest');
-//
-//     OurDataStorage.readDocument('MyProjects').then((value) {
-//       value['projects'].forEach((element) => pjs.addProject(Project.fromJson(element)));
-//       print('local file ${pjs.projects}');
-//     }).catchError((e) {
-//       print('error ->  $e');
-//     });
-//     return const ProjectsPage();
-//   }
-// }

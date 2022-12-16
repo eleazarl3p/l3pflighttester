@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
-import 'flight_map.dart';
+import 'BalusterPost.dart';
+import 'Post.dart';
+
 //
 
 class Flight extends ChangeNotifier {
@@ -27,7 +29,7 @@ class Flight extends ChangeNotifier {
   List<Post> lowerFlatPost = [];
 
   List<Post> upperFlatPost = [];
-  List<RampPost> rampPostList = [];
+  List<BalusterPost> balusters = [];
   TextEditingController controller = TextEditingController();
 
   Flight({
@@ -43,7 +45,7 @@ class Flight extends ChangeNotifier {
     this.stepsCount = 15,
     this.lastNoseDistance = 193.1625,
     // this.lowerFlatPost = [],
-    // this.rampPostList =  <RampPost>[],
+    // this.balustersList =  <balusters>[],
     // this.upperFlatPost = const <Post>[],
     //this.onHold = true,
     this.hypotenuse = 12.8575,
@@ -62,16 +64,16 @@ class Flight extends ChangeNotifier {
       //stepsCount: obj.stepsCount,
       lastNoseDistance: obj.lastNoseDistance,
       // lowerFlatPost: obj.lowerFlatPost,
-      // rampPostList: obj.rampPostList,
+      // balustersList: obj.balustersList,
       // upperFlatPost: obj.upperFlatPost
     );
     fl.controller.text = obj.id;
     fl.lowerFlatPost = [
       ...obj.lowerFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()
     ];
-    fl.rampPostList = [
-      ...obj.rampPostList
-          .map((item) => RampPost(
+    fl.balusters = [
+      ...obj.balusters
+          .map((item) => BalusterPost(
               nosingDistance: item.nosingDistance,
               balusterDistance: item.balusterDistance,
               embeddedType: item.embeddedType,
@@ -82,7 +84,7 @@ class Flight extends ChangeNotifier {
       ...obj.upperFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()
     ];
     // fl.lowerFlatPost = [...obj.lowerFlatPost];
-    // fl.rampPostList = [...obj.rampPostList];
+    // fl.balustersList = [...obj.balustersList];
     // fl.upperFlatPost = [...obj.upperFlatPost];
     return fl;
   }
@@ -99,7 +101,7 @@ class Flight extends ChangeNotifier {
     stepsCount = int.parse(flt['stairsCount']);
 
     lowerFlatPost = flt['lowerFlatPost'];
-    rampPostList = flt['rampPost'];
+    balusters = flt['balusters'];
     upperFlatPost = flt['upperFlatPost'];
     notifyListeners();
   }
@@ -107,7 +109,7 @@ class Flight extends ChangeNotifier {
   Map toJson() {
     List<Map> bottomPosts = lowerFlatPost.map((e) => e.toJson()).toList();
     List<Map> topPosts = upperFlatPost.map((e) => e.toJson()).toList();
-    List<Map> rampPosts = rampPostList.map((e) => e.toJson()).toList();
+    List<Map> balustersP = balusters.map((e) => e.toJson()).toList();
 
     return {
       "id": id,
@@ -121,7 +123,7 @@ class Flight extends ChangeNotifier {
       //"stepsCount": stepsCount,
       "lowerFlatPost": bottomPosts,
       "upperFlatPost": topPosts,
-      "rampPost": rampPosts,
+      "balusters": balustersP,
       "lastNoseDistance": lastNoseDistance
     };
   }
@@ -136,12 +138,25 @@ class Flight extends ChangeNotifier {
         bottomCrotch: json['bottomCrotch'],
         bottomCrotchDistance: json['bottomCrotchDistance'],
         bottomCrotchPost: json['bottomCrotchPost'],
-        lastNoseDistance: json['lastNoseDistance']
-        //stepsCount: json['stepsCount'],
-        // lowerFlatPost: obj.lowerFlatPost,
-        // rampPostList: obj.rampPostList,
-        // upperFlatPost: obj.upperFlatPost);
-        );
+        lastNoseDistance: json['lastNoseDistance']);
+    for (var bp in json['lowerFlatPost']) {
+      fjs.lowerFlatPost.add(Post(distance: bp['distance'], embeddedType: bp['embeddedType']));
+    }
+
+    for (var up in json['upperFlatPost']) {
+      fjs.upperFlatPost.add(Post(distance: up['distance'], embeddedType: up['embeddedType']));
+    }
+
+    try {
+      for (var bal in json['balusters']) {
+        fjs.balusters.add(BalusterPost(
+            nosingDistance: bal['nosingDistance'],
+            balusterDistance: bal['balusterDistance'],
+            embeddedType: bal['embeddedType'],
+            step: bal['step']));
+      }
+    } catch (err) {}
+
     fjs.controller.text = json['id'];
     return fjs;
   }
@@ -160,7 +175,7 @@ class Flight extends ChangeNotifier {
         'hasTopCrotchPost': bottomCrotchPost,
 
         "lowerFlatPost": lowerFlatPost,
-        "rampPost": rampPostList,
+        "balusters": balusters,
         "upperFlatPost": upperFlatPost,
         //"stepsCount": stepsCount.toString(),
         "lastNoseDistance": lastNoseDistance.toString(),
@@ -181,7 +196,7 @@ class Flight extends ChangeNotifier {
     bottomCrotchPost = template['hasTopCrotchPost'];
 
     lowerFlatPost = [...template['lowerFlatPost']];
-    rampPostList = [...template['rampPost']];
+    balusters = [...template['balusters']];
     upperFlatPost = [...template['upperFlatPost']];
     //stepsCount = template['hasTopCrotchPost'];
     lastNoseDistance = double.parse(template['lastNoseDistance']);
@@ -192,4 +207,4 @@ class Flight extends ChangeNotifier {
 
 class PostObj {}
 
-class RampPostObj {}
+// class balustersObj {}

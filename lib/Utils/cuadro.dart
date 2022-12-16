@@ -5,17 +5,17 @@ import 'package:flutter/material.dart';
 
 // import provider
 import 'package:provider/provider.dart';
-import '../models/flight_map.dart';
+import '../models/BalusterPost.dart';
+import '../models/Post.dart';
 
 class Cuadro extends StatelessWidget {
-  const Cuadro(this.data);
+  const Cuadro({super.key, required this.data});
 
   final data;
 
   @override
   Widget build(BuildContext context) {
     //final data = context.watch<FlightMap>().textFormFields;
-
 
     String urlI = "https://upload.wikimedia.org/wikipedia/en/1/13/PinkFloydWallCoverOriginalNoText.jpg";
 
@@ -84,11 +84,11 @@ class _Dibujo extends CustomPainter {
     postPen.strokeWidth = 2.0;
     postPen.strokeCap = StrokeCap.square;
 
-    final tupePen = Paint();
-    tupePen.color = Colors.black54;
-    tupePen.style = PaintingStyle.fill;
-    tupePen.strokeWidth = 4.0;
-    tupePen.strokeCap = StrokeCap.square;
+    final tubePen = Paint();
+    tubePen.color = Colors.black54;
+    tubePen.style = PaintingStyle.fill;
+    tubePen.strokeWidth = 4.0;
+    tubePen.strokeCap = StrokeCap.square;
 
     final nosingPen = Paint();
     nosingPen.color = stepColor;
@@ -121,9 +121,9 @@ class _Dibujo extends CustomPainter {
     double topCrotchExtension = 0.0;
 
     List lowerFlatPost = [...data['lowerFlatPost']];
-    List rampPostL = [...data['rampPost']];
+    List balusterL = [...data['balusters']];
     // order poost llist
-    rampPostL.sort((a, b) => a.nosingDistance.compareTo(b.nosingDistance));
+    balusterL.sort((a, b) => a.nosingDistance.compareTo(b.nosingDistance));
     List upperFlatPost = [...data['upperFlatPost']];
 
     List nosingStepsList = [];
@@ -153,25 +153,14 @@ class _Dibujo extends CustomPainter {
       bottomCrotchExtension += 15;
     }
 
-    // double firstEscalonX = size.width / 6.0;
-    //
-    // double factor = (size.width - 2 * firstEscalonX) / sumStairsLength;
-    //
-    // firstEscalonX += 12 * factor;
-
-    // double factor = size.width /
-    //     (sumStairsLength +
-    //         [32, bottomCrotchExtension, bottomFlatLength].reduce((value, element) => value > element ? value : element) +
-    //         [32, topCrotchExtension, topFlatLength].reduce((value, element) => value > element ? value : element));
-    //num flat = [40, bottomCrotchExtension, bottomFlatLength, topCrotchExtension, topFlatLength].reduce((value, element) => value > element ? value : element);
-    num flatdown = [size.width / 18, bottomCrotchExtension, bottomFlatLength]
+    num flatDown = [size.width / 18, bottomCrotchExtension, bottomFlatLength]
         .reduce((value, element) => value > element ? value : element);
-    num flatup = [size.width / 20, topCrotchExtension, topFlatLength]
+    num flatUp = [size.width / 20, topCrotchExtension, topFlatLength]
         .reduce((value, element) => value > element ? value : element);
-    double factor = size.width / (sumStairsLength + flatup + flatdown);
+    double factor = size.width / (sumStairsLength + flatUp + flatDown);
 
-    double firstEscalonX = factor * flatdown
-    as double; //[40, bottomCrotchExtension, bottomFlatLength, topCrotchExtension, topFlatLength].reduce((value, element) => value > element ? value : element) * factor;
+    double firstEscalonX = factor *
+        flatDown; //[40, bottomCrotchExtension, bottomFlatLength, topCrotchExtension, topFlatLength].reduce((value, element) => value > element ? value : element) * factor;
     //double firstEscalonX = [40, bottomCrotchExtension, bottomFlatLength].reduce((value, element) => value > element ? value : element) * factor;
 
     double riser = 6.7031 * factor; //(double.parse(data['riser']) * 6.6875 / 6.75) * factor;
@@ -209,7 +198,7 @@ class _Dibujo extends CustomPainter {
     List<int> stairs = [];
 
     // Filter post where step equal to zero
-    for (RampPost rp in rampPostL) {
+    for (BalusterPost rp in balusterL) {
       if (rp.step != 0) {
         if (int.parse(rp.step.toString()) <= stepsCount) {
           stairs.add(int.parse(rp.step.toString()));
@@ -224,14 +213,15 @@ class _Dibujo extends CustomPainter {
 
     // ---------------------------------------------------------------------
     // ----------------------------- Functions -----------------------------
-    void addLabel({double x = 0.0,
-      double y = 0.0,
-      String label = '',
-      Color couleur = Colors.white,
-      Color bgc = Colors.blueGrey,
-      double fontS = 8,
-      bool nose = true,
-      bool dimension = false}) {
+    void addLabel(
+        {double x = 0.0,
+        double y = 0.0,
+        String label = '',
+        Color couleur = Colors.white,
+        Color bgc = Colors.blueGrey,
+        double fontS = 8,
+        bool nose = true,
+        bool dimension = false}) {
       labelCircle.color = bgc;
 
       late TextStyle textStyle;
@@ -296,7 +286,7 @@ class _Dibujo extends CustomPainter {
         tube.lineTo(x - 1 * factor, y - factor);
         tube.close();
 
-        canvas.drawPath(tube, tupePen);
+        canvas.drawPath(tube, tubePen);
       } else {
         Path nonePath = Path();
 
@@ -432,8 +422,7 @@ class _Dibujo extends CustomPainter {
 
     // flat up
     y = landingHeight + stepsCount * (riser);
-    // double lastxx = firstEscalonX - factor + escalonLength * factor * (stepsCount - 1) - (stepsCount - 1) * factor;
-    // print('lastY $lastY | y $y | $lastxx - $lastX  | ${size.width} $factor');
+
     escalera.lineTo(size.width, size.height - y);
     escalera.lineTo(size.width, size.height - y + landingHeight);
     escalera.lineTo(lastX + baluster, size.height - y + landingHeight);
@@ -445,7 +434,7 @@ class _Dibujo extends CustomPainter {
 
     // Top Crotch
     if (hasTopCrotch) {
-      double crotchDelta = 0.0;
+      //double crotchDelta = 0.0;
       Path topCrotch = Path();
       topCrotch.moveTo(lastX + topCrotchLength, size.height - y);
       topCrotch.lineTo(lastX + topCrotchLength, size.height - y + landingHeight);
@@ -521,7 +510,7 @@ class _Dibujo extends CustomPainter {
 
     // ramp post
     if (postStair.isNotEmpty) {
-      int i = 10;
+      int i = 10; // dimension line height's
 
       for (var pt in postStair) {
         canvas.drawLine(Offset(pt[0] + baluster, size.height - pt[1] + factor),
@@ -529,7 +518,7 @@ class _Dibujo extends CustomPainter {
 
         labelHeigth = size.height - pt[1] - postHeight + 2 * factor + landingHeight;
 
-        RampPost rpt = rampPostL.firstWhere((element) => element.step == stairs[postStair.indexOf(pt)]); // stairs
+        BalusterPost rpt = balusterL.firstWhere((element) => element.step == stairs[postStair.indexOf(pt)]); // stairs
 
         addTubePlate(pt[0] + baluster, size.height - pt[1] + factor, rpt.embeddedType);
 
@@ -559,7 +548,7 @@ class _Dibujo extends CustomPainter {
             value: rpt.balusterDistance.toString(),
             size: size,
             canvas: canvas,
-            offset: Offset(pt[0] + factor, size.height - pt[1] - 4 * factor),
+            offset: Offset(pt[0], size.height - pt[1] - 15),
             fontSise: 10,
             color: Colors.black54);
 
@@ -574,12 +563,8 @@ class _Dibujo extends CustomPainter {
             size: size,
             factor: factor,
             offset: const Offset(0, 0),
-            dx: dx1 + ((dx1 - dx2).abs() / 2) - (rpt.nosingDistance
-                .toString()
-                .length) * factor,
-            dy: dy1 - ((dy1 - dy2).abs() / 2) + (rpt.nosingDistance
-                .toString()
-                .length) * factor,
+            dx: dx1 + ((dx1 - dx2).abs() / 2) - (rpt.nosingDistance.toString().length) * factor,
+            dy: dy1 - ((dy1 - dy2).abs() / 2) + (rpt.nosingDistance.toString().length) * factor,
             canvas: canvas,
             angle: 0,
             pen: postPen);
@@ -671,18 +656,19 @@ class _Dibujo extends CustomPainter {
     }
   }
 
-  void dimensionLabel({required String value,
-    required Size size,
-    required Canvas canvas,
-    required Offset offset,
-    required factor,
-    double fontSise = 15.0,
-    Color color = Colors.red,
-    double angle = 0,
-    double bevel = 7.3125,
-    required double dx,
-    required double dy,
-    required Paint pen}) {
+  void dimensionLabel(
+      {required String value,
+      required Size size,
+      required Canvas canvas,
+      required Offset offset,
+      required factor,
+      double fontSise = 15.0,
+      Color color = Colors.red,
+      double angle = 0,
+      double bevel = 7.3125,
+      required double dx,
+      required double dy,
+      required Paint pen}) {
     canvas.save();
     canvas.translate(dx, dy + (7.5 / 3) * factor);
     //canvas.translate(dx , dy );
@@ -704,12 +690,13 @@ class _Dibujo extends CustomPainter {
     canvas.restore();
   }
 
-  void dimensionLabelBaluster({required String value,
-    required Size size,
-    required Canvas canvas,
-    required Offset offset,
-    double fontSise = 15.0,
-    Color color = Colors.red}) {
+  void dimensionLabelBaluster(
+      {required String value,
+      required Size size,
+      required Canvas canvas,
+      required Offset offset,
+      double fontSise = 15.0,
+      Color color = Colors.red}) {
     TextStyle textStyle = TextStyle(color: color, fontSize: fontSise, backgroundColor: Colors.white);
     final textSpan = TextSpan(text: value, style: textStyle);
     TextPainter(text: textSpan, textDirection: TextDirection.ltr)

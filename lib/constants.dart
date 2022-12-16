@@ -24,3 +24,5 @@ InputDecoration kInputDecDisable = InputDecoration(
     // disabledBorder: InputBorder.none
     );
 Color kColorDisable = Colors.blueGrey.shade100;
+
+Color kAlert = const Color(0xFF735F32);
