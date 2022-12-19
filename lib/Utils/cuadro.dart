@@ -199,7 +199,7 @@ class _Dibujo extends CustomPainter {
 
     // Filter post where step equal to zero
     for (BalusterPost rp in balusterL) {
-      if (rp.step != 0) {
+      if (rp.step > 1) {
         if (int.parse(rp.step.toString()) <= stepsCount) {
           stairs.add(int.parse(rp.step.toString()));
         }
@@ -508,7 +508,7 @@ class _Dibujo extends CustomPainter {
       }
     }
 
-    // ramp post
+    // Baluster post
     if (postStair.isNotEmpty) {
       int i = 10; // dimension line height's
 
@@ -523,7 +523,8 @@ class _Dibujo extends CustomPainter {
         addTubePlate(pt[0] + baluster, size.height - pt[1] + factor, rpt.embeddedType);
 
         // Add Label Majuscul letter , Post identifier;
-        addLabel(x: pt[0] + 5 * factor, y: labelHeigth + 20, label: alphabet.removeAt(0), nose: false);
+        addLabel(
+            x: pt[0] + 3 * factor, y: labelHeigth + 20, label: "\u{00A0}${alphabet.removeAt(0)}\u{00A0}", nose: false);
 
         Path dimension = Path();
         dimension.moveTo(firstNose[0], firstNose[1]);
@@ -576,8 +577,10 @@ class _Dibujo extends CustomPainter {
         //if (stairStepsList.indexOf(step).isEven) {
 
         addLabel(
-            x: step[0] - min(8 * factor, 40),
-            y: step[1] - min(10 * factor, 40),
+            x: step[0] - 28,
+            //- min(8 * factor, 40),
+            y: step[1] - 15,
+            //- min(10 * factor, 40),
             label: "${nosingStepsList.indexOf(step) + 1}",
             fontS: 15,
             couleur: Colors.white);

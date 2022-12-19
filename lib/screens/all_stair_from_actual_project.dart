@@ -40,7 +40,7 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
           title: const Text("STAIRS"),
           actions: [
             CustomActionButton(
-              txt: 'Add Stair',
+              child: const Text("Add Stair"),
               onPressed: () {
                 setState(
                   () {
@@ -50,7 +50,7 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
               },
             ),
             CustomActionButton(
-              txt: "Mail",
+              child: const Text("Mail"),
               onPressed: () async {
                 try {
                   // await OurDataStorage.clearTemporary();

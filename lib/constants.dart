@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 TextStyle kLabelStyle = const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, letterSpacing: 1.5);
 TextStyle kLabel600 = const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 1.5);
+TextStyle kLabelAlert =
+    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 1.5, color: Colors.black54);
 
 InputDecoration kInputDec = const InputDecoration(
     isDense: true,
@@ -25,4 +27,4 @@ InputDecoration kInputDecDisable = InputDecoration(
     );
 Color kColorDisable = Colors.blueGrey.shade100;
 
-Color kAlert = const Color(0xFF735F32);
+Color kAlert = Colors.amberAccent.shade100;

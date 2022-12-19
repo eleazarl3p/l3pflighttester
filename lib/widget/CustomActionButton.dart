@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class CustomActionButton extends StatelessWidget {
-  const CustomActionButton({super.key, required this.txt, required this.onPressed});
+  const CustomActionButton({super.key, required this.child, required this.onPressed});
 
-  final String txt;
+  final Widget child;
   final Function() onPressed;
 
   @override
@@ -19,7 +19,7 @@ class CustomActionButton extends StatelessWidget {
           color: const Color(0xEEEEEEEE),
           borderRadius: BorderRadius.circular(5),
         ),
-        child: Text(txt),
+        child: child,
       ),
     );
   }

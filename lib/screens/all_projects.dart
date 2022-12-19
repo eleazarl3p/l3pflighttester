@@ -46,7 +46,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
         //centerTitle: true,
         actions: [
           CustomActionButton(
-            txt: "New",
+            child: const Text("New"),
             onPressed: () {
               showDialog(
                 context: context,
@@ -111,7 +111,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
             },
           ),
           CustomActionButton(
-              txt: "Save",
+              child: const Text("Save"),
               onPressed: () async {
                 await OurDataStorage.writeDocument(
                     "allProjects", Provider.of<Projects>(context, listen: false).toJson());
