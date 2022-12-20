@@ -2,6 +2,7 @@ import 'dart:math';
 
 //import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:l3pflighttester/Utils/unit_converter.dart';
 
 // import provider
 import 'package:provider/provider.dart';
@@ -42,6 +43,8 @@ class _Dibujo extends CustomPainter {
   Map data;
 
   _Dibujo({required this.data});
+
+  UnitConverter unitConverter = UnitConverter();
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -132,23 +135,23 @@ class _Dibujo extends CustomPainter {
     double bottomFlatLength = 16.0;
 
     if (data['bottomCrotch']) {
-      bottomFlatLength = double.parse(data['bottomCrotchLength']) + 10;
+      bottomFlatLength = double.parse(unitConverter.toInch(data['bottomCrotchLength'])) + 10;
     }
 
     if (data['topCrotch']) {
-      topFlatLength = double.parse(data['topCrotchLength']) + 10;
+      topFlatLength = double.parse(unitConverter.toInch(data['topCrotchLength'])) + 10;
     }
 
     if (upperFlatPost.isNotEmpty) {
       for (var element in upperFlatPost) {
-        topCrotchExtension += element.distance;
+        topCrotchExtension += double.parse(unitConverter.toInch(element.distance));
       }
       topCrotchExtension += 15;
     }
 
     if (lowerFlatPost.isNotEmpty) {
       for (var element in lowerFlatPost) {
-        bottomCrotchExtension += element.distance;
+        bottomCrotchExtension += double.parse(unitConverter.toInch(element.distance.toString()));
       }
       bottomCrotchExtension += 15;
     }
@@ -167,11 +170,11 @@ class _Dibujo extends CustomPainter {
     double bevel = 7.3125 * factor;
 
     bool hasTopCrotch = data['topCrotch'];
-    double topCrotchLength = double.parse(data["topCrotchLength"]) * factor;
+    double topCrotchLength = double.parse(unitConverter.toInch(data["topCrotchLength"])) * factor;
     //double topCrotchHeight =  8.0* factor; //double.parse(data["topCrotchHeight"])
 
     bool hasBottomCrotch = data['bottomCrotch'];
-    double bottomCrotchLength = double.parse(data["bottomCrotchLength"]) * factor;
+    double bottomCrotchLength = double.parse(unitConverter.toInch(data["bottomCrotchLength"])) * factor;
 
     //print(double.parse(data["bottomCrotchLength"]));
     double x = 0.0;
@@ -504,7 +507,8 @@ class _Dibujo extends CustomPainter {
     // lower Flat Post
     if (lowerFlatPost.isNotEmpty) {
       for (Post post in lowerFlatPost) {
-        addFlatLowerPost(post.distance * factor, post.embeddedType, "B${lowerFlatPost.indexOf(post) + 1}");
+        addFlatLowerPost(double.parse(unitConverter.toInch(post.distance)) * factor, post.embeddedType,
+            "B${lowerFlatPost.indexOf(post) + 1}");
       }
     }
 
@@ -590,8 +594,9 @@ class _Dibujo extends CustomPainter {
     // upper Flat Post
     if (upperFlatPost.isNotEmpty) {
       for (Post pt in upperFlatPost) {
-        if (pt.distance > 0) {
-          addFlatUpperPost(pt.distance, lastX, lastY, pt.embeddedType, "U${upperFlatPost.indexOf(pt) + 1}");
+        if (double.parse(unitConverter.toInch(pt.distance)) > 0) {
+          addFlatUpperPost(double.parse(unitConverter.toInch(pt.distance)), lastX, lastY, pt.embeddedType,
+              "U${upperFlatPost.indexOf(pt) + 1}");
         }
       }
     }

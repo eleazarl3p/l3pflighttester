@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:l3pflighttester/widget/CustomIconActionButton.dart';
+import '../Utils/unit_converter.dart';
 import '../models/BalusterPost.dart';
 import '../models/Post.dart';
 import '/models/project.dart';
@@ -61,6 +62,9 @@ class _FlightEditorState extends State<FlightEditor> {
   // FocusNode riserFocus = FocusNode();
   int cp = 2;
 
+  bool riserError = false;
+  bool bevelError = false;
+
   bool bottomFlatDistanceError = false;
   bool topFlatDistanceError = false;
   bool lowerQuantityError = false;
@@ -73,6 +77,9 @@ class _FlightEditorState extends State<FlightEditor> {
   final double hypotenuse = 12.8575;
 
   Map<String, dynamic> templateFlight = {};
+  Map<String, dynamic> templateFlightDraw = {};
+
+  UnitConverter unitConverter = UnitConverter();
 
   @override
   void initState() {
@@ -90,7 +97,8 @@ class _FlightEditorState extends State<FlightEditor> {
     templateFlight['lowerFlatPost'] = [...templateFlight['lowerFlatPost']];
     templateFlight['upperFlatPost'] = [...templateFlight['upperFlatPost']];
     templateFlight['balusters'] = [...templateFlight['balusters']];
-    int numStp = (double.parse(lastNoseDistance.text) / hypotenuse).round() + 1;
+
+    int numStp = (double.parse(unitConverter.toInch(lastNoseDistance.text)) / hypotenuse).round() + 1;
     templateFlight['stepsCount'] = numStp.toString();
   }
 
@@ -163,7 +171,7 @@ class _FlightEditorState extends State<FlightEditor> {
               child: TextFormField(
                 focusNode: templateFlight[campo][index].pFocusNode,
                 controller: templateFlight[campo][index].pController,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.phone,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 onTap: eraserOn && _formKey.currentState!.validate()
                     ? () {
@@ -175,17 +183,20 @@ class _FlightEditorState extends State<FlightEditor> {
                     : () => templateFlight[campo][index].pController.selection = TextSelection(
                         baseOffset: 0, extentOffset: templateFlight[campo][index].pController.value.text.length),
                 validator: (value) {
-                  if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                  if (!InputValidator.inchesValidator(value!)) {
                     templateFlight[campo][index].error = true;
+
                     return '';
                   }
 
                   if (crotch) {
                     List sublista = templateFlight[campo].sublist(0, index + 1);
-                    sumDistance =
-                        sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(element.pController.text));
+                    sumDistance = sublista.fold(
+                        0,
+                        (sum, element) =>
+                            sum.toDouble() + double.parse(unitConverter.toInch(element.pController.text)));
 
-                    if (sumDistance >= crotchDistance && double.parse(value) != 0) {
+                    if (sumDistance >= crotchDistance && double.parse(unitConverter.toInch(value)) != 0) {
                       templateFlight[campo][index].error = true;
 
                       return "";
@@ -201,7 +212,7 @@ class _FlightEditorState extends State<FlightEditor> {
               onFocusChange: (value) {
                 if (!value) {
                   if (!templateFlight[campo][index].error) {
-                    templateFlight[campo][index].distance = double.parse(templateFlight[campo][index].pController.text);
+                    templateFlight[campo][index].distance = templateFlight[campo][index].pController.text;
                   } else {
                     templateFlight[campo][index].pFocusNode.requestFocus();
                   }
@@ -269,7 +280,7 @@ class _FlightEditorState extends State<FlightEditor> {
               child: TextFormField(
                 focusNode: templateFlight['balusters'][index].noseFocus,
                 controller: templateFlight['balusters'][index].noseController,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.phone,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 onTap: eraserOn && _formKey.currentState!.validate()
                     ? () {
@@ -282,14 +293,18 @@ class _FlightEditorState extends State<FlightEditor> {
                         baseOffset: 0,
                         extentOffset: templateFlight['balusters'][index].noseController.value.text.length),
                 validator: (value) {
-                  if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                  // if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                  //   templateFlight['balusters'][index].noseError = true;
+                  //   return '';
+                  // }
+                  // String? valid = InputValidator.inchesValidator(value!);
+                  if (!InputValidator.inchesValidator(value!)) {
                     templateFlight['balusters'][index].noseError = true;
                     return '';
                   }
-
-                  double noseValue = double.parse(value);
-                  if (double.tryParse(lastNoseDistance.text) != null) {
-                    if (noseValue >= double.parse(lastNoseDistance.text)) {
+                  double noseValue = double.parse(unitConverter.toInch(value));
+                  if (double.tryParse(unitConverter.toInch(lastNoseDistance.text)) != null) {
+                    if (noseValue >= double.parse(unitConverter.toInch(lastNoseDistance.text))) {
                       templateFlight['balusters'][index].noseError = true;
                       return "";
                     }
@@ -299,7 +314,7 @@ class _FlightEditorState extends State<FlightEditor> {
                   int step = (noseValue / hypotenuse).round()..toInt();
 
                   templateFlight['balusters'][index].step = step + 1;
-                  templateFlight['balusters'][index].nosingDistance = double.parse(value);
+                  templateFlight['balusters'][index].nosingDistance = value;
                   return null;
                 },
                 decoration: kInputDec,
@@ -312,11 +327,11 @@ class _FlightEditorState extends State<FlightEditor> {
                       templateFlight['balusters'][index].noseFocus.requestFocus();
                     } else {
                       setState(() {
-                        double noseValue = double.parse(lastNoseDistance.text);
+                        double noseValue = double.parse(unitConverter.toInch(lastNoseDistance.text));
                         int step = (noseValue / hypotenuse).round()..toInt();
 
                         templateFlight['balusters'][index].step = step + 1;
-                        templateFlight['balusters'][index].nosingDistance = double.parse(lastNoseDistance.text);
+                        templateFlight['balusters'][index].nosingDistance = lastNoseDistance.text;
                       });
                     }
                   }
@@ -329,7 +344,7 @@ class _FlightEditorState extends State<FlightEditor> {
               child: TextFormField(
                 focusNode: templateFlight['balusters'][index].balusterFocus,
                 controller: templateFlight['balusters'][index].balusterController,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.phone,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 onTap: eraserOn && _formKey.currentState!.validate()
                     ? () {
@@ -342,19 +357,23 @@ class _FlightEditorState extends State<FlightEditor> {
                         baseOffset: 0,
                         extentOffset: templateFlight['balusters'][index].balusterController.value.text.length),
                 validator: (value) {
-                  if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                  if (!InputValidator.inchesValidator(value!)) {
                     templateFlight['balusters'][index].balusterError = true;
                     return '';
                   }
+                  // if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                  //   templateFlight['balusters'][index].balusterError = true;
+                  //   return '';
+                  // }
 
-                  double noseValue = double.parse(value);
+                  double noseValue = double.parse(unitConverter.toInch(value));
                   if (noseValue >= 10) {
                     templateFlight['balusters'][index].balusterError = true;
                     return "";
                   }
 
                   templateFlight['balusters'][index].balusterError = false;
-                  templateFlight['balusters'][index].balusterDistance = double.parse(value);
+                  templateFlight['balusters'][index].balusterDistance = value;
 
                   return null;
                 },
@@ -368,7 +387,7 @@ class _FlightEditorState extends State<FlightEditor> {
                   } else {
                     setState(() {
                       templateFlight['balusters'][index].balusterDistance =
-                          double.parse(templateFlight['balusters'][index].balusterController.text);
+                          templateFlight['balusters'][index].balusterController.text;
                     });
                   }
                 }
@@ -470,7 +489,9 @@ class _FlightEditorState extends State<FlightEditor> {
           CustomActionButton(
             child: const Text('View'),
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => Dibujo(templateFlight)));
+              templateFlightDraw = {...templateFlight};
+
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => Dibujo(templateFlightDraw)));
             },
           ),
           CustomActionButton(
@@ -605,13 +626,13 @@ class _FlightEditorState extends State<FlightEditor> {
                                     child: TextFormField(
                                       focusNode: riserFocus,
                                       controller: riserController,
-                                      keyboardType: TextInputType.number,
+                                      keyboardType: TextInputType.phone,
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       validator: (value) {
-                                        if (double.tryParse(value!) == null) {
-                                          return '';
+                                        if (InputValidator.inchesValidator(value!)) {
+                                          return null;
                                         }
-                                        return null;
+                                        return '';
                                       },
                                       onTap: eraserOn && _formKey.currentState!.validate()
                                           ? () {
@@ -629,7 +650,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                     ),
                                     onFocusChange: (value) {
                                       if (!value) {
-                                        if (double.tryParse(riserController.text) == null) {
+                                        if (!InputValidator.inchesValidator(riserController.text)) {
                                           riserFocus.requestFocus();
                                         } else {
                                           setState(() {
@@ -650,7 +671,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                     child: TextFormField(
                                       focusNode: bevelFocus,
                                       controller: bevelController,
-                                      keyboardType: TextInputType.number,
+                                      keyboardType: TextInputType.phone,
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       onTap: eraserOn && _formKey.currentState!.validate()
                                           ? () {
@@ -662,17 +683,17 @@ class _FlightEditorState extends State<FlightEditor> {
                                           : () => bevelController.selection = TextSelection(
                                               baseOffset: 0, extentOffset: bevelController.value.text.length),
                                       validator: (value) {
-                                        if (double.tryParse(value!) == null) {
-                                          return '';
+                                        if (InputValidator.inchesValidator(value!)) {
+                                          return null;
                                         }
-                                        return null;
+                                        return '';
                                       },
                                       decoration: kInputDec,
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                     onFocusChange: (value) {
                                       if (!value) {
-                                        if (double.tryParse(bevelController.text) == null) {
+                                        if (!InputValidator.inchesValidator(bevelController.text)) {
                                           bevelFocus.requestFocus();
                                         } else {
                                           setState(() {
@@ -687,20 +708,23 @@ class _FlightEditorState extends State<FlightEditor> {
                             ),
                             Column(
                               children: [
-                                MyTableCol(name: 'Bot. Crotch'),
+                                MyTableCol(name: 'Bot. Crotch.'),
                                 MyTableCell(
                                   Checkbox(
                                       value: templateFlight['bottomCrotch'],
                                       onChanged: (value) {
                                         if (value != null) {
                                           if (templateFlight['lowerFlatPost'].isNotEmpty) {
-                                            double sumDistance = 0;
+                                            double sumDistance = 0.0;
                                             sumDistance = templateFlight['lowerFlatPost'].fold(
                                                 0,
                                                 (sum, element) =>
-                                                    sum.toDouble() + double.parse(element.pController.text));
+                                                    sum.toDouble() +
+                                                    double.parse(unitConverter.toInch(element.pController.text)));
 
-                                            if (sumDistance >= double.parse(templateFlight['bottomCrotchLength'])) {
+                                            if (sumDistance >=
+                                                double.parse(
+                                                    unitConverter.toInch(templateFlight['bottomCrotchLength']))) {
                                               ScaffoldMessenger.of(context).showSnackBar(
                                                 SnackBar(
                                                   duration: const Duration(milliseconds: 3000),
@@ -717,6 +741,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                         }
                                         setState(() {
                                           templateFlight['bottomCrotch'] = !templateFlight['bottomCrotch'];
+
+                                          // uncheck bottom post if no bottom crotch is false;
                                           if (!value!) {
                                             templateFlight['hasBottomCrotchPost'] = value;
                                           }
@@ -733,7 +759,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                     child: TextFormField(
                                       focusNode: btcFocus,
                                       controller: btcController,
-                                      keyboardType: TextInputType.number,
+                                      keyboardType: TextInputType.phone,
                                       enabled: templateFlight['bottomCrotch'],
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       onTap: eraserOn && _formKey.currentState!.validate()
@@ -746,17 +772,28 @@ class _FlightEditorState extends State<FlightEditor> {
                                           : () => btcController.selection = TextSelection(
                                               baseOffset: 0, extentOffset: btcController.value.text.length),
                                       validator: (value) {
-                                        if (value == null || value.isEmpty || double.tryParse(value) == null) {
+                                        // if (value == null || value.isEmpty || double.tryParse(value) == null) {
+                                        //   bottomFlatDistanceError = true;
+                                        //   return "";
+                                        // }
+
+                                        if (!InputValidator.inchesValidator(value!)) {
                                           bottomFlatDistanceError = true;
                                           return "";
                                         }
+
                                         if (templateFlight['bottomCrotch']) {
                                           if (templateFlight['lowerFlatPost'].isNotEmpty) {
                                             double totDistance = 0;
-                                            totDistance = templateFlight['lowerFlatPost']
-                                                .fold(0, (previousValue, element) => previousValue + element.distance);
 
-                                            if (double.parse(value) <= totDistance && totDistance != 0) {
+                                            totDistance = templateFlight['lowerFlatPost'].fold(
+                                                0,
+                                                (previousValue, element) =>
+                                                    previousValue +
+                                                    double.parse(unitConverter.toInch(element.distance)));
+
+                                            if (double.parse(unitConverter.toInch(value)) <= totDistance &&
+                                                totDistance != 0) {
                                               bottomFlatDistanceError = true;
                                               return "";
                                             }
@@ -827,9 +864,11 @@ class _FlightEditorState extends State<FlightEditor> {
                                             sumDistance = templateFlight['upperFlatPost'].fold(
                                                 0,
                                                 (sum, element) =>
-                                                    sum.toDouble() + double.parse(element.pController.text));
+                                                    sum.toDouble() +
+                                                    double.parse(unitConverter.toInch(element.pController.text)));
 
-                                            if (sumDistance >= double.parse(templateFlight['topCrotchLength'])) {
+                                            if (sumDistance >=
+                                                double.parse(unitConverter.toInch(templateFlight['topCrotchLength']))) {
                                               ScaffoldMessenger.of(context).showSnackBar(
                                                 SnackBar(
                                                   duration: const Duration(milliseconds: 3000),
@@ -846,6 +885,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                         }
                                         setState(() {
                                           templateFlight['topCrotch'] = !templateFlight['topCrotch'];
+
+                                          // uncheck top crotch post if no crotch
                                           if (!value!) {
                                             templateFlight['hasTopCrotchPost'] = value;
                                           }
@@ -856,13 +897,13 @@ class _FlightEditorState extends State<FlightEditor> {
                             ),
                             Column(
                               children: [
-                                MyTableCol(name: "Top\u{00A0}Cr.\u{00A0}Dist"),
+                                MyTableCol(name: "Top\u{00A0}Cr.\u{00A0}Dist."),
                                 MyTableCell(
                                   Focus(
                                     child: TextFormField(
                                       focusNode: tcFocus,
                                       controller: tcController,
-                                      keyboardType: TextInputType.number,
+                                      keyboardType: TextInputType.phone,
                                       enabled: templateFlight['topCrotch'],
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       onTap: eraserOn && _formKey.currentState!.validate()
@@ -875,18 +916,27 @@ class _FlightEditorState extends State<FlightEditor> {
                                           : () => tcController.selection = TextSelection(
                                               baseOffset: 0, extentOffset: tcController.value.text.length),
                                       validator: (value) {
-                                        if (value == null || value.isEmpty || double.tryParse(value) == null) {
-                                          topFlatDistanceError = true;
-                                          return "";
-                                        }
+                                        // String? valid = InputValidator.inchesValidator(value!);
+                                        // if (valid != null) {
+                                        //   topFlatDistanceError = true;
+                                        //   return '';
+                                        // }
+                                        // if (value == null || value.isEmpty || double.tryParse(value) == null) {
+                                        //   topFlatDistanceError = true;
+                                        //   return "";
+                                        // }
 
                                         if (templateFlight['topCrotch']) {
                                           if (templateFlight['upperFlatPost'].isNotEmpty) {
                                             double totDistance = 0;
-                                            totDistance = templateFlight['upperFlatPost']
-                                                .fold(0, (previousValue, element) => previousValue + element.distance);
+                                            totDistance = templateFlight['upperFlatPost'].fold(
+                                                0,
+                                                (previousValue, element) =>
+                                                    previousValue +
+                                                    double.parse(unitConverter.toInch(element.distance.toString())));
 
-                                            if (double.parse(value) <= totDistance && totDistance != 0) {
+                                            if (double.parse(unitConverter.toInch(value)) <= totDistance &&
+                                                totDistance != 0) {
                                               topFlatDistanceError = true;
                                               return "";
                                             }
@@ -951,7 +1001,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                       focusNode: lastNoseDistFocus,
                                       autocorrect: true,
                                       controller: lastNoseDistance,
-                                      keyboardType: TextInputType.number,
+                                      keyboardType: TextInputType.phone,
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       onTap: eraserOn && _formKey.currentState!.validate()
                                           ? () {
@@ -964,20 +1014,20 @@ class _FlightEditorState extends State<FlightEditor> {
                                               baseOffset: 0, extentOffset: lastNoseDistance.value.text.length),
                                       validator: (value) {
                                         lastNoseError = false;
-                                        if (double.tryParse(lastNoseDistance.text) == null) {
+                                        if (!InputValidator.inchesValidator(value!)) {
                                           lastNoseError = true;
-
                                           return '';
                                         }
-                                        double parseVal = double.parse(value!);
+
+                                        double parseVal = double.parse(unitConverter.toInch(value));
                                         if (parseVal < hypotenuse) {
                                           lastNoseError = true;
-
                                           return '';
                                         }
                                         if (templateFlight['balusters'].isNotEmpty) {
                                           templateFlight['balusters'].forEach((rp) => {
-                                                if (rp.nosingDistance > parseVal) {lastNoseError = true}
+                                                if (double.parse(unitConverter.toInch(rp.nosingDistance)) > parseVal)
+                                                  {lastNoseError = true}
                                               });
 
                                           if (lastNoseError) {
@@ -993,7 +1043,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                     ),
                                     onFocusChange: (value) {
                                       if (!lastNoseError) {
-                                        double? lnd = double.tryParse(lastNoseDistance.text);
+                                        double? lnd = double.tryParse(unitConverter.toInch(lastNoseDistance.text));
 
                                         if (!(lnd == null)) {
                                           if (lnd >= hypotenuse) {
@@ -1105,7 +1155,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                                               if (templateFlight['lowerFlatPost'].length < numLP) {
                                                                 for (int i = 0; i < (numLP - listLpLen); i++) {
                                                                   templateFlight['lowerFlatPost']
-                                                                      .add(Post(distance: 0, embeddedType: 'none'));
+                                                                      .add(Post(distance: '0', embeddedType: 'none'));
                                                                 }
                                                                 setState(() {});
                                                               } else if (templateFlight['lowerFlatPost'].length >
@@ -1141,7 +1191,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                     buildTable(
                                         crotch: templateFlight['bottomCrotch'],
                                         campo: 'lowerFlatPost',
-                                        crotchDistance: double.parse(templateFlight['bottomCrotchLength']))
+                                        crotchDistance:
+                                            double.parse(unitConverter.toInch(templateFlight['bottomCrotchLength'])))
                                   ],
                                 ],
                               ),
@@ -1231,8 +1282,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                                               if (numRP > listRpLen) {
                                                                 for (int i = 0; i < (numRP - listRpLen); i++) {
                                                                   templateFlight['balusters'].add(BalusterPost(
-                                                                      nosingDistance: 0.0,
-                                                                      balusterDistance: 5.5,
+                                                                      nosingDistance: '0.0',
+                                                                      balusterDistance: '5.5',
                                                                       embeddedType: 'none',
                                                                       step: 0));
                                                                 }
@@ -1332,7 +1383,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                                             if (templateFlight['upperFlatPost'].length < numLP) {
                                                               for (int i = 0; i < (numLP - listLpLen); i++) {
                                                                 templateFlight['upperFlatPost']
-                                                                    .add(Post(distance: 0, embeddedType: 'none'));
+                                                                    .add(Post(distance: '0', embeddedType: 'none'));
                                                               }
                                                               setState(() {});
                                                             } else if (templateFlight['upperFlatPost'].length > numLP) {
@@ -1363,7 +1414,8 @@ class _FlightEditorState extends State<FlightEditor> {
                                     buildTable(
                                         crotch: templateFlight['topCrotch'],
                                         campo: 'upperFlatPost',
-                                        crotchDistance: double.parse(templateFlight['topCrotchLength']))
+                                        crotchDistance:
+                                            double.parse(unitConverter.toInch(templateFlight['topCrotchLength'])))
                                   ]
                                 ],
                               ),
@@ -1435,5 +1487,42 @@ class MyTableCol extends StatelessWidget {
         style: kLabelStyle,
       ),
     );
+  }
+}
+
+class InputValidator {
+  static bool inchesValidator(String value) {
+    RegExp ftSpaceFraction = RegExp(r'^(\d+) ((\d+)/(\d+))');
+    RegExp ftDashInchSpaceFraction = RegExp(r'(\d+)-(\d+) (\d+)/(\d+)');
+    RegExp ftDashInch = RegExp(r'(\d+)-(\d+)');
+    RegExp ftOnly = RegExp(r'(\d+)');
+    RegExp fractionOnly = RegExp(r'(\d+)/(\d+)');
+    RegExp decimal = RegExp(r'(\d+)\.(\d+)');
+
+    if (value.isNotEmpty) {
+      if (ftSpaceFraction.firstMatch(value) != null && ftSpaceFraction.firstMatch(value)![0]?.length == value.length) {
+        //print('fractionOnly p: ${ftSpaceFraction.firstMatch(value)![0]}');
+
+        return true;
+      } else if (ftDashInchSpaceFraction.firstMatch(value) != null &&
+          ftDashInchSpaceFraction.firstMatch(value)![0]?.length == value.length) {
+        //print('fractionOnly: ${ftDashInchSpaceFraction.firstMatch(value)![0]}');
+        return true;
+      } else if (ftDashInch.firstMatch(value) != null && ftDashInch.firstMatch(value)![0]?.length == value.length) {
+        //print('fractionOnly: ${ftDashInch.firstMatch(value)![0]}');
+        return true;
+      } else if (ftOnly.firstMatch(value) != null && ftOnly.firstMatch(value)![0]?.length == value.length) {
+        //print('fractionOnly: ${ftOnly.firstMatch(value)![0]}');
+        return true;
+      } else if (fractionOnly.firstMatch(value) != null && fractionOnly.firstMatch(value)![0]?.length == value.length) {
+        //print('fractionOnly: ${fractionOnly.firstMatch(value)![0]}');
+        return true;
+      } else if (decimal.firstMatch(value) != null && decimal.firstMatch(value)![0]?.length == value.length) {
+        //print('object $value');
+        return true;
+      }
+    }
+
+    return false;
   }
 }

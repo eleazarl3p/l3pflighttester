@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 class Post {
-  late double distance;
+  late String distance;
   late String initialValue;
   late String embeddedType;
   bool error = false;
@@ -12,7 +12,6 @@ class Post {
   Post({required this.distance, required this.embeddedType}) {
     pController.text = distance.toString();
   }
-
 
   @override
   void dispose() {

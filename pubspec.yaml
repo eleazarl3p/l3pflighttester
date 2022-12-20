@@ -31,14 +31,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  url_launcher: ^6.1.6
+#  url_launcher: ^6.1.6
   provider: ^6.0.4
   #  firebase_core: ^2.2.0
   #  cloud_firestore: ^4.0.5
   path_provider: ^2.0.11
   flutter_email_sender: ^5.2.0
-  editable: ^2.0.0
-  flutter_mailer: ^2.0.1
+  #  editable: ^2.0.0
+  #  flutter_mailer: ^2.0.1
   font_awesome_flutter: ^10.3.0
 
 

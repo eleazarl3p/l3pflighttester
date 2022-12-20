@@ -13,7 +13,7 @@ class CustomActionButton extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         margin: const EdgeInsets.symmetric(horizontal: 10.0),
-        width: 100,
+        width: 92,
         height: 35,
         decoration: BoxDecoration(
           color: const Color(0xEEEEEEEE),

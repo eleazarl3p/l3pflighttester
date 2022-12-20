@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
 class BalusterPost {
-  late double nosingDistance;
-  late double balusterDistance;
+  late String nosingDistance;
+  late String balusterDistance;
   late String embeddedType;
   late int step;
   bool stepError = false;
@@ -22,7 +22,6 @@ class BalusterPost {
     noseController.text = nosingDistance.toString();
     balusterController.text = balusterDistance.toString();
     stepController.text = step.toString();
-
   }
 
   @override
@@ -34,11 +33,11 @@ class BalusterPost {
   }
 
   Map toJson() => {
-    "nosingDistance": nosingDistance,
-    "balusterDistance": balusterDistance,
-    "embeddedType": embeddedType,
-    "step": step
-  };
+        "nosingDistance": nosingDistance,
+        "balusterDistance": balusterDistance,
+        "embeddedType": embeddedType,
+        "step": step
+      };
 
   factory BalusterPost.fromJson(Map<String, dynamic> json) {
     return BalusterPost(

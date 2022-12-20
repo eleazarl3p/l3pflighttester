@@ -8,10 +8,10 @@ import 'Post.dart';
 class Flight extends ChangeNotifier {
   String id;
 
-  double riser;
-  double bevel;
-  double topCrotchDistance;
-  double bottomCrotchDistance;
+  String riser;
+  String bevel;
+  String topCrotchDistance;
+  String bottomCrotchDistance;
 
   bool topCrotch;
   bool bottomCrotch;
@@ -22,7 +22,7 @@ class Flight extends ChangeNotifier {
 
   int stepsCount;
 
-  double lastNoseDistance;
+  String lastNoseDistance;
 
   double hypotenuse;
 
@@ -34,16 +34,16 @@ class Flight extends ChangeNotifier {
 
   Flight({
     this.id = '',
-    this.riser = 6.7835,
-    this.bevel = 7.3154,
+    this.riser = "6.7835",
+    this.bevel = "7.3154",
     this.topCrotch = false,
-    this.topCrotchDistance = 100.0,
+    this.topCrotchDistance = "100.0",
     this.topCrotchPost = false,
     this.bottomCrotch = false,
-    this.bottomCrotchDistance = 100.0,
+    this.bottomCrotchDistance = "100.0",
     this.bottomCrotchPost = false,
     this.stepsCount = 15,
-    this.lastNoseDistance = 193.1625,
+    this.lastNoseDistance = "193.1625",
     // this.lowerFlatPost = [],
     // this.balustersList =  <balusters>[],
     // this.upperFlatPost = const <Post>[],
@@ -89,22 +89,22 @@ class Flight extends ChangeNotifier {
     return fl;
   }
 
-  void updateFlight(Map flt) {
-    riser = double.parse(flt['riser']);
-    bevel = double.parse(flt['bevel']);
-    topCrotchDistance = double.parse(flt['topCrotchLength']);
-    bottomCrotchDistance = double.parse(flt['bottomCrotchLength']);
-
-    topCrotch = flt['topCrotch'];
-    bottomCrotch = flt['bottomCrotch'];
-    bottomCrotchPost = flt['hasBottomCrotchPost'];
-    stepsCount = int.parse(flt['stairsCount']);
-
-    lowerFlatPost = flt['lowerFlatPost'];
-    balusters = flt['balusters'];
-    upperFlatPost = flt['upperFlatPost'];
-    notifyListeners();
-  }
+  // void updateFlight(Map flt) {
+  //   riser = double.parse(flt['riser']);
+  //   bevel = double.parse(flt['bevel']);
+  //   topCrotchDistance = double.parse(flt['topCrotchLength']);
+  //   bottomCrotchDistance = double.parse(flt['bottomCrotchLength']);
+  //
+  //   topCrotch = flt['topCrotch'];
+  //   bottomCrotch = flt['bottomCrotch'];
+  //   bottomCrotchPost = flt['hasBottomCrotchPost'];
+  //   stepsCount = int.parse(flt['stairsCount']);
+  //
+  //   lowerFlatPost = flt['lowerFlatPost'];
+  //   balusters = flt['balusters'];
+  //   upperFlatPost = flt['upperFlatPost'];
+  //   notifyListeners();
+  // }
 
   Map toJson() {
     List<Map> bottomPosts = lowerFlatPost.map((e) => e.toJson()).toList();
@@ -184,22 +184,22 @@ class Flight extends ChangeNotifier {
 
   void updateFl(Map<String, dynamic> template) {
     id = template['id'];
-    riser = double.parse(template["riser"]); //
-    bevel = double.parse(template["bevel"]);
+    riser = template["riser"]; //
+    bevel = template["bevel"];
 
     topCrotch = template['topCrotch'];
-    topCrotchDistance = double.parse(template['topCrotchLength']);
+    topCrotchDistance = template['topCrotchLength'];
     topCrotchPost = template['hasBottomCrotchPost'];
 
     bottomCrotch = template['bottomCrotch'];
-    bottomCrotchDistance = double.parse(template['bottomCrotchLength']);
+    bottomCrotchDistance = template['bottomCrotchLength'];
     bottomCrotchPost = template['hasTopCrotchPost'];
 
     lowerFlatPost = [...template['lowerFlatPost']];
     balusters = [...template['balusters']];
     upperFlatPost = [...template['upperFlatPost']];
     //stepsCount = template['hasTopCrotchPost'];
-    lastNoseDistance = double.parse(template['lastNoseDistance']);
+    lastNoseDistance = template['lastNoseDistance'];
 
     notifyListeners();
   }
