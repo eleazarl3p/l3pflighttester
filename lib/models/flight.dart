@@ -68,21 +68,14 @@ class Flight extends ChangeNotifier {
       // upperFlatPost: obj.upperFlatPost
     );
     fl.controller.text = obj.id;
-    fl.lowerFlatPost = [
-      ...obj.lowerFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()
-    ];
+    fl.lowerFlatPost = [...obj.lowerFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()];
     fl.balusters = [
       ...obj.balusters
           .map((item) => BalusterPost(
-              nosingDistance: item.nosingDistance,
-              balusterDistance: item.balusterDistance,
-              embeddedType: item.embeddedType,
-              step: item.step))
+              nosingDistance: item.nosingDistance, balusterDistance: item.balusterDistance, embeddedType: item.embeddedType, step: item.step))
           .toList()
     ];
-    fl.upperFlatPost = [
-      ...obj.upperFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()
-    ];
+    fl.upperFlatPost = [...obj.upperFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()];
     // fl.lowerFlatPost = [...obj.lowerFlatPost];
     // fl.balustersList = [...obj.balustersList];
     // fl.upperFlatPost = [...obj.upperFlatPost];
@@ -150,10 +143,7 @@ class Flight extends ChangeNotifier {
     try {
       for (var bal in json['balusters']) {
         fjs.balusters.add(BalusterPost(
-            nosingDistance: bal['nosingDistance'],
-            balusterDistance: bal['balusterDistance'],
-            embeddedType: bal['embeddedType'],
-            step: bal['step']));
+            nosingDistance: bal['nosingDistance'], balusterDistance: bal['balusterDistance'], embeddedType: bal['embeddedType'], step: bal['step']));
       }
     } catch (err) {}
 
@@ -173,10 +163,16 @@ class Flight extends ChangeNotifier {
         "bottomCrotch": bottomCrotch,
         "bottomCrotchLength": bottomCrotchDistance.toString(),
         'hasTopCrotchPost': bottomCrotchPost,
+        "lowerFlatPost": [...lowerFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()],
+        "balusters": [
+          ...balusters
+              .map((item) => BalusterPost(
+                  nosingDistance: item.nosingDistance, balusterDistance: item.balusterDistance, embeddedType: item.embeddedType, step: item.step))
+              .toList()
+        ],
 
-        "lowerFlatPost": lowerFlatPost,
-        "balusters": balusters,
-        "upperFlatPost": upperFlatPost,
+        "upperFlatPost": [...upperFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()],
+
         //"stepsCount": stepsCount.toString(),
         "lastNoseDistance": lastNoseDistance.toString(),
         'hypotenuse': hypotenuse

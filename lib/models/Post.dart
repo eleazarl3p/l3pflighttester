@@ -25,4 +25,8 @@ class Post {
   }
 
   Map toJson() => {"distance": distance, "embeddedType": embeddedType};
+
+  factory Post.copy(Post pst) {
+    return Post(distance: pst.distance, embeddedType: pst.embeddedType);
+  }
 }

@@ -125,8 +125,9 @@ class _Dibujo extends CustomPainter {
 
     List lowerFlatPost = [...data['lowerFlatPost']];
     List balusterL = [...data['balusters']];
+
     // order poost llist
-    balusterL.sort((a, b) => a.nosingDistance.compareTo(b.nosingDistance));
+    balusterL.sort((a, b) => a.step.compareTo(b.step));
     List upperFlatPost = [...data['upperFlatPost']];
 
     List nosingStepsList = [];
@@ -156,10 +157,8 @@ class _Dibujo extends CustomPainter {
       bottomCrotchExtension += 15;
     }
 
-    num flatDown = [size.width / 18, bottomCrotchExtension, bottomFlatLength]
-        .reduce((value, element) => value > element ? value : element);
-    num flatUp = [size.width / 20, topCrotchExtension, topFlatLength]
-        .reduce((value, element) => value > element ? value : element);
+    num flatDown = [size.width / 18, bottomCrotchExtension, bottomFlatLength].reduce((value, element) => value > element ? value : element);
+    num flatUp = [size.width / 20, topCrotchExtension, topFlatLength].reduce((value, element) => value > element ? value : element);
     double factor = size.width / (sumStairsLength + flatUp + flatDown);
 
     double firstEscalonX = factor *
@@ -507,8 +506,7 @@ class _Dibujo extends CustomPainter {
     // lower Flat Post
     if (lowerFlatPost.isNotEmpty) {
       for (Post post in lowerFlatPost) {
-        addFlatLowerPost(double.parse(unitConverter.toInch(post.distance)) * factor, post.embeddedType,
-            "B${lowerFlatPost.indexOf(post) + 1}");
+        addFlatLowerPost(double.parse(unitConverter.toInch(post.distance)) * factor, post.embeddedType, "B${lowerFlatPost.indexOf(post) + 1}");
       }
     }
 
@@ -527,8 +525,7 @@ class _Dibujo extends CustomPainter {
         addTubePlate(pt[0] + baluster, size.height - pt[1] + factor, rpt.embeddedType);
 
         // Add Label Majuscul letter , Post identifier;
-        addLabel(
-            x: pt[0] + 3 * factor, y: labelHeigth + 20, label: "\u{00A0}${alphabet.removeAt(0)}\u{00A0}", nose: false);
+        addLabel(x: pt[0] + 4 * factor, y: labelHeigth + 20, label: "\u{00A0}${alphabet.removeAt(0)}\u{00A0}", nose: false);
 
         Path dimension = Path();
         dimension.moveTo(firstNose[0], firstNose[1]);
@@ -568,8 +565,11 @@ class _Dibujo extends CustomPainter {
             size: size,
             factor: factor,
             offset: const Offset(0, 0),
-            dx: dx1 + ((dx1 - dx2).abs() / 2) - (rpt.nosingDistance.toString().length) * factor,
-            dy: dy1 - ((dy1 - dy2).abs() / 2) + (rpt.nosingDistance.toString().length) * factor,
+            dx: dx1 + ((dx1 - dx2).abs() / 2),
+            // - (rpt.nosingDistance.toString().length) * factor,
+            dy: dy1 - ((dy1 - dy2).abs() / 2) + 4.7 * factor,
+
+            // + (rpt.nosingDistance.toString().length) * factor,
             canvas: canvas,
             angle: 0,
             pen: postPen);
@@ -595,8 +595,7 @@ class _Dibujo extends CustomPainter {
     if (upperFlatPost.isNotEmpty) {
       for (Post pt in upperFlatPost) {
         if (double.parse(unitConverter.toInch(pt.distance)) > 0) {
-          addFlatUpperPost(double.parse(unitConverter.toInch(pt.distance)), lastX, lastY, pt.embeddedType,
-              "U${upperFlatPost.indexOf(pt) + 1}");
+          addFlatUpperPost(double.parse(unitConverter.toInch(pt.distance)), lastX, lastY, pt.embeddedType, "U${upperFlatPost.indexOf(pt) + 1}");
         }
       }
     }
@@ -610,8 +609,7 @@ class _Dibujo extends CustomPainter {
         canvas.drawLine(Offset(firstEscalonX - factor - bottomCrotchLength, postFlatLower.first[1]),
             Offset(postFlatLower.first[0], postFlatLower.first[1]), postPen);
       } else {
-        canvas.drawLine(Offset(postFlatLower.first[0], postFlatLower.first[1]),
-            Offset(postFlatLower.last[0], postFlatLower.last[1]), postPen);
+        canvas.drawLine(Offset(postFlatLower.first[0], postFlatLower.first[1]), Offset(postFlatLower.last[0], postFlatLower.last[1]), postPen);
       }
     } else {
       if (data['hasBottomCrotchPost'] && data['bottomCrotch']) {
@@ -625,8 +623,7 @@ class _Dibujo extends CustomPainter {
     }
 
     if (postFlatUpper.isNotEmpty) {
-      canvas.drawLine(Offset(postFlatUpper.first[0], postFlatUpper.first[1]),
-          Offset(postFlatUpper.last[0], postFlatUpper.last[1]), postPen);
+      canvas.drawLine(Offset(postFlatUpper.first[0], postFlatUpper.first[1]), Offset(postFlatUpper.last[0], postFlatUpper.last[1]), postPen);
     }
 
     if (postFlatLower.isNotEmpty && postFlatUpper.isNotEmpty) {
@@ -638,10 +635,8 @@ class _Dibujo extends CustomPainter {
       canvas.drawPath(fullPath, postPen);
     } else {
       if (postStair.isNotEmpty) {
-        canvas.drawLine(
-            Offset(postStair.first[0] + baluster, size.height - postStair.first[1] - postHeight + landingHeight),
-            Offset(postStair.last[0] + baluster, size.height - postStair.last[1] - postHeight + landingHeight),
-            postPen);
+        canvas.drawLine(Offset(postStair.first[0] + baluster, size.height - postStair.first[1] - postHeight + landingHeight),
+            Offset(postStair.last[0] + baluster, size.height - postStair.last[1] - postHeight + landingHeight), postPen);
       }
       //Join bottom flat post rail to thread rail
       if (postFlatLower.isNotEmpty && postStair.isNotEmpty) {
@@ -678,7 +673,7 @@ class _Dibujo extends CustomPainter {
       required double dy,
       required Paint pen}) {
     canvas.save();
-    canvas.translate(dx, dy + (7.5 / 3) * factor);
+    canvas.translate(dx, dy);
     //canvas.translate(dx , dy );
 
     angle = atan(bevel / 12);
@@ -699,12 +694,7 @@ class _Dibujo extends CustomPainter {
   }
 
   void dimensionLabelBaluster(
-      {required String value,
-      required Size size,
-      required Canvas canvas,
-      required Offset offset,
-      double fontSise = 15.0,
-      Color color = Colors.red}) {
+      {required String value, required Size size, required Canvas canvas, required Offset offset, double fontSise = 15.0, Color color = Colors.red}) {
     TextStyle textStyle = TextStyle(color: color, fontSize: fontSise, backgroundColor: Colors.white);
     final textSpan = TextSpan(text: value, style: textStyle);
     TextPainter(text: textSpan, textDirection: TextDirection.ltr)
