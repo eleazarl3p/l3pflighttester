@@ -185,26 +185,32 @@ class _FlightEditorState extends State<FlightEditor> {
                     templateFlight[campo][index].pController.selection =
                         TextSelection(baseOffset: 0, extentOffset: templateFlight[campo][index].pController.value.text.length),
                     validator: (value) {
-                      if (!InputValidator.inchesValidator(value!)) {
-                        templateFlight[campo][index].error = true;
-
-                        return '';
-                      }
-
-                      if (crotch) {
-                        List sublista = templateFlight[campo].sublist(0, index + 1);
-                        sumDistance = sublista.fold(0, (sum, element) =>
-                        sum.toDouble() + double.parse(unitConverter.toInch(element.pController.text)));
-
-                        if (sumDistance >= crotchDistance && double.parse(unitConverter.toInch(value)) != 0) {
+                      try {
+                        if (!InputValidator.inchesValidator(value!)) {
                           templateFlight[campo][index].error = true;
 
-                          return "";
+                          return '';
                         }
-                      }
 
-                      templateFlight[campo][index].error = false;
-                      return null;
+                        if (crotch) {
+                          List sublista = templateFlight[campo].sublist(0, index + 1);
+                          sumDistance = sublista.fold(0, (sum, element) =>
+                          sum.toDouble() + double.parse(unitConverter.toInch(element.pController.text)));
+
+                          if (sumDistance >= crotchDistance && double.parse(unitConverter.toInch(value)) != 0) {
+                            templateFlight[campo][index].error = true;
+
+                            return "";
+                          }
+                        }
+
+                        templateFlight[campo][index].error = false;
+                        return null;
+                      } catch (err) {
+                        print(err.toString());
+                        templateFlight[campo][index].error = true;
+                        return "";
+                      }
                     },
                     decoration: kInputDec,
                     style: const TextStyle(fontSize: 14),
@@ -299,25 +305,31 @@ class _FlightEditorState extends State<FlightEditor> {
                       //   return '';
                       // }
                       // String? valid = InputValidator.inchesValidator(value!);
-                      if (!InputValidator.inchesValidator(value!)) {
-                        templateFlight['balusters'][index].noseError = true;
-                        return '';
-                      }
-                      double noseValue = double.parse(unitConverter.toInch(value));
-                      if (double.tryParse(unitConverter.toInch(lastNoseDistance.text)) != null) {
-                        if (noseValue >= double.parse(unitConverter.toInch(lastNoseDistance.text))) {
+                      try {
+                        if (!InputValidator.inchesValidator(value!)) {
                           templateFlight['balusters'][index].noseError = true;
-                          return "";
+                          return '';
                         }
+                        double noseValue = double.parse(unitConverter.toInch(value));
+                        if (double.tryParse(unitConverter.toInch(lastNoseDistance.text)) != null) {
+                          if (noseValue >= double.parse(unitConverter.toInch(lastNoseDistance.text))) {
+                            templateFlight['balusters'][index].noseError = true;
+                            return "";
+                          }
+                        }
+
+                        templateFlight['balusters'][index].noseError = false;
+                        int step = (noseValue / hypotenuse).round()
+                          ..toInt();
+
+                        templateFlight['balusters'][index].step = step + 1;
+                        templateFlight['balusters'][index].nosingDistance = value;
+                        return null;
+                      } catch (err) {
+                        print(err.toString());
+                        templateFlight['balusters'][index].noseError = true;
+                        return "";
                       }
-
-                      templateFlight['balusters'][index].noseError = false;
-                      int step = (noseValue / hypotenuse).round()
-                        ..toInt();
-
-                      templateFlight['balusters'][index].step = step + 1;
-                      templateFlight['balusters'][index].nosingDistance = value;
-                      return null;
                     },
                     decoration: kInputDec,
                     style: const TextStyle(fontSize: 14),
@@ -360,25 +372,30 @@ class _FlightEditorState extends State<FlightEditor> {
                     templateFlight['balusters'][index].balusterController.selection =
                         TextSelection(baseOffset: 0, extentOffset: templateFlight['balusters'][index].balusterController.value.text.length),
                     validator: (value) {
-                      if (!InputValidator.inchesValidator(value!)) {
-                        templateFlight['balusters'][index].balusterError = true;
-                        return '';
-                      }
-                      // if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      //   templateFlight['balusters'][index].balusterError = true;
-                      //   return '';
-                      // }
+                      try {
+                        if (!InputValidator.inchesValidator(value!)) {
+                          templateFlight['balusters'][index].balusterError = true;
+                          return '';
+                        }
+                        // if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                        //   templateFlight['balusters'][index].balusterError = true;
+                        //   return '';
+                        // }
 
-                      double noseValue = double.parse(unitConverter.toInch(value));
-                      if (noseValue >= 10) {
-                        templateFlight['balusters'][index].balusterError = true;
+                        double noseValue = double.parse(unitConverter.toInch(value));
+                        if (noseValue >= 10) {
+                          templateFlight['balusters'][index].balusterError = true;
+                          return "";
+                        }
+
+                        templateFlight['balusters'][index].balusterError = false;
+                        templateFlight['balusters'][index].balusterDistance = value;
+
+                        return null;
+                      } catch (err) {
+                        print(err.toString());
                         return "";
                       }
-
-                      templateFlight['balusters'][index].balusterError = false;
-                      templateFlight['balusters'][index].balusterDistance = value;
-
-                      return null;
                     },
                     decoration: kInputDec,
                     style: const TextStyle(fontSize: 14),
@@ -635,10 +652,15 @@ class _FlightEditorState extends State<FlightEditor> {
                                       keyboardType: TextInputType.phone,
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       validator: (value) {
-                                        if (InputValidator.inchesValidator(value!)) {
-                                          return null;
+                                        try {
+                                          if (InputValidator.inchesValidator(value!)) {
+                                            return null;
+                                          }
+                                          return '';
+                                        } catch (err) {
+                                          print(err.toString());
+                                          return "";
                                         }
-                                        return '';
                                       },
                                       onTap: eraserOn && _formKey.currentState!.validate()
                                           ? () {
@@ -691,10 +713,14 @@ class _FlightEditorState extends State<FlightEditor> {
                                       bevelController.selection =
                                           TextSelection(baseOffset: 0, extentOffset: bevelController.value.text.length),
                                       validator: (value) {
-                                        if (InputValidator.inchesValidator(value!)) {
-                                          return null;
+                                        try {
+                                          if (InputValidator.inchesValidator(value!)) {
+                                            return null;
+                                          }
+                                          return '';
+                                        } catch (err) {
+                                          return "";
                                         }
-                                        return '';
                                       },
                                       decoration: kInputDec,
                                       style: const TextStyle(fontSize: 14),
@@ -780,29 +806,34 @@ class _FlightEditorState extends State<FlightEditor> {
                                         //   return "";
                                         // }
 
-                                        if (!InputValidator.inchesValidator(value!)) {
-                                          bottomFlatDistanceError = true;
-                                          return "";
-                                        }
+                                        try {
+                                          if (!InputValidator.inchesValidator(value!)) {
+                                            bottomFlatDistanceError = true;
+                                            return "";
+                                          }
 
-                                        if (templateFlight['bottomCrotch']) {
-                                          if (templateFlight['lowerFlatPost'].isNotEmpty) {
-                                            double totDistance = 0;
+                                          if (templateFlight['bottomCrotch']) {
+                                            if (templateFlight['lowerFlatPost'].isNotEmpty) {
+                                              double totDistance = 0;
 
-                                            totDistance = templateFlight['lowerFlatPost'].fold(
-                                                0, (previousValue, element) => previousValue + double.parse(unitConverter.toInch(element.distance)));
+                                              totDistance = templateFlight['lowerFlatPost'].fold(
+                                                  0, (previousValue, element) =>
+                                              previousValue + double.parse(unitConverter.toInch(element.distance)));
 
-                                            if (double.parse(unitConverter.toInch(value)) <= totDistance && totDistance != 0) {
-                                              bottomFlatDistanceError = true;
-                                              return "";
+                                              if (double.parse(unitConverter.toInch(value)) <= totDistance && totDistance != 0) {
+                                                bottomFlatDistanceError = true;
+                                                return "";
+                                              }
                                             }
                                           }
+
+                                          bottomFlatDistanceError = false;
+
+                                          // //currentFocus = globalFocus;
+                                          return null;
+                                        } catch (err) {
+                                          return "";
                                         }
-
-                                        bottomFlatDistanceError = false;
-
-                                        // //currentFocus = globalFocus;
-                                        return null;
                                       },
                                       decoration: templateFlight['bottomCrotch'] ? kInputDec : kInputDecDisable,
                                       style: TextStyle(fontSize: 14, color: templateFlight['bottomCrotch'] ? Colors.black : Colors.blueGrey.shade50),
@@ -916,23 +947,27 @@ class _FlightEditorState extends State<FlightEditor> {
                                         //   return "";
                                         // }
 
-                                        if (templateFlight['topCrotch']) {
-                                          if (templateFlight['upperFlatPost'].isNotEmpty) {
-                                            double totDistance = 0;
-                                            totDistance = templateFlight['upperFlatPost'].fold(
-                                                0,
-                                                    (previousValue, element) =>
-                                                previousValue + double.parse(unitConverter.toInch(element.distance.toString())));
+                                        try {
+                                          if (templateFlight['topCrotch']) {
+                                            if (templateFlight['upperFlatPost'].isNotEmpty) {
+                                              double totDistance = 0;
+                                              totDistance = templateFlight['upperFlatPost'].fold(
+                                                  0,
+                                                      (previousValue, element) =>
+                                                  previousValue + double.parse(unitConverter.toInch(element.distance.toString())));
 
-                                            if (double.parse(unitConverter.toInch(value)) <= totDistance && totDistance != 0) {
-                                              topFlatDistanceError = true;
-                                              return "";
+                                              if (double.parse(unitConverter.toInch(value)) <= totDistance && totDistance != 0) {
+                                                topFlatDistanceError = true;
+                                                return "";
+                                              }
                                             }
                                           }
-                                        }
 
-                                        topFlatDistanceError = false;
-                                        return null;
+                                          topFlatDistanceError = false;
+                                          return null;
+                                        } catch (err) {
+                                          return "";
+                                        }
                                       },
                                       decoration: templateFlight['topCrotch'] ? kInputDec : kInputDecDisable,
                                       style: TextStyle(fontSize: 14, color: templateFlight['topCrotch'] ? Colors.black : Colors.blueGrey.shade50),
@@ -999,30 +1034,34 @@ class _FlightEditorState extends State<FlightEditor> {
                                       lastNoseDistance.selection =
                                           TextSelection(baseOffset: 0, extentOffset: lastNoseDistance.value.text.length),
                                       validator: (value) {
-                                        lastNoseError = false;
-                                        if (!InputValidator.inchesValidator(value!)) {
-                                          lastNoseError = true;
-                                          return '';
-                                        }
-
-                                        double parseVal = double.parse(unitConverter.toInch(value));
-                                        if (parseVal < hypotenuse) {
-                                          lastNoseError = true;
-                                          return '';
-                                        }
-                                        if (templateFlight['balusters'].isNotEmpty) {
-                                          templateFlight['balusters'].forEach((rp) =>
-                                          {
-                                            if (double.parse(unitConverter.toInch(rp.nosingDistance)) > parseVal) {lastNoseError = true}
-                                          });
-
-                                          if (lastNoseError) {
+                                        try {
+                                          lastNoseError = false;
+                                          if (!InputValidator.inchesValidator(value!)) {
+                                            lastNoseError = true;
                                             return '';
                                           }
-                                        }
 
-                                        lastNoseError = false;
-                                        return null;
+                                          double parseVal = double.parse(unitConverter.toInch(value));
+                                          if (parseVal < hypotenuse) {
+                                            lastNoseError = true;
+                                            return '';
+                                          }
+                                          if (templateFlight['balusters'].isNotEmpty) {
+                                            templateFlight['balusters'].forEach((rp) =>
+                                            {
+                                              if (double.parse(unitConverter.toInch(rp.nosingDistance)) > parseVal) {lastNoseError = true}
+                                            });
+
+                                            if (lastNoseError) {
+                                              return '';
+                                            }
+                                          }
+
+                                          lastNoseError = false;
+                                          return null;
+                                        } catch (err) {
+                                          print(err.toString());
+                                        }
                                       },
                                       decoration: kInputDec,
                                       style: const TextStyle(fontSize: 14),
@@ -1115,18 +1154,22 @@ class _FlightEditorState extends State<FlightEditor> {
                                                               TextSelection(baseOffset: 0, extentOffset: lowerPostQuantity.value.text.length);
                                                         },
                                                         validator: (value) {
-                                                          if (value == null) {
-                                                            lowerQuantityError = true;
+                                                          try {
+                                                            if (value == null) {
+                                                              lowerQuantityError = true;
 
-                                                            return '';
-                                                          }
+                                                              return '';
+                                                            }
 
-                                                          if (int.tryParse(value) == null) {
-                                                            lowerQuantityError = true;
-                                                            return '';
+                                                            if (int.tryParse(value) == null) {
+                                                              lowerQuantityError = true;
+                                                              return '';
+                                                            }
+                                                            lowerQuantityError = false;
+                                                            return null;
+                                                          } catch (err) {
+                                                            return "";
                                                           }
-                                                          lowerQuantityError = false;
-                                                          return null;
                                                         },
                                                         decoration: kInputDec,
                                                         style: const TextStyle(fontSize: 14),
@@ -1224,27 +1267,31 @@ class _FlightEditorState extends State<FlightEditor> {
                                                         },
                                                         autovalidateMode: AutovalidateMode.onUserInteraction,
                                                         validator: (value) {
-                                                          if (value == null) {
-                                                            balusterQuantityError = true;
-                                                            return '';
-                                                          }
-
-                                                          if (int.tryParse(value) == null) {
-                                                            balusterQuantityError = true;
-                                                            return '';
-                                                          }
-
-                                                          int numRP = int.parse(balusterQuantity.text);
-                                                          int stepsCount = int.parse(templateFlight['stepsCount']);
-                                                          if (numRP > 0) {
-                                                            // If number of post to add is minor than the amount of steps
-                                                            if (numRP > stepsCount) {
+                                                          try {
+                                                            if (value == null) {
                                                               balusterQuantityError = true;
                                                               return '';
                                                             }
+
+                                                            if (int.tryParse(value) == null) {
+                                                              balusterQuantityError = true;
+                                                              return '';
+                                                            }
+
+                                                            int numRP = int.parse(balusterQuantity.text);
+                                                            int stepsCount = int.parse(templateFlight['stepsCount']);
+                                                            if (numRP > 0) {
+                                                              // If number of post to add is minor than the amount of steps
+                                                              if (numRP > stepsCount) {
+                                                                balusterQuantityError = true;
+                                                                return '';
+                                                              }
+                                                            }
+                                                            balusterQuantityError = false;
+                                                            return null;
+                                                          } catch (err) {
+                                                            return "";
                                                           }
-                                                          balusterQuantityError = false;
-                                                          return null;
                                                         },
                                                         decoration: kInputDec,
                                                         style: const TextStyle(fontSize: 14),
@@ -1335,15 +1382,19 @@ class _FlightEditorState extends State<FlightEditor> {
                                                         },
                                                         autovalidateMode: AutovalidateMode.onUserInteraction,
                                                         validator: (value) {
-                                                          if (value == null) {
-                                                            return '';
-                                                          }
+                                                          try {
+                                                            if (value == null) {
+                                                              return '';
+                                                            }
 
-                                                          if (int.tryParse(value) == null) {
-                                                            return '';
-                                                          }
+                                                            if (int.tryParse(value) == null) {
+                                                              return '';
+                                                            }
 
-                                                          return null;
+                                                            return null;
+                                                          } catch (err) {
+                                                            return "";
+                                                          }
                                                         },
                                                         decoration: kInputDec,
                                                         style: const TextStyle(fontSize: 14),
