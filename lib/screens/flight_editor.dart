@@ -127,13 +127,13 @@ class _FlightEditorState extends State<FlightEditor> {
     print(controller.text);
     eraserOn
         ? () {
-      print('enter 122');
-      setState(() {
-        print('enter');
-        controller.text = '';
-        eraserOn = false;
-      });
-    }
+            print('enter 122');
+            setState(() {
+              print('enter');
+              controller.text = '';
+              eraserOn = false;
+            });
+          }
         : () => controller.selection = TextSelection(baseOffset: 0, extentOffset: controller.value.text.length);
   }
 
@@ -164,97 +164,94 @@ class _FlightEditorState extends State<FlightEditor> {
 
       return List<DataRow>.generate(
         templateFlight[campo].length,
-            (index) =>
-            DataRow(cells: [
-              DataCell(Text('$letter${index + 1}')),
-              DataCell(
-                Focus(
-                  child: TextFormField(
-                    focusNode: templateFlight[campo][index].pFocusNode,
-                    controller: templateFlight[campo][index].pController,
-                    keyboardType: TextInputType.phone,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    onTap: eraserOn && _formKey.currentState!.validate()
-                        ? () {
-                      setState(() {
-                        templateFlight[campo][index].pController.text = '';
-                        eraserOn = false;
-                      });
-                    }
-                        : () =>
-                    templateFlight[campo][index].pController.selection =
+        (index) => DataRow(cells: [
+          DataCell(Text('$letter${index + 1}')),
+          DataCell(
+            Focus(
+              child: TextFormField(
+                focusNode: templateFlight[campo][index].pFocusNode,
+                controller: templateFlight[campo][index].pController,
+                keyboardType: TextInputType.phone,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onTap: eraserOn && _formKey.currentState!.validate()
+                    ? () {
+                        setState(() {
+                          templateFlight[campo][index].pController.text = '';
+                          eraserOn = false;
+                        });
+                      }
+                    : () => templateFlight[campo][index].pController.selection =
                         TextSelection(baseOffset: 0, extentOffset: templateFlight[campo][index].pController.value.text.length),
-                    validator: (value) {
-                      try {
-                        if (!InputValidator.inchesValidator(value!)) {
-                          templateFlight[campo][index].error = true;
+                validator: (value) {
+                  try {
+                    if (!InputValidator.inchesValidator(value!)) {
+                      templateFlight[campo][index].error = true;
 
-                          return '';
-                        }
+                      return '';
+                    }
 
-                        if (crotch) {
-                          List sublista = templateFlight[campo].sublist(0, index + 1);
-                          sumDistance = sublista.fold(0, (sum, element) =>
-                          sum.toDouble() + double.parse(unitConverter.toInch(element.pController.text)));
+                    if (crotch) {
+                      List sublista = templateFlight[campo].sublist(0, index + 1);
+                      sumDistance = sublista.fold(0, (sum, element) => sum.toDouble() + double.parse(unitConverter.toInch(element.pController.text)));
 
-                          if (sumDistance >= crotchDistance && double.parse(unitConverter.toInch(value)) != 0) {
-                            templateFlight[campo][index].error = true;
-
-                            return "";
-                          }
-                        }
-
-                        templateFlight[campo][index].error = false;
-                        return null;
-                      } catch (err) {
-                        print(err.toString());
+                      if (sumDistance >= crotchDistance && double.parse(unitConverter.toInch(value)) != 0) {
                         templateFlight[campo][index].error = true;
+
                         return "";
                       }
-                    },
-                    decoration: kInputDec,
-                    style: const TextStyle(fontSize: 14),
+                    }
+
+                    templateFlight[campo][index].error = false;
+                    return null;
+                  } catch (err) {
+                    print(err.toString());
+                    templateFlight[campo][index].error = true;
+                    return "";
+                  }
+                },
+                decoration: kInputDec,
+                style: const TextStyle(fontSize: 14),
+              ),
+              onFocusChange: (value) {
+                if (!value) {
+                  if (!templateFlight[campo][index].error) {
+                    templateFlight[campo][index].distance = templateFlight[campo][index].pController.text;
+                  } else {
+                    templateFlight[campo][index].pFocusNode.requestFocus();
+                  }
+                }
+              },
+            ),
+          ),
+          DataCell(
+            DropdownButton(
+                isExpanded: false,
+                items: const [
+                  DropdownMenuItem(
+                    value: "none",
+                    child: Text("None"),
                   ),
-                  onFocusChange: (value) {
-                    if (!value) {
-                      if (!templateFlight[campo][index].error) {
-                        templateFlight[campo][index].distance = templateFlight[campo][index].pController.text;
-                      } else {
-                        templateFlight[campo][index].pFocusNode.requestFocus();
-                      }
-                    }
-                  },
-                ),
-              ),
-              DataCell(
-                DropdownButton(
-                    isExpanded: false,
-                    items: const [
-                      DropdownMenuItem(
-                        value: "none",
-                        child: Text("None"),
-                      ),
-                      DropdownMenuItem(
-                        value: "plate",
-                        child: Text("Plate"),
-                      ),
-                      DropdownMenuItem(
-                        value: "sleeve",
-                        child: Text("Sleeve"),
-                      )
-                    ],
-                    value: templateFlight[campo][index].embeddedType,
-                    onChanged: (value) {
-                      setState(() {
-                        templateFlight[campo][index].embeddedType = value;
-                      });
-                    }
+                  DropdownMenuItem(
+                    value: "plate",
+                    child: Text("Plate"),
+                  ),
+                  DropdownMenuItem(
+                    value: "sleeve",
+                    child: Text("Sleeve"),
+                  )
+                ],
+                value: templateFlight[campo][index].embeddedType,
+                onChanged: (value) {
+                  setState(() {
+                    templateFlight[campo][index].embeddedType = value;
+                  });
+                }
 
-                  //widget.resetView();
+                //widget.resetView();
 
                 ),
-              ),
-            ]),
+          ),
+        ]),
       );
     }
 
@@ -279,165 +276,160 @@ class _FlightEditorState extends State<FlightEditor> {
 
       return List<DataRow>.generate(
         templateFlight['balusters'].length,
-            (index) =>
-            DataRow(cells: [
-              DataCell(Text(alphabet[index])),
-              DataCell(
-                Focus(
-                  child: TextFormField(
-                    focusNode: templateFlight['balusters'][index].noseFocus,
-                    controller: templateFlight['balusters'][index].noseController,
-                    keyboardType: TextInputType.phone,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    onTap: eraserOn && _formKey.currentState!.validate()
-                        ? () {
-                      setState(() {
-                        templateFlight['balusters'][index].noseController.text = '';
-                        eraserOn = false;
-                      });
-                    }
-                        : () =>
-                    templateFlight['balusters'][index].noseController.selection =
+        (index) => DataRow(cells: [
+          DataCell(Text(alphabet[index])),
+          DataCell(
+            Focus(
+              child: TextFormField(
+                focusNode: templateFlight['balusters'][index].noseFocus,
+                controller: templateFlight['balusters'][index].noseController,
+                keyboardType: TextInputType.phone,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onTap: eraserOn && _formKey.currentState!.validate()
+                    ? () {
+                        setState(() {
+                          templateFlight['balusters'][index].noseController.text = '';
+                          eraserOn = false;
+                        });
+                      }
+                    : () => templateFlight['balusters'][index].noseController.selection =
                         TextSelection(baseOffset: 0, extentOffset: templateFlight['balusters'][index].noseController.value.text.length),
-                    validator: (value) {
-                      // if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                      //   templateFlight['balusters'][index].noseError = true;
-                      //   return '';
-                      // }
-                      // String? valid = InputValidator.inchesValidator(value!);
-                      try {
-                        if (!InputValidator.inchesValidator(value!)) {
-                          templateFlight['balusters'][index].noseError = true;
-                          return '';
-                        }
-                        double noseValue = double.parse(unitConverter.toInch(value));
-                        if (double.tryParse(unitConverter.toInch(lastNoseDistance.text)) != null) {
-                          if (noseValue >= double.parse(unitConverter.toInch(lastNoseDistance.text))) {
-                            templateFlight['balusters'][index].noseError = true;
-                            return "";
-                          }
-                        }
-
-                        templateFlight['balusters'][index].noseError = false;
-                        int step = (noseValue / hypotenuse).round()
-                          ..toInt();
-
-                        templateFlight['balusters'][index].step = step + 1;
-                        templateFlight['balusters'][index].nosingDistance = value;
-                        return null;
-                      } catch (err) {
-                        print(err.toString());
+                validator: (value) {
+                  // if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                  //   templateFlight['balusters'][index].noseError = true;
+                  //   return '';
+                  // }
+                  // String? valid = InputValidator.inchesValidator(value!);
+                  try {
+                    if (!InputValidator.inchesValidator(value!)) {
+                      templateFlight['balusters'][index].noseError = true;
+                      return '';
+                    }
+                    double noseValue = double.parse(unitConverter.toInch(value));
+                    if (double.tryParse(unitConverter.toInch(lastNoseDistance.text)) != null) {
+                      if (noseValue >= double.parse(unitConverter.toInch(lastNoseDistance.text))) {
                         templateFlight['balusters'][index].noseError = true;
                         return "";
                       }
-                    },
-                    decoration: kInputDec,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  onFocusChange: (value) {
-                    if (!lastNoseError) {
-                      if (!value) {
-                        if (templateFlight['balusters'][index].noseError) {
-                          templateFlight['balusters'][index].noseFocus.requestFocus();
-                        } else {
-                          setState(() {
-                            double noseValue = double.parse(unitConverter.toInch(lastNoseDistance.text));
-                            int step = (noseValue / hypotenuse).round()
-                              ..toInt();
-
-                            templateFlight['balusters'][index].step = step + 1;
-                            templateFlight['balusters'][index].nosingDistance = lastNoseDistance.text;
-                          });
-                        }
-                      }
                     }
-                  },
-                ),
+
+                    templateFlight['balusters'][index].noseError = false;
+                    int step = (noseValue / hypotenuse).round()..toInt();
+
+                    templateFlight['balusters'][index].step = step + 1;
+                    templateFlight['balusters'][index].nosingDistance = value;
+                    return null;
+                  } catch (err) {
+                    print(err.toString());
+                    templateFlight['balusters'][index].noseError = true;
+                    return "";
+                  }
+                },
+                decoration: kInputDec,
+                style: const TextStyle(fontSize: 14),
               ),
-              DataCell(
-                Focus(
-                  child: TextFormField(
-                    focusNode: templateFlight['balusters'][index].balusterFocus,
-                    controller: templateFlight['balusters'][index].balusterController,
-                    keyboardType: TextInputType.phone,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    onTap: eraserOn && _formKey.currentState!.validate()
-                        ? () {
+              onFocusChange: (value) {
+                if (!lastNoseError) {
+                  if (!value) {
+                    if (templateFlight['balusters'][index].noseError) {
+                      templateFlight['balusters'][index].noseFocus.requestFocus();
+                    } else {
                       setState(() {
-                        templateFlight['balusters'][index].balusterController.text = '';
-                        eraserOn = false;
+                        double noseValue = double.parse(unitConverter.toInch(lastNoseDistance.text));
+                        int step = (noseValue / hypotenuse).round()..toInt();
+
+                        templateFlight['balusters'][index].step = step + 1;
+                        templateFlight['balusters'][index].nosingDistance = lastNoseDistance.text;
                       });
                     }
-                        : () =>
-                    templateFlight['balusters'][index].balusterController.selection =
-                        TextSelection(baseOffset: 0, extentOffset: templateFlight['balusters'][index].balusterController.value.text.length),
-                    validator: (value) {
-                      try {
-                        if (!InputValidator.inchesValidator(value!)) {
-                          templateFlight['balusters'][index].balusterError = true;
-                          return '';
-                        }
-                        // if (value == null || double.tryParse(value) == null || value.isEmpty) {
-                        //   templateFlight['balusters'][index].balusterError = true;
-                        //   return '';
-                        // }
-
-                        double noseValue = double.parse(unitConverter.toInch(value));
-                        if (noseValue >= 10) {
-                          templateFlight['balusters'][index].balusterError = true;
-                          return "";
-                        }
-
-                        templateFlight['balusters'][index].balusterError = false;
-                        templateFlight['balusters'][index].balusterDistance = value;
-
-                        return null;
-                      } catch (err) {
-                        print(err.toString());
-                        return "";
-                      }
-                    },
-                    decoration: kInputDec,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  onFocusChange: (value) {
-                    if (!value) {
-                      if (templateFlight['balusters'][index].balusterError) {
-                        templateFlight['balusters'][index].balusterFocus.requestFocus();
-                      } else {
+                  }
+                }
+              },
+            ),
+          ),
+          DataCell(
+            Focus(
+              child: TextFormField(
+                focusNode: templateFlight['balusters'][index].balusterFocus,
+                controller: templateFlight['balusters'][index].balusterController,
+                keyboardType: TextInputType.phone,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onTap: eraserOn && _formKey.currentState!.validate()
+                    ? () {
                         setState(() {
-                          templateFlight['balusters'][index].balusterDistance = templateFlight['balusters'][index].balusterController.text;
+                          templateFlight['balusters'][index].balusterController.text = '';
+                          eraserOn = false;
                         });
                       }
+                    : () => templateFlight['balusters'][index].balusterController.selection =
+                        TextSelection(baseOffset: 0, extentOffset: templateFlight['balusters'][index].balusterController.value.text.length),
+                validator: (value) {
+                  try {
+                    if (!InputValidator.inchesValidator(value!)) {
+                      templateFlight['balusters'][index].balusterError = true;
+                      return '';
                     }
-                  },
-                ),
+                    // if (value == null || double.tryParse(value) == null || value.isEmpty) {
+                    //   templateFlight['balusters'][index].balusterError = true;
+                    //   return '';
+                    // }
+
+                    double noseValue = double.parse(unitConverter.toInch(value));
+                    if (noseValue >= 10) {
+                      templateFlight['balusters'][index].balusterError = true;
+                      return "";
+                    }
+
+                    templateFlight['balusters'][index].balusterError = false;
+                    templateFlight['balusters'][index].balusterDistance = value;
+
+                    return null;
+                  } catch (err) {
+                    print(err.toString());
+                    return "";
+                  }
+                },
+                decoration: kInputDec,
+                style: const TextStyle(fontSize: 14),
               ),
-              DataCell(
-                DropdownButton(
-                    isExpanded: false,
-                    items: const [
-                      DropdownMenuItem(
-                        value: "none",
-                        child: Text("None"),
-                      ),
-                      DropdownMenuItem(
-                        value: "plate",
-                        child: Text("Plate"),
-                      ),
-                      DropdownMenuItem(
-                        value: "sleeve",
-                        child: Text("Sleeve"),
-                      )
-                    ],
-                    value: templateFlight['balusters'][index].embeddedType,
-                    onChanged: (value) {
-                      setState(() {
-                        templateFlight['balusters'][index].embeddedType = value;
-                      });
-                    }),
-              ),
-            ]),
+              onFocusChange: (value) {
+                if (!value) {
+                  if (templateFlight['balusters'][index].balusterError) {
+                    templateFlight['balusters'][index].balusterFocus.requestFocus();
+                  } else {
+                    setState(() {
+                      templateFlight['balusters'][index].balusterDistance = templateFlight['balusters'][index].balusterController.text;
+                    });
+                  }
+                }
+              },
+            ),
+          ),
+          DataCell(
+            DropdownButton(
+                isExpanded: false,
+                items: const [
+                  DropdownMenuItem(
+                    value: "none",
+                    child: Text("None"),
+                  ),
+                  DropdownMenuItem(
+                    value: "plate",
+                    child: Text("Plate"),
+                  ),
+                  DropdownMenuItem(
+                    value: "sleeve",
+                    child: Text("Sleeve"),
+                  )
+                ],
+                value: templateFlight['balusters'][index].embeddedType,
+                onChanged: (value) {
+                  setState(() {
+                    templateFlight['balusters'][index].embeddedType = value;
+                  });
+                }),
+          ),
+        ]),
       );
     }
 
@@ -545,7 +537,7 @@ class _FlightEditorState extends State<FlightEditor> {
 
                 context
                     .read<Projects>()
-                // Provider.of<Projects>(context, listen: false)
+                    // Provider.of<Projects>(context, listen: false)
                     .projects[widget.pIndex]
                     .stairs[widget.sIndex]
                     .flights[widget.fIndex]
@@ -584,9 +576,7 @@ class _FlightEditorState extends State<FlightEditor> {
                     style: kLabel600,
                   ),
                   Text(
-                    '${Provider
-                        .of<Projects>(context, listen: false)
-                        .projects[widget.pIndex].id} >',
+                    '${Provider.of<Projects>(context, listen: false).projects[widget.pIndex].id} >',
                     style: kLabelStyle,
                   ),
                   const SizedBox(
@@ -597,9 +587,7 @@ class _FlightEditorState extends State<FlightEditor> {
                     style: kLabel600,
                   ),
                   Text(
-                    '${Provider
-                        .of<Projects>(context, listen: false)
-                        .projects[widget.pIndex].stairs[widget.sIndex].id} >',
+                    '${Provider.of<Projects>(context, listen: false).projects[widget.pIndex].stairs[widget.sIndex].id} >',
                     style: kLabelStyle,
                   ),
                   const SizedBox(
@@ -610,9 +598,7 @@ class _FlightEditorState extends State<FlightEditor> {
                     style: kLabel600,
                   ),
                   Text(
-                    '${Provider
-                        .of<Projects>(context, listen: false)
-                        .projects[widget.pIndex].stairs[widget.sIndex].flights[widget.fIndex].id}',
+                    '${Provider.of<Projects>(context, listen: false).projects[widget.pIndex].stairs[widget.sIndex].flights[widget.fIndex].id}',
                     style: kLabelStyle,
                   ),
                 ],
@@ -641,455 +627,559 @@ class _FlightEditorState extends State<FlightEditor> {
                           runSpacing: 20,
                           //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
+                            BlockContainer(
+                              padding: const [10.0, 10.0],
+                              width: 270,
                               children: [
-                                MyTableCol(name: 'Riser'),
-                                MyTableCell(
-                                  Focus(
-                                    child: TextFormField(
-                                      focusNode: riserFocus,
-                                      controller: riserController,
-                                      keyboardType: TextInputType.phone,
-                                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      validator: (value) {
-                                        try {
-                                          if (InputValidator.inchesValidator(value!)) {
-                                            return null;
+                                Column(
+                                  children: [
+                                    MyTableCol(name: 'Riser'),
+                                    MyTableCell(
+                                      Focus(
+                                        child: TextFormField(
+                                          focusNode: riserFocus,
+                                          controller: riserController,
+                                          keyboardType: TextInputType.phone,
+                                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                                          validator: (value) {
+                                            try {
+                                              if (InputValidator.inchesValidator(value!)) {
+                                                return null;
+                                              }
+                                              return '';
+                                            } catch (err) {
+                                              print(err.toString());
+                                              return "";
+                                            }
+                                          },
+                                          onTap: eraserOn && _formKey.currentState!.validate()
+                                              ? () {
+                                                  setState(() {
+                                                    riserController.text = '';
+                                                    eraserOn = false;
+                                                  });
+                                                }
+                                              : () => riserController.selection =
+                                                  TextSelection(baseOffset: 0, extentOffset: riserController.value.text.length),
+                                          decoration: kInputDec,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        onFocusChange: (value) {
+                                          if (!value) {
+                                            if (!InputValidator.inchesValidator(riserController.text)) {
+                                              riserFocus.requestFocus();
+                                            } else {
+                                              setState(() {
+                                                templateFlight['riser'] = riserController.text;
+                                              });
+                                            }
                                           }
-                                          return '';
-                                        } catch (err) {
-                                          print(err.toString());
-                                          return "";
-                                        }
-                                      },
-                                      onTap: eraserOn && _formKey.currentState!.validate()
-                                          ? () {
-                                        setState(() {
-                                          riserController.text = '';
-                                          eraserOn = false;
-                                        });
-                                      }
-                                          : () =>
-                                      riserController.selection =
-                                          TextSelection(baseOffset: 0, extentOffset: riserController.value.text.length),
-                                      decoration: kInputDec,
-                                      style: const TextStyle(
-                                        fontSize: 14,
+                                        },
                                       ),
                                     ),
-                                    onFocusChange: (value) {
-                                      if (!value) {
-                                        if (!InputValidator.inchesValidator(riserController.text)) {
-                                          riserFocus.requestFocus();
-                                        } else {
-                                          setState(() {
-                                            templateFlight['riser'] = riserController.text;
-                                          });
-                                        }
-                                      }
-                                    },
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                MyTableCol(name: 'Bevel'),
-                                MyTableCell(
-                                  Focus(
-                                    child: TextFormField(
-                                      focusNode: bevelFocus,
-                                      controller: bevelController,
-                                      keyboardType: TextInputType.phone,
-                                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      onTap: eraserOn && _formKey.currentState!.validate()
-                                          ? () {
-                                        setState(() {
-                                          bevelController.text = '';
-                                          eraserOn = false;
-                                        });
-                                      }
-                                          : () =>
-                                      bevelController.selection =
-                                          TextSelection(baseOffset: 0, extentOffset: bevelController.value.text.length),
-                                      validator: (value) {
-                                        try {
-                                          if (InputValidator.inchesValidator(value!)) {
-                                            return null;
-                                          }
-                                          return '';
-                                        } catch (err) {
-                                          return "";
-                                        }
-                                      },
-                                      decoration: kInputDec,
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                    onFocusChange: (value) {
-                                      if (!value) {
-                                        if (!InputValidator.inchesValidator(bevelController.text)) {
-                                          bevelFocus.requestFocus();
-                                        } else {
-                                          setState(() {
-                                            templateFlight['bevel'] = bevelController.text;
-                                          });
-                                        }
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                MyTableCol(name: 'Bot. Crotch.'),
-                                MyTableCell(
-                                  Checkbox(
-                                      value: templateFlight['bottomCrotch'],
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          if (templateFlight['lowerFlatPost'].isNotEmpty) {
-                                            double sumDistance = 0.0;
-                                            sumDistance = templateFlight['lowerFlatPost'].fold(
-                                                0, (sum, element) => sum.toDouble() + double.parse(unitConverter.toInch(element.pController.text)));
-
-                                            if (sumDistance >= double.parse(unitConverter.toInch(templateFlight['bottomCrotchLength']))) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  duration: const Duration(milliseconds: 3000),
-                                                  content: const Text(
-                                                    "Total distance of the lower flat posts exceeds the distance value of the bottom crotch.",
-                                                    style: TextStyle(fontSize: 16.0, letterSpacing: 1.0),
-                                                  ),
-                                                  backgroundColor: kAlert,
-                                                ),
-                                              );
-                                              return;
-                                            }
-                                          }
-                                        }
-                                        setState(() {
-                                          templateFlight['bottomCrotch'] = !templateFlight['bottomCrotch'];
-
-                                          // uncheck bottom post if no bottom crotch is false;
-                                          if (!value!) {
-                                            templateFlight['hasBottomCrotchPost'] = value;
-                                          }
-                                        });
-                                      }),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                MyTableCol(name: 'Bot.\u{00A0}Cr.\u{00A0}dist'),
-                                MyTableCell(
-                                  Focus(
-                                    child: TextFormField(
-                                      focusNode: btcFocus,
-                                      controller: btcController,
-                                      keyboardType: TextInputType.phone,
-                                      enabled: templateFlight['bottomCrotch'],
-                                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      onTap: eraserOn && _formKey.currentState!.validate()
-                                          ? () {
-                                        setState(() {
-                                          btcController.text = '';
-                                          eraserOn = false;
-                                        });
-                                      }
-                                          : () =>
-                                      btcController.selection = TextSelection(baseOffset: 0, extentOffset: btcController.value.text.length),
-                                      validator: (value) {
-                                        // if (value == null || value.isEmpty || double.tryParse(value) == null) {
-                                        //   bottomFlatDistanceError = true;
-                                        //   return "";
-                                        // }
-
-                                        try {
-                                          if (!InputValidator.inchesValidator(value!)) {
-                                            bottomFlatDistanceError = true;
-                                            return "";
-                                          }
-
-                                          if (templateFlight['bottomCrotch']) {
-                                            if (templateFlight['lowerFlatPost'].isNotEmpty) {
-                                              double totDistance = 0;
-
-                                              totDistance = templateFlight['lowerFlatPost'].fold(
-                                                  0, (previousValue, element) =>
-                                              previousValue + double.parse(unitConverter.toInch(element.distance)));
-
-                                              if (double.parse(unitConverter.toInch(value)) <= totDistance && totDistance != 0) {
-                                                bottomFlatDistanceError = true;
-                                                return "";
+                                Column(
+                                  children: [
+                                    MyTableCol(name: 'Bevel'),
+                                    MyTableCell(
+                                      Focus(
+                                        child: TextFormField(
+                                          focusNode: bevelFocus,
+                                          controller: bevelController,
+                                          keyboardType: TextInputType.phone,
+                                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                                          onTap: eraserOn && _formKey.currentState!.validate()
+                                              ? () {
+                                                  setState(() {
+                                                    bevelController.text = '';
+                                                    eraserOn = false;
+                                                  });
+                                                }
+                                              : () => bevelController.selection =
+                                                  TextSelection(baseOffset: 0, extentOffset: bevelController.value.text.length),
+                                          validator: (value) {
+                                            try {
+                                              if (InputValidator.inchesValidator(value!)) {
+                                                return null;
                                               }
-                                            }
-                                          }
-
-                                          bottomFlatDistanceError = false;
-
-                                          // //currentFocus = globalFocus;
-                                          return null;
-                                        } catch (err) {
-                                          return "";
-                                        }
-                                      },
-                                      decoration: templateFlight['bottomCrotch'] ? kInputDec : kInputDecDisable,
-                                      style: TextStyle(fontSize: 14, color: templateFlight['bottomCrotch'] ? Colors.black : Colors.blueGrey.shade50),
-                                    ),
-                                    onFocusChange: (value) {
-                                      if (!value) {
-                                        if (bottomFlatDistanceError) {
-                                          btcFocus.requestFocus();
-                                        } else {
-                                          setState(() {
-                                            templateFlight['bottomCrotchLength'] = btcController.text;
-                                          });
-                                        }
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                MyTableCol(name: "Bot.\u{00A0}Cr.\u{00A0}Post"),
-                                MyTableCell(
-                                  Checkbox(
-                                      value: templateFlight['hasBottomCrotchPost'],
-                                      onChanged: templateFlight['bottomCrotch']
-                                          ? (value) {
-                                        setState(() {
-                                          templateFlight['hasBottomCrotchPost'] = !templateFlight['hasBottomCrotchPost'];
-                                        });
-                                      }
-                                          : (value) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            duration: const Duration(milliseconds: 3000),
-                                            content: Text("Please add Bottom Crotch first.", style: kLabelAlert),
-                                            backgroundColor: kAlert,
-                                          ),
-                                        );
-                                      }),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                MyTableCol(name: "Top\u{00A0}Crotch"),
-                                MyTableCell(
-                                  Checkbox(
-                                      value: templateFlight['topCrotch'],
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          if (templateFlight['upperFlatPost'].isNotEmpty) {
-                                            double sumDistance = 0;
-                                            sumDistance = templateFlight['upperFlatPost'].fold(
-                                                0, (sum, element) => sum.toDouble() + double.parse(unitConverter.toInch(element.pController.text)));
-
-                                            if (sumDistance >= double.parse(unitConverter.toInch(templateFlight['topCrotchLength']))) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  duration: const Duration(milliseconds: 3000),
-                                                  content: Text(
-                                                    "Total distance of the upper flat posts exceeds the distance value of the bottom crotch.",
-                                                    style: kLabelAlert,
-                                                  ),
-                                                  backgroundColor: kAlert,
-                                                ),
-                                              );
-                                              return;
-                                            }
-                                          }
-                                        }
-                                        setState(() {
-                                          templateFlight['topCrotch'] = !templateFlight['topCrotch'];
-
-                                          // uncheck top crotch post if no crotch
-                                          if (!value!) {
-                                            templateFlight['hasTopCrotchPost'] = value;
-                                          }
-                                        });
-                                      }),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                MyTableCol(name: "Top\u{00A0}Cr.\u{00A0}Dist."),
-                                MyTableCell(
-                                  Focus(
-                                    child: TextFormField(
-                                      focusNode: tcFocus,
-                                      controller: tcController,
-                                      keyboardType: TextInputType.phone,
-                                      enabled: templateFlight['topCrotch'],
-                                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      onTap: eraserOn && _formKey.currentState!.validate()
-                                          ? () {
-                                        setState(() {
-                                          tcController.text = '';
-                                          eraserOn = false;
-                                        });
-                                      }
-                                          : () => tcController.selection = TextSelection(baseOffset: 0, extentOffset: tcController.value.text.length),
-                                      validator: (value) {
-                                        // String? valid = InputValidator.inchesValidator(value!);
-                                        // if (valid != null) {
-                                        //   topFlatDistanceError = true;
-                                        //   return '';
-                                        // }
-                                        // if (value == null || value.isEmpty || double.tryParse(value) == null) {
-                                        //   topFlatDistanceError = true;
-                                        //   return "";
-                                        // }
-
-                                        try {
-                                          if (templateFlight['topCrotch']) {
-                                            if (templateFlight['upperFlatPost'].isNotEmpty) {
-                                              double totDistance = 0;
-                                              totDistance = templateFlight['upperFlatPost'].fold(
-                                                  0,
-                                                      (previousValue, element) =>
-                                                  previousValue + double.parse(unitConverter.toInch(element.distance.toString())));
-
-                                              if (double.parse(unitConverter.toInch(value)) <= totDistance && totDistance != 0) {
-                                                topFlatDistanceError = true;
-                                                return "";
-                                              }
-                                            }
-                                          }
-
-                                          topFlatDistanceError = false;
-                                          return null;
-                                        } catch (err) {
-                                          return "";
-                                        }
-                                      },
-                                      decoration: templateFlight['topCrotch'] ? kInputDec : kInputDecDisable,
-                                      style: TextStyle(fontSize: 14, color: templateFlight['topCrotch'] ? Colors.black : Colors.blueGrey.shade50),
-                                    ),
-                                    onFocusChange: (value) {
-                                      if (!value) {
-                                        if (topFlatDistanceError) {
-                                          tcFocus.requestFocus();
-                                        } else {
-                                          templateFlight['topCrotchLength'] = tcController.text;
-                                        }
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                MyTableCol(name: "Top\u{00A0}Cr.\u{00A0}Post"),
-                                MyTableCell(
-                                  Checkbox(
-                                      value: templateFlight['hasTopCrotchPost'],
-                                      onChanged: templateFlight['topCrotch']
-                                          ? (value) {
-                                        setState(() {
-                                          templateFlight['hasTopCrotchPost'] = !templateFlight['hasTopCrotchPost'];
-                                        });
-                                      }
-                                          : (value) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            duration: const Duration(milliseconds: 3000),
-                                            content: const Text(
-                                              "Please add Top Crotch first.",
-                                              style: TextStyle(fontSize: 16.0, letterSpacing: 1.0),
-                                            ),
-                                            backgroundColor: kAlert,
-                                          ),
-                                        );
-                                      }),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                MyTableCol(name: "Last Nose"),
-                                MyTableCell(
-                                  Focus(
-                                    child: TextFormField(
-                                      focusNode: lastNoseDistFocus,
-                                      autocorrect: true,
-                                      controller: lastNoseDistance,
-                                      keyboardType: TextInputType.phone,
-                                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      onTap: eraserOn && _formKey.currentState!.validate()
-                                          ? () {
-                                        setState(() {
-                                          lastNoseDistance.text = '';
-                                          eraserOn = false;
-                                        });
-                                      }
-                                          : () =>
-                                      lastNoseDistance.selection =
-                                          TextSelection(baseOffset: 0, extentOffset: lastNoseDistance.value.text.length),
-                                      validator: (value) {
-                                        try {
-                                          lastNoseError = false;
-                                          if (!InputValidator.inchesValidator(value!)) {
-                                            lastNoseError = true;
-                                            return '';
-                                          }
-
-                                          double parseVal = double.parse(unitConverter.toInch(value));
-                                          if (parseVal < hypotenuse) {
-                                            lastNoseError = true;
-                                            return '';
-                                          }
-                                          if (templateFlight['balusters'].isNotEmpty) {
-                                            templateFlight['balusters'].forEach((rp) =>
-                                            {
-                                              if (double.parse(unitConverter.toInch(rp.nosingDistance)) > parseVal) {lastNoseError = true}
-                                            });
-
-                                            if (lastNoseError) {
                                               return '';
+                                            } catch (err) {
+                                              return "";
+                                            }
+                                          },
+                                          decoration: kInputDec,
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                        onFocusChange: (value) {
+                                          if (!value) {
+                                            if (!InputValidator.inchesValidator(bevelController.text)) {
+                                              bevelFocus.requestFocus();
+                                            } else {
+                                              setState(() {
+                                                templateFlight['bevel'] = bevelController.text;
+                                              });
                                             }
                                           }
-
-                                          lastNoseError = false;
-                                          return null;
-                                        } catch (err) {
-                                          print(err.toString());
-                                        }
-                                      },
-                                      decoration: kInputDec,
-                                      style: const TextStyle(fontSize: 14),
+                                        },
+                                      ),
                                     ),
-                                    onFocusChange: (value) {
-                                      if (!lastNoseError) {
-                                        double? lnd = double.tryParse(unitConverter.toInch(lastNoseDistance.text));
+                                  ],
+                                ),
+                              ],
+                            ),
+                            // Bottom Crotch
+                            BlockContainer(
+                                padding: const [10, 5],
+                                blockName: 'Bottom Crotch',
+                                width: 560,
+                                children: [
+                                  Column(
+                                    children: [
+                                      MyTableCol(name: 'Bot. Crotch'),
+                                      MyTableCell(
+                                        Checkbox(
+                                            value: templateFlight['bottomCrotch'],
+                                            onChanged: (value) {
+                                              if (value != null) {
+                                                if (templateFlight['lowerFlatPost'].isNotEmpty) {
+                                                  double sumDistance = 0.0;
+                                                  sumDistance = templateFlight['lowerFlatPost'].fold(
+                                                      0,
+                                                      (sum, element) =>
+                                                          sum.toDouble() + double.parse(unitConverter.toInch(element.pController.text)));
 
-                                        if (!(lnd == null)) {
-                                          if (lnd >= hypotenuse) {
-                                            int numSteps = (lnd / hypotenuse).round() + 1;
+                                                  if (sumDistance >= double.parse(unitConverter.toInch(templateFlight['bottomCrotchLength']))) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(
+                                                        duration: const Duration(milliseconds: 3000),
+                                                        content: const Text(
+                                                          "Total distance of the lower flat posts exceeds the distance value of the bottom crotch.",
+                                                          style: TextStyle(fontSize: 16.0, letterSpacing: 1.0),
+                                                        ),
+                                                        backgroundColor: kAlert,
+                                                      ),
+                                                    );
+                                                    return;
+                                                  }
+                                                }
+                                              }
+                                              setState(() {
+                                                templateFlight['bottomCrotch'] = !templateFlight['bottomCrotch'];
 
-                                            setState(() {
-                                              templateFlight['stepsCount'] = numSteps.toString();
-                                              templateFlight['lastNoseDistance'] = lastNoseDistance.text;
-                                            });
-                                          } else {
-                                            lastNoseDistFocus.requestFocus();
-                                          }
-                                        }
-                                      } else {
-                                        lastNoseDistFocus.requestFocus();
-                                      }
-                                    },
+                                                // uncheck bottom post if no bottom crotch is false;
+                                                if (!value!) {
+                                                  templateFlight['hasBottomCrotchPost'] = value;
+                                                }
+                                              });
+                                            }),
+                                      ),
+                                    ],
                                   ),
+                                  Column(
+                                    children: [
+                                      MyTableCol(name: 'Distance'),
+                                      MyTableCell(
+                                        Focus(
+                                          child: TextFormField(
+                                            focusNode: btcFocus,
+                                            controller: btcController,
+                                            keyboardType: TextInputType.phone,
+                                            enabled: templateFlight['bottomCrotch'],
+                                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                                            onTap: eraserOn && _formKey.currentState!.validate()
+                                                ? () {
+                                                    setState(() {
+                                                      btcController.text = '';
+                                                      eraserOn = false;
+                                                    });
+                                                  }
+                                                : () => btcController.selection =
+                                                    TextSelection(baseOffset: 0, extentOffset: btcController.value.text.length),
+                                            validator: (value) {
+                                              // if (value == null || value.isEmpty || double.tryParse(value) == null) {
+                                              //   bottomFlatDistanceError = true;
+                                              //   return "";
+                                              // }
+
+                                              try {
+                                                if (!InputValidator.inchesValidator(value!)) {
+                                                  bottomFlatDistanceError = true;
+                                                  return "";
+                                                }
+
+                                                if (templateFlight['bottomCrotch']) {
+                                                  if (templateFlight['lowerFlatPost'].isNotEmpty) {
+                                                    double totDistance = 0;
+
+                                                    totDistance = templateFlight['lowerFlatPost'].fold(
+                                                        0,
+                                                        (previousValue, element) =>
+                                                            previousValue + double.parse(unitConverter.toInch(element.distance)));
+
+                                                    if (double.parse(unitConverter.toInch(value)) <= totDistance && totDistance != 0) {
+                                                      bottomFlatDistanceError = true;
+                                                      return "";
+                                                    }
+                                                  }
+                                                }
+
+                                                bottomFlatDistanceError = false;
+
+                                                // //currentFocus = globalFocus;
+                                                return null;
+                                              } catch (err) {
+                                                return "";
+                                              }
+                                            },
+                                            decoration: templateFlight['bottomCrotch'] ? kInputDec : kInputDecDisable,
+                                            style: TextStyle(
+                                                fontSize: 14, color: templateFlight['bottomCrotch'] ? Colors.black : Colors.blueGrey.shade50),
+                                          ),
+                                          onFocusChange: (value) {
+                                            if (!value) {
+                                              if (bottomFlatDistanceError) {
+                                                btcFocus.requestFocus();
+                                              } else {
+                                                setState(() {
+                                                  templateFlight['bottomCrotchLength'] = btcController.text;
+                                                });
+                                              }
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10.0,
+                                      )
+                                    ],
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      MyTableCol(name: "Has Post"),
+                                      MyTableCell(
+                                        Checkbox(
+                                            value: templateFlight['hasBottomCrotchPost'],
+                                            onChanged: templateFlight['bottomCrotch']
+                                                ? (value) {
+                                                    setState(() {
+                                                      templateFlight['hasBottomCrotchPost'] = !templateFlight['hasBottomCrotchPost'];
+                                                    });
+                                                  }
+                                                : (value) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(
+                                                        duration: const Duration(milliseconds: 3000),
+                                                        content: Text("Please add Bottom Crotch first.", style: kLabelAlert),
+                                                        backgroundColor: kAlert,
+                                                      ),
+                                                    );
+                                                  }),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      MyTableCol(name: "Embed.\u{00A0}Type"),
+                                      Container(
+                                        width: 110,
+                                        alignment: Alignment.center,
+                                        color: Colors.white,
+                                        child: DropdownButton(
+                                            elevation: 0,
+                                            isExpanded: false,
+                                            items: const [
+                                              DropdownMenuItem(
+                                                value: "none",
+                                                child: Text("None"),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: "plate",
+                                                child: Text("Plate"),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: "sleeve",
+                                                child: Text("Sleeve"),
+                                              )
+                                            ],
+                                            value: 'none',
+                                            onChanged: (value) {
+                                              setState(() {
+                                                //templateFlight[campo][index].embeddedType = value;
+                                              });
+                                            }
+
+                                            //widget.resetView();
+
+                                            ),
+                                      )
+                                    ],
+                                  ),
+                                ]),
+                            BlockContainer(
+                                padding: const [10, 10],
+                                width: 140,
+                                children: [
+                                  Column(
+                                    children: [
+                                      MyTableCol(name: "Last Nose"),
+                                      MyTableCell(
+                                        Focus(
+                                          child: TextFormField(
+                                            focusNode: lastNoseDistFocus,
+                                            autocorrect: true,
+                                            controller: lastNoseDistance,
+                                            keyboardType: TextInputType.phone,
+                                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                                            onTap: eraserOn && _formKey.currentState!.validate()
+                                                ? () {
+                                                    setState(() {
+                                                      lastNoseDistance.text = '';
+                                                      eraserOn = false;
+                                                    });
+                                                  }
+                                                : () => lastNoseDistance.selection =
+                                                    TextSelection(baseOffset: 0, extentOffset: lastNoseDistance.value.text.length),
+                                            validator: (value) {
+                                              try {
+                                                lastNoseError = false;
+                                                if (!InputValidator.inchesValidator(value!)) {
+                                                  lastNoseError = true;
+                                                  return '';
+                                                }
+
+                                                double parseVal = double.parse(unitConverter.toInch(value));
+                                                if (parseVal < hypotenuse) {
+                                                  lastNoseError = true;
+                                                  return '';
+                                                }
+                                                if (templateFlight['balusters'].isNotEmpty) {
+                                                  templateFlight['balusters'].forEach((rp) => {
+                                                        if (double.parse(unitConverter.toInch(rp.nosingDistance)) > parseVal) {lastNoseError = true}
+                                                      });
+
+                                                  if (lastNoseError) {
+                                                    return '';
+                                                  }
+                                                }
+
+                                                lastNoseError = false;
+                                                return null;
+                                              } catch (err) {
+                                                print(err.toString());
+                                              }
+                                            },
+                                            decoration: kInputDec,
+                                            style: const TextStyle(fontSize: 14),
+                                          ),
+                                          onFocusChange: (value) {
+                                            if (!lastNoseError) {
+                                              double? lnd = double.tryParse(unitConverter.toInch(lastNoseDistance.text));
+
+                                              if (!(lnd == null)) {
+                                                if (lnd >= hypotenuse) {
+                                                  int numSteps = (lnd / hypotenuse).round() + 1;
+
+                                                  setState(() {
+                                                    templateFlight['stepsCount'] = numSteps.toString();
+                                                    templateFlight['lastNoseDistance'] = lastNoseDistance.text;
+                                                  });
+                                                } else {
+                                                  lastNoseDistFocus.requestFocus();
+                                                }
+                                              }
+                                            } else {
+                                              lastNoseDistFocus.requestFocus();
+                                            }
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ]),
+                            // Top Crotch
+                            BlockContainer(
+                              padding: const [10, 5],
+                              blockName: "Top Crotch",
+                              width: 560,
+                              children: [
+                                Column(
+                                  children: [
+                                    MyTableCol(name: "Top\u{00A0}Crotch"),
+                                    MyTableCell(
+                                      Checkbox(
+                                          value: templateFlight['topCrotch'],
+                                          onChanged: (value) {
+                                            if (value != null) {
+                                              if (templateFlight['upperFlatPost'].isNotEmpty) {
+                                                double sumDistance = 0;
+                                                sumDistance = templateFlight['upperFlatPost'].fold(0,
+                                                    (sum, element) => sum.toDouble() + double.parse(unitConverter.toInch(element.pController.text)));
+
+                                                if (sumDistance >= double.parse(unitConverter.toInch(templateFlight['topCrotchLength']))) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(
+                                                      duration: const Duration(milliseconds: 3000),
+                                                      content: Text(
+                                                        "Total distance of the upper flat posts exceeds the distance value of the bottom crotch.",
+                                                        style: kLabelAlert,
+                                                      ),
+                                                      backgroundColor: kAlert,
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
+                                              }
+                                            }
+                                            setState(() {
+                                              templateFlight['topCrotch'] = !templateFlight['topCrotch'];
+
+                                              // uncheck top crotch post if no crotch
+                                              if (!value!) {
+                                                templateFlight['hasTopCrotchPost'] = value;
+                                              }
+                                            });
+                                          }),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    MyTableCol(name: "Top\u{00A0}Cr.\u{00A0}Dist."),
+                                    MyTableCell(
+                                      Focus(
+                                        child: TextFormField(
+                                          focusNode: tcFocus,
+                                          controller: tcController,
+                                          keyboardType: TextInputType.phone,
+                                          enabled: templateFlight['topCrotch'],
+                                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                                          onTap: eraserOn && _formKey.currentState!.validate()
+                                              ? () {
+                                                  setState(() {
+                                                    tcController.text = '';
+                                                    eraserOn = false;
+                                                  });
+                                                }
+                                              : () =>
+                                                  tcController.selection = TextSelection(baseOffset: 0, extentOffset: tcController.value.text.length),
+                                          validator: (value) {
+                                            try {
+                                              if (templateFlight['topCrotch']) {
+                                                if (templateFlight['upperFlatPost'].isNotEmpty) {
+                                                  double totDistance = 0;
+                                                  totDistance = templateFlight['upperFlatPost'].fold(
+                                                      0,
+                                                      (previousValue, element) =>
+                                                          previousValue + double.parse(unitConverter.toInch(element.distance.toString())));
+
+                                                  if (double.parse(unitConverter.toInch(value)) <= totDistance && totDistance != 0) {
+                                                    topFlatDistanceError = true;
+                                                    return "";
+                                                  }
+                                                }
+                                              }
+
+                                              topFlatDistanceError = false;
+                                              return null;
+                                            } catch (err) {
+                                              return "";
+                                            }
+                                          },
+                                          decoration: templateFlight['topCrotch'] ? kInputDec : kInputDecDisable,
+                                          style: TextStyle(fontSize: 14, color: templateFlight['topCrotch'] ? Colors.black : Colors.blueGrey.shade50),
+                                        ),
+                                        onFocusChange: (value) {
+                                          if (!value) {
+                                            if (topFlatDistanceError) {
+                                              tcFocus.requestFocus();
+                                            } else {
+                                              templateFlight['topCrotchLength'] = tcController.text;
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10.0,
+                                    )
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    MyTableCol(name: "Top\u{00A0}Cr.\u{00A0}Post"),
+                                    MyTableCell(
+                                      Checkbox(
+                                          value: templateFlight['hasTopCrotchPost'],
+                                          onChanged: templateFlight['topCrotch']
+                                              ? (value) {
+                                                  setState(() {
+                                                    templateFlight['hasTopCrotchPost'] = !templateFlight['hasTopCrotchPost'];
+                                                  });
+                                                }
+                                              : (value) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(
+                                                      duration: const Duration(milliseconds: 3000),
+                                                      content: const Text(
+                                                        "Please add Top Crotch first.",
+                                                        style: TextStyle(fontSize: 16.0, letterSpacing: 1.0),
+                                                      ),
+                                                      backgroundColor: kAlert,
+                                                    ),
+                                                  );
+                                                }),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    MyTableCol(name: "Embed. Type"),
+                                    MyTableCell(Container(
+                                      color: Colors.white,
+                                      height: 40,
+                                      child: DropdownButton(
+                                          elevation: 0,
+                                          isExpanded: false,
+                                          items: const [
+                                            DropdownMenuItem(
+                                              value: "none",
+                                              child: Text("None"),
+                                            ),
+                                            DropdownMenuItem(
+                                              value: "plate",
+                                              child: Text("Plate"),
+                                            ),
+                                            DropdownMenuItem(
+                                              value: "sleeve",
+                                              child: Text("Sleeve"),
+                                            )
+                                          ],
+                                          value: 'none',
+                                          onChanged: (value) {
+                                            setState(() {
+                                              //templateFlight[campo][index].embeddedType = value;
+                                            });
+                                          }
+
+                                          //widget.resetView();
+
+                                          ),
+                                    ))
+                                    // Container(
+                                    //   width: 110,
+                                    //   alignment: Alignment.center,
+                                    //   color: Colors.white,
+                                    //   child: ,
+                                    // )
+                                  ],
                                 )
                               ],
                             ),
+                            // Last Nose
                           ],
                         ),
                       ),
@@ -1144,15 +1234,15 @@ class _FlightEditorState extends State<FlightEditor> {
                                                         autovalidateMode: AutovalidateMode.onUserInteraction,
                                                         onTap: eraserOn && _formKey.currentState!.validate()
                                                             ? () {
-                                                          setState(() {
-                                                            lowerPostQuantity.text = '';
-                                                            eraserOn = false;
-                                                          });
-                                                        }
+                                                                setState(() {
+                                                                  lowerPostQuantity.text = '';
+                                                                  eraserOn = false;
+                                                                });
+                                                              }
                                                             : () {
-                                                          lowerPostQuantity.selection =
-                                                              TextSelection(baseOffset: 0, extentOffset: lowerPostQuantity.value.text.length);
-                                                        },
+                                                                lowerPostQuantity.selection =
+                                                                    TextSelection(baseOffset: 0, extentOffset: lowerPostQuantity.value.text.length);
+                                                              },
                                                         validator: (value) {
                                                           try {
                                                             if (value == null) {
@@ -1256,15 +1346,15 @@ class _FlightEditorState extends State<FlightEditor> {
                                                         keyboardType: TextInputType.number,
                                                         onTap: eraserOn && _formKey.currentState!.validate()
                                                             ? () {
-                                                          setState(() {
-                                                            lowerPostQuantity.text = '';
-                                                            eraserOn = false;
-                                                          });
-                                                        }
+                                                                setState(() {
+                                                                  lowerPostQuantity.text = '';
+                                                                  eraserOn = false;
+                                                                });
+                                                              }
                                                             : () {
-                                                          balusterQuantity.selection =
-                                                              TextSelection(baseOffset: 0, extentOffset: balusterQuantity.value.text.length);
-                                                        },
+                                                                balusterQuantity.selection =
+                                                                    TextSelection(baseOffset: 0, extentOffset: balusterQuantity.value.text.length);
+                                                              },
                                                         autovalidateMode: AutovalidateMode.onUserInteraction,
                                                         validator: (value) {
                                                           try {
@@ -1484,7 +1574,7 @@ class MyTableCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       //margin: const EdgeInsets.only(top: 8.0),
-      width: 100,
+      width: 110,
       child: celChild,
     );
   }
@@ -1544,5 +1634,51 @@ class InputValidator {
     }
 
     return false;
+  }
+}
+
+class BlockContainer extends StatelessWidget {
+  const BlockContainer({Key? key, this.blockName = '', required this.width, required this.children, required this.padding}) : super(key: key);
+
+  final String blockName;
+  final double width;
+  final List<Widget> children;
+  final List<double> padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      //
+      decoration: blockName != ""
+          ? BoxDecoration(border: Border.all(width: 1.0, color: Colors.blueGrey), borderRadius: BorderRadius.circular(5.0))
+          : BoxDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          blockName != ""
+              ? Container(
+                  alignment: Alignment.center,
+                  height: 30,
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(8))),
+                  child: Text(
+                    blockName,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                )
+              : Text(''),
+          const SizedBox(
+            height: 10.0,
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: padding[0], vertical: padding[1]),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: children,
+            ),
+          )
+        ],
+      ),
+    );
   }
 }
