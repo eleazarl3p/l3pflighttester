@@ -12,6 +12,9 @@ class Flight extends ChangeNotifier {
   String bevel;
   String topCrotchDistance;
   String bottomCrotchDistance;
+  String lastNoseDistance;
+  String topCrotchEmbeddedType = 'none';
+  String bottomCrotchEmbeddedType = 'none';
 
   bool topCrotch;
   bool bottomCrotch;
@@ -21,8 +24,6 @@ class Flight extends ChangeNotifier {
   //bool onHold;
 
   int stepsCount;
-
-  String lastNoseDistance;
 
   double hypotenuse;
 
@@ -61,12 +62,16 @@ class Flight extends ChangeNotifier {
       bottomCrotch: obj.bottomCrotch,
       bottomCrotchDistance: obj.bottomCrotchDistance,
       bottomCrotchPost: obj.bottomCrotchPost,
+
       //stepsCount: obj.stepsCount,
       lastNoseDistance: obj.lastNoseDistance,
+
       // lowerFlatPost: obj.lowerFlatPost,
       // balustersList: obj.balustersList,
       // upperFlatPost: obj.upperFlatPost
     );
+    fl.bottomCrotchEmbeddedType = obj.bottomCrotchEmbeddedType;
+    fl.topCrotchEmbeddedType = obj.topCrotchEmbeddedType;
     fl.controller.text = obj.id;
     fl.lowerFlatPost = [...obj.lowerFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()];
     fl.balusters = [
@@ -113,6 +118,8 @@ class Flight extends ChangeNotifier {
       "topCrotch": topCrotch,
       "bottomCrotch": bottomCrotch,
       "bottomCrotchPost": bottomCrotchPost,
+      "bottomCrotchEmbeddedType": bottomCrotchEmbeddedType,
+      "topCrotchEmbeddedType": topCrotchEmbeddedType,
       //"stepsCount": stepsCount,
       "lowerFlatPost": bottomPosts,
       "upperFlatPost": topPosts,
@@ -123,15 +130,20 @@ class Flight extends ChangeNotifier {
 
   factory Flight.fromJson(Map<String, dynamic> json) {
     Flight fjs = Flight(
-        id: json['id'],
-        riser: json['riser'],
-        bevel: json['bevel'],
-        topCrotch: json['topCrotch'],
-        topCrotchDistance: json['topCrotchDistance'],
-        bottomCrotch: json['bottomCrotch'],
-        bottomCrotchDistance: json['bottomCrotchDistance'],
-        bottomCrotchPost: json['bottomCrotchPost'],
-        lastNoseDistance: json['lastNoseDistance']);
+      id: json['id'],
+      riser: json['riser'],
+      bevel: json['bevel'],
+      topCrotch: json['topCrotch'],
+      topCrotchDistance: json['topCrotchDistance'],
+      bottomCrotch: json['bottomCrotch'],
+      bottomCrotchDistance: json['bottomCrotchDistance'],
+      bottomCrotchPost: json['bottomCrotchPost'],
+      lastNoseDistance: json['lastNoseDistance'],
+    );
+
+    fjs.bottomCrotchEmbeddedType = json['bottomCrotchEmbeddedType'];
+    fjs.topCrotchEmbeddedType = json['topCrotchEmbeddedType'];
+
     for (var bp in json['lowerFlatPost']) {
       fjs.lowerFlatPost.add(Post(distance: bp['distance'], embeddedType: bp['embeddedType']));
     }
@@ -175,7 +187,9 @@ class Flight extends ChangeNotifier {
 
         //"stepsCount": stepsCount.toString(),
         "lastNoseDistance": lastNoseDistance.toString(),
-        'hypotenuse': hypotenuse
+        'hypotenuse': hypotenuse,
+        "bottomCrotchEmbeddedType": bottomCrotchEmbeddedType,
+        "topCrotchEmbeddedType": topCrotchEmbeddedType,
       };
 
   void updateFl(Map<String, dynamic> template) {
@@ -196,6 +210,8 @@ class Flight extends ChangeNotifier {
     upperFlatPost = [...template['upperFlatPost']];
     //stepsCount = template['hasTopCrotchPost'];
     lastNoseDistance = template['lastNoseDistance'];
+    bottomCrotchEmbeddedType = template["bottomCrotchEmbeddedType"];
+    topCrotchEmbeddedType = template["topCrotchEmbeddedType"];
 
     notifyListeners();
   }

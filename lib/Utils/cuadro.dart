@@ -608,6 +608,9 @@ class _Dibujo extends CustomPainter {
       if (data['hasBottomCrotchPost'] && data['bottomCrotch']) {
         canvas.drawLine(Offset(firstEscalonX - factor - bottomCrotchLength, postFlatLower.first[1]),
             Offset(postFlatLower.first[0], postFlatLower.first[1]), postPen);
+        //if (data['bottomCrotchEmbeddedType'] != 'none') {
+        addTubePlate(firstEscalonX - factor - bottomCrotchLength, size.height - landingHeight, data['bottomCrotchEmbeddedType']);
+        // }
       } else {
         canvas.drawLine(Offset(postFlatLower.first[0], postFlatLower.first[1]), Offset(postFlatLower.last[0], postFlatLower.last[1]), postPen);
       }
@@ -616,10 +619,16 @@ class _Dibujo extends CustomPainter {
         canvas.drawLine(Offset(firstEscalonX - factor - bottomCrotchLength, size.height - postHeight),
             Offset(firstEscalonX - baluster, size.height - postHeight), postPen);
         postFlatLower.add([firstEscalonX - baluster, size.height - postHeight]);
+        //if (data['bottomCrotchEmbeddedType'] != 'none') {
+        addTubePlate(firstEscalonX - factor - bottomCrotchLength, size.height - landingHeight, data['bottomCrotchEmbeddedType']);
+        //}
       }
     }
     if (data['hasTopCrotchPost'] && data['topCrotch']) {
       postFlatUpper.add([lastX + topCrotchLength, size.height - postHeight - lastY + landingHeight]);
+      //if (data['topCrotchEmbeddedType'] != 'none') {
+      addTubePlate(lastX + topCrotchLength, size.height - lastY, data['topCrotchEmbeddedType']);
+      //}
     }
 
     if (postFlatUpper.isNotEmpty) {

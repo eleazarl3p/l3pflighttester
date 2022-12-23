@@ -245,11 +245,7 @@ class _FlightEditorState extends State<FlightEditor> {
                   setState(() {
                     templateFlight[campo][index].embeddedType = value;
                   });
-                }
-
-                //widget.resetView();
-
-                ),
+                }),
           ),
         ]),
       );
@@ -472,8 +468,6 @@ class _FlightEditorState extends State<FlightEditor> {
       );
     }
 
-    TextStyle kCardLabelStyle = const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, letterSpacing: 1.5, color: Colors.white);
-
     return Scaffold(
       appBar: AppBar(
         leading: const Text(''),
@@ -532,7 +526,9 @@ class _FlightEditorState extends State<FlightEditor> {
                   "upperFlatPost": templateFlight['upperFlatPost'],
                   //"stepsCount": numStp,
                   "lastNoseDistance": lastNoseDistance.text,
-                  'hypotenuse': hypotenuse
+                  'hypotenuse': hypotenuse,
+                  "bottomCrotchEmbeddedType": templateFlight['bottomCrotchEmbeddedType'],
+                  "topCrotchEmbeddedType": templateFlight['topCrotchEmbeddedType'],
                 };
 
                 context
@@ -887,34 +883,40 @@ class _FlightEditorState extends State<FlightEditor> {
                                       Container(
                                         width: 110,
                                         alignment: Alignment.center,
-                                        color: Colors.white,
-                                        child: DropdownButton(
-                                            elevation: 0,
-                                            isExpanded: false,
-                                            items: const [
-                                              DropdownMenuItem(
-                                                value: "none",
-                                                child: Text("None"),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: "plate",
-                                                child: Text("Plate"),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: "sleeve",
-                                                child: Text("Sleeve"),
-                                              )
-                                            ],
-                                            value: 'none',
-                                            onChanged: (value) {
-                                              setState(() {
-                                                //templateFlight[campo][index].embeddedType = value;
-                                              });
-                                            }
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                        ),
+                                        height: 40.0,
+                                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton(
+                                              elevation: 0,
+                                              isExpanded: false,
+                                              items: const [
+                                                DropdownMenuItem(
+                                                  value: "none",
+                                                  child: Text("None"),
+                                                ),
+                                                DropdownMenuItem(
+                                                  value: "plate",
+                                                  child: Text("Plate"),
+                                                ),
+                                                DropdownMenuItem(
+                                                  value: "sleeve",
+                                                  child: Text("Sleeve"),
+                                                )
+                                              ],
+                                              value: templateFlight['bottomCrotchEmbeddedType'],
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  templateFlight['bottomCrotchEmbeddedType'] = value;
+                                                });
+                                              }
 
-                                            //widget.resetView();
+                                              //widget.resetView();
 
-                                            ),
+                                              ),
+                                        ),
                                       )
                                     ],
                                   ),
@@ -1139,35 +1141,40 @@ class _FlightEditorState extends State<FlightEditor> {
                                   children: [
                                     MyTableCol(name: "Embed. Type"),
                                     MyTableCell(Container(
-                                      color: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
+                                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
                                       height: 40,
-                                      child: DropdownButton(
-                                          elevation: 0,
-                                          isExpanded: false,
-                                          items: const [
-                                            DropdownMenuItem(
-                                              value: "none",
-                                              child: Text("None"),
-                                            ),
-                                            DropdownMenuItem(
-                                              value: "plate",
-                                              child: Text("Plate"),
-                                            ),
-                                            DropdownMenuItem(
-                                              value: "sleeve",
-                                              child: Text("Sleeve"),
-                                            )
-                                          ],
-                                          value: 'none',
-                                          onChanged: (value) {
-                                            setState(() {
-                                              //templateFlight[campo][index].embeddedType = value;
-                                            });
-                                          }
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton(
+                                            elevation: 0,
+                                            isExpanded: false,
+                                            items: const [
+                                              DropdownMenuItem(
+                                                value: "none",
+                                                child: Text("None"),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: "plate",
+                                                child: Text("Plate"),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: "sleeve",
+                                                child: Text("Sleeve"),
+                                              )
+                                            ],
+                                            value: templateFlight['topCrotchEmbeddedType'],
+                                            onChanged: (value) {
+                                              setState(() {
+                                                templateFlight['topCrotchEmbeddedType'] = value;
+                                              });
+                                            }
 
-                                          //widget.resetView();
+                                            //widget.resetView();
 
-                                          ),
+                                            ),
+                                      ),
                                     ))
                                     // Container(
                                     //   width: 110,
@@ -1558,7 +1565,7 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width,
-      decoration: BoxDecoration(color: Colors.blueGrey.shade300, borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: kColorHeader, borderRadius: BorderRadius.circular(5.0)),
       padding: const EdgeInsets.all(10.0),
       child: postCardChild,
     );
@@ -1651,8 +1658,8 @@ class BlockContainer extends StatelessWidget {
       width: width,
       //
       decoration: blockName != ""
-          ? BoxDecoration(border: Border.all(width: 1.0, color: Colors.blueGrey), borderRadius: BorderRadius.circular(5.0))
-          : BoxDecoration(),
+          ? BoxDecoration(border: Border.all(width: 1.0, color: Colors.blueGrey.shade300), borderRadius: BorderRadius.circular(5.0))
+          : const BoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1660,13 +1667,13 @@ class BlockContainer extends StatelessWidget {
               ? Container(
                   alignment: Alignment.center,
                   height: 30,
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(8))),
+                  decoration: BoxDecoration(color: Colors.blueGrey.shade400, borderRadius: BorderRadius.vertical(top: Radius.circular(5.0))),
                   child: Text(
                     blockName,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: kCardLabelStyle, //const TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
                   ),
                 )
-              : Text(''),
+              : const Text(''),
           const SizedBox(
             height: 10.0,
           ),
