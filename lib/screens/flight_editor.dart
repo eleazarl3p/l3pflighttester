@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:l3pflighttester/widget/CustomIconActionButton.dart';
 import '../Utils/unit_converter.dart';
@@ -28,7 +29,7 @@ class FlightEditor extends StatefulWidget {
   int fIndex;
   Map<String, dynamic> template;
 
-  List k = ["None", "Plate", 'Tube'];
+  List k = ["none", "plate", 'sleeve'];
   List<Post> lowerPost = [
     // Post(distance: 20, embeddedType: "None"),
     // Post(distance: 20, embeddedType: "None"),
@@ -72,6 +73,8 @@ class _FlightEditorState extends State<FlightEditor> {
   bool lastNoseError = false;
 
   bool eraserOn = false;
+
+  List<String> embeddedType = ['none', 'plate', 'sleeve'];
 
   final double hypotenuse = 12.8575;
 
@@ -617,7 +620,7 @@ class _FlightEditorState extends State<FlightEditor> {
                       SizedBox(
                         width: double.infinity,
                         child: Wrap(
-                          alignment: WrapAlignment.start,
+                          alignment: WrapAlignment.spaceBetween,
 
                           spacing: 30,
                           runSpacing: 20,
@@ -625,11 +628,12 @@ class _FlightEditorState extends State<FlightEditor> {
                           children: [
                             BlockContainer(
                               padding: const [10.0, 10.0],
-                              width: 270,
+                              blockName: ' ',
+                              //width: double.infinity,
                               children: [
                                 Column(
                                   children: [
-                                    MyTableCol(name: 'Riser'),
+                                    const MyTableCol(name: 'Riser'),
                                     MyTableCell(
                                       Focus(
                                         child: TextFormField(
@@ -679,7 +683,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                 ),
                                 Column(
                                   children: [
-                                    MyTableCol(name: 'Bevel'),
+                                    const MyTableCol(name: 'Bevel'),
                                     MyTableCell(
                                       Focus(
                                         child: TextFormField(
@@ -724,17 +728,93 @@ class _FlightEditorState extends State<FlightEditor> {
                                     ),
                                   ],
                                 ),
+                                Column(
+                                  children: [
+                                    MyTableCol(name: "Last Nose"),
+                                    MyTableCell(
+                                      Focus(
+                                        child: TextFormField(
+                                          focusNode: lastNoseDistFocus,
+                                          autocorrect: true,
+                                          controller: lastNoseDistance,
+                                          keyboardType: TextInputType.phone,
+                                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                                          onTap: eraserOn && _formKey.currentState!.validate()
+                                              ? () {
+                                                  setState(() {
+                                                    lastNoseDistance.text = '';
+                                                    eraserOn = false;
+                                                  });
+                                                }
+                                              : () => lastNoseDistance.selection =
+                                                  TextSelection(baseOffset: 0, extentOffset: lastNoseDistance.value.text.length),
+                                          validator: (value) {
+                                            try {
+                                              lastNoseError = false;
+                                              if (!InputValidator.inchesValidator(value!)) {
+                                                lastNoseError = true;
+                                                return '';
+                                              }
+
+                                              double parseVal = double.parse(unitConverter.toInch(value));
+                                              if (parseVal < hypotenuse) {
+                                                lastNoseError = true;
+                                                return '';
+                                              }
+                                              if (templateFlight['balusters'].isNotEmpty) {
+                                                templateFlight['balusters'].forEach((rp) => {
+                                                      if (double.parse(unitConverter.toInch(rp.nosingDistance)) > parseVal) {lastNoseError = true}
+                                                    });
+
+                                                if (lastNoseError) {
+                                                  return '';
+                                                }
+                                              }
+
+                                              lastNoseError = false;
+                                              return null;
+                                            } catch (err) {
+                                              print(err.toString());
+                                            }
+                                          },
+                                          decoration: kInputDec,
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                        onFocusChange: (value) {
+                                          if (!lastNoseError) {
+                                            double? lnd = double.tryParse(unitConverter.toInch(lastNoseDistance.text));
+
+                                            if (!(lnd == null)) {
+                                              if (lnd >= hypotenuse) {
+                                                int numSteps = (lnd / hypotenuse).round() + 1;
+
+                                                setState(() {
+                                                  templateFlight['stepsCount'] = numSteps.toString();
+                                                  templateFlight['lastNoseDistance'] = lastNoseDistance.text;
+                                                });
+                                              } else {
+                                                lastNoseDistFocus.requestFocus();
+                                              }
+                                            }
+                                          } else {
+                                            lastNoseDistFocus.requestFocus();
+                                          }
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ],
                             ),
                             // Bottom Crotch
                             BlockContainer(
                                 padding: const [10, 5],
                                 blockName: 'Bottom Crotch',
-                                width: 560,
+                                //width: 560,
                                 children: [
                                   Column(
                                     children: [
-                                      MyTableCol(name: 'Bot. Crotch'),
+                                      const MyTableCol(name: 'Bot. Crotch'),
                                       MyTableCell(
                                         Checkbox(
                                             value: templateFlight['bottomCrotch'],
@@ -776,7 +856,7 @@ class _FlightEditorState extends State<FlightEditor> {
                                   ),
                                   Column(
                                     children: [
-                                      MyTableCol(name: 'Distance'),
+                                      const MyTableCol(name: 'Bot. Cr. Dist.'),
                                       MyTableCell(
                                         Focus(
                                           child: TextFormField(
@@ -888,6 +968,24 @@ class _FlightEditorState extends State<FlightEditor> {
                                         ),
                                         height: 40.0,
                                         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5)),
+                                        // child: CupertinoPicker(
+                                        //   //backgroundColor: Colors.yellowAccent,
+                                        //   itemExtent: 30.0,
+                                        //   onSelectedItemChanged: (int value) {
+                                        //     setState(() {
+                                        //       templateFlight['bottomCrotchEmbeddedType'] = embeddedType[value];
+                                        //       print(templateFlight['bottomCrotchEmbeddedType']);
+                                        //     });
+                                        //   },
+                                        //   children: const [
+                                        //     Text(
+                                        //       " None ",
+                                        //       style: TextStyle(backgroundColor: Colors.white, color: Colors.red),
+                                        //     ),
+                                        //     Text(" Plate "),
+                                        //     Text(" Sleeve ")
+                                        //   ],
+                                        // ),
                                         child: DropdownButtonHideUnderline(
                                           child: DropdownButton(
                                               elevation: 0,
@@ -912,101 +1010,99 @@ class _FlightEditorState extends State<FlightEditor> {
                                                   templateFlight['bottomCrotchEmbeddedType'] = value;
                                                 });
                                               }
-
                                               //widget.resetView();
-
                                               ),
                                         ),
                                       )
                                     ],
                                   ),
                                 ]),
-                            BlockContainer(
-                                padding: const [10, 10],
-                                width: 140,
-                                children: [
-                                  Column(
-                                    children: [
-                                      MyTableCol(name: "Last Nose"),
-                                      MyTableCell(
-                                        Focus(
-                                          child: TextFormField(
-                                            focusNode: lastNoseDistFocus,
-                                            autocorrect: true,
-                                            controller: lastNoseDistance,
-                                            keyboardType: TextInputType.phone,
-                                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                                            onTap: eraserOn && _formKey.currentState!.validate()
-                                                ? () {
-                                                    setState(() {
-                                                      lastNoseDistance.text = '';
-                                                      eraserOn = false;
-                                                    });
-                                                  }
-                                                : () => lastNoseDistance.selection =
-                                                    TextSelection(baseOffset: 0, extentOffset: lastNoseDistance.value.text.length),
-                                            validator: (value) {
-                                              try {
-                                                lastNoseError = false;
-                                                if (!InputValidator.inchesValidator(value!)) {
-                                                  lastNoseError = true;
-                                                  return '';
-                                                }
-
-                                                double parseVal = double.parse(unitConverter.toInch(value));
-                                                if (parseVal < hypotenuse) {
-                                                  lastNoseError = true;
-                                                  return '';
-                                                }
-                                                if (templateFlight['balusters'].isNotEmpty) {
-                                                  templateFlight['balusters'].forEach((rp) => {
-                                                        if (double.parse(unitConverter.toInch(rp.nosingDistance)) > parseVal) {lastNoseError = true}
-                                                      });
-
-                                                  if (lastNoseError) {
-                                                    return '';
-                                                  }
-                                                }
-
-                                                lastNoseError = false;
-                                                return null;
-                                              } catch (err) {
-                                                print(err.toString());
-                                              }
-                                            },
-                                            decoration: kInputDec,
-                                            style: const TextStyle(fontSize: 14),
-                                          ),
-                                          onFocusChange: (value) {
-                                            if (!lastNoseError) {
-                                              double? lnd = double.tryParse(unitConverter.toInch(lastNoseDistance.text));
-
-                                              if (!(lnd == null)) {
-                                                if (lnd >= hypotenuse) {
-                                                  int numSteps = (lnd / hypotenuse).round() + 1;
-
-                                                  setState(() {
-                                                    templateFlight['stepsCount'] = numSteps.toString();
-                                                    templateFlight['lastNoseDistance'] = lastNoseDistance.text;
-                                                  });
-                                                } else {
-                                                  lastNoseDistFocus.requestFocus();
-                                                }
-                                              }
-                                            } else {
-                                              lastNoseDistFocus.requestFocus();
-                                            }
-                                          },
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ]),
+                            // BlockContainer(
+                            //     padding: const [10, 10],
+                            //     width: 140,
+                            //     children: [
+                            //       // Column(
+                            //       //   children: [
+                            //       //     MyTableCol(name: "Last Nose"),
+                            //       //     MyTableCell(
+                            //       //       Focus(
+                            //       //         child: TextFormField(
+                            //       //           focusNode: lastNoseDistFocus,
+                            //       //           autocorrect: true,
+                            //       //           controller: lastNoseDistance,
+                            //       //           keyboardType: TextInputType.phone,
+                            //       //           autovalidateMode: AutovalidateMode.onUserInteraction,
+                            //       //           onTap: eraserOn && _formKey.currentState!.validate()
+                            //       //               ? () {
+                            //       //                   setState(() {
+                            //       //                     lastNoseDistance.text = '';
+                            //       //                     eraserOn = false;
+                            //       //                   });
+                            //       //                 }
+                            //       //               : () => lastNoseDistance.selection =
+                            //       //                   TextSelection(baseOffset: 0, extentOffset: lastNoseDistance.value.text.length),
+                            //       //           validator: (value) {
+                            //       //             try {
+                            //       //               lastNoseError = false;
+                            //       //               if (!InputValidator.inchesValidator(value!)) {
+                            //       //                 lastNoseError = true;
+                            //       //                 return '';
+                            //       //               }
+                            //       //
+                            //       //               double parseVal = double.parse(unitConverter.toInch(value));
+                            //       //               if (parseVal < hypotenuse) {
+                            //       //                 lastNoseError = true;
+                            //       //                 return '';
+                            //       //               }
+                            //       //               if (templateFlight['balusters'].isNotEmpty) {
+                            //       //                 templateFlight['balusters'].forEach((rp) => {
+                            //       //                       if (double.parse(unitConverter.toInch(rp.nosingDistance)) > parseVal) {lastNoseError = true}
+                            //       //                     });
+                            //       //
+                            //       //                 if (lastNoseError) {
+                            //       //                   return '';
+                            //       //                 }
+                            //       //               }
+                            //       //
+                            //       //               lastNoseError = false;
+                            //       //               return null;
+                            //       //             } catch (err) {
+                            //       //               print(err.toString());
+                            //       //             }
+                            //       //           },
+                            //       //           decoration: kInputDec,
+                            //       //           style: const TextStyle(fontSize: 14),
+                            //       //         ),
+                            //       //         onFocusChange: (value) {
+                            //       //           if (!lastNoseError) {
+                            //       //             double? lnd = double.tryParse(unitConverter.toInch(lastNoseDistance.text));
+                            //       //
+                            //       //             if (!(lnd == null)) {
+                            //       //               if (lnd >= hypotenuse) {
+                            //       //                 int numSteps = (lnd / hypotenuse).round() + 1;
+                            //       //
+                            //       //                 setState(() {
+                            //       //                   templateFlight['stepsCount'] = numSteps.toString();
+                            //       //                   templateFlight['lastNoseDistance'] = lastNoseDistance.text;
+                            //       //                 });
+                            //       //               } else {
+                            //       //                 lastNoseDistFocus.requestFocus();
+                            //       //               }
+                            //       //             }
+                            //       //           } else {
+                            //       //             lastNoseDistFocus.requestFocus();
+                            //       //           }
+                            //       //         },
+                            //       //       ),
+                            //       //     )
+                            //       //   ],
+                            //       // ),
+                            //     ]),
                             // Top Crotch
                             BlockContainer(
                               padding: const [10, 5],
                               blockName: "Top Crotch",
-                              width: 560,
+                              //width: 560,
                               children: [
                                 Column(
                                   children: [
@@ -1589,9 +1685,9 @@ class MyTableCell extends StatelessWidget {
 
 class MyTableCol extends StatelessWidget {
   final String name;
-  final double largeur;
+  final double width;
 
-  MyTableCol({required this.name, this.largeur = 110.0});
+  const MyTableCol({super.key, required this.name, this.width = 110.0});
 
   @override
   Widget build(BuildContext context) {
@@ -1599,7 +1695,7 @@ class MyTableCol extends StatelessWidget {
       alignment: Alignment.center,
       margin: const EdgeInsets.only(bottom: 8.0),
       // margin: const EdgeInsets.symmetric(horizontal: 5.0),
-      width: largeur,
+      width: width,
       child: Text(
         name,
         style: kLabelStyle,
@@ -1645,17 +1741,28 @@ class InputValidator {
 }
 
 class BlockContainer extends StatelessWidget {
-  const BlockContainer({Key? key, this.blockName = '', required this.width, required this.children, required this.padding}) : super(key: key);
+  const BlockContainer(
+      {Key? key,
+      this.blockName = '',
+      //required this.width,
+      required this.children,
+      required this.padding})
+      : super(key: key);
 
   final String blockName;
-  final double width;
+
+  //final double width;
   final List<Widget> children;
   final List<double> padding;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width,
+      width: blockName == ' '
+          ? double.infinity
+          : MediaQuery.of(context).orientation == Orientation.portrait
+              ? double.infinity
+              : 530,
       //
       decoration: blockName != ""
           ? BoxDecoration(border: Border.all(width: 1.0, color: Colors.blueGrey.shade300), borderRadius: BorderRadius.circular(5.0))
