@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 
 class Post {
   late String distance;
-  late String initialValue;
+
+  //late String initialValue;
   late String embeddedType;
   bool error = false;
   TextEditingController pController = TextEditingController(); // distance from post to previous post or starting point
@@ -24,7 +25,10 @@ class Post {
     return Post(distance: json['distance'], embeddedType: json['embeddedType']);
   }
 
-  Map toJson() => {"distance": distance, "embeddedType": embeddedType};
+  Map toJson() => {
+        "distance": distance,
+        "embeddedType": embeddedType,
+      };
 
   factory Post.copy(Post pst) {
     return Post(distance: pst.distance, embeddedType: pst.embeddedType);

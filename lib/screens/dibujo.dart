@@ -4,13 +4,18 @@ import '/Utils/cuadro.dart';
 
 class Dibujo extends StatelessWidget {
   Dibujo(this.data);
+
   final data;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Cuadro(data: data),
+      body: SafeArea(
+        child:
+        Cuadro(data: data),
+
+      ),
     );
   }
 }

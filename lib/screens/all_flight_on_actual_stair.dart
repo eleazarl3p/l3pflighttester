@@ -41,8 +41,7 @@ class _FlightOnActualStairState extends State<FlightOnActualStair> {
           CustomActionButton(
               child: const Text("Save"),
               onPressed: () async {
-                await OurDataStorage.writeDocument(
-                    "allProjects", Provider.of<Projects>(context, listen: false).toJson());
+                await OurDataStorage.writeDocument("allProjects", Provider.of<Projects>(context, listen: false).toJson());
 
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -58,170 +57,174 @@ class _FlightOnActualStairState extends State<FlightOnActualStair> {
           )
         ],
       ),
-      body: Column(children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10.0),
-          height: 50.0,
-          child: Card(
-            child: Container(
-              padding: const EdgeInsets.all(10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Project : ',
-                    style: kLabel600,
-                  ),
-                  Text(
-                    '${Provider.of<Projects>(context, listen: false).projects[widget.pIndex].id} >',
-                    style: kLabelStyle,
-                  ),
-                  const SizedBox(
-                    width: 10.0,
-                  ),
-                  Text(
-                    'Stair : ',
-                    style: kLabel600,
-                  ),
-                  Text(
-                    '${Provider.of<Projects>(context, listen: false).projects[widget.pIndex].stairs[widget.sIndex].id}',
-                    style: kLabelStyle,
-                  ),
-                ],
+      body: SafeArea(
+        child: Column(children: [
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10.0),
+            height: 50.0,
+            child: Card(
+              child: Container(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Project : ',
+                      style: kLabel600,
+                    ),
+                    Text(
+                      '${Provider.of<Projects>(context, listen: false).projects[widget.pIndex].id} >',
+                      style: kLabelStyle,
+                    ),
+                    const SizedBox(
+                      width: 10.0,
+                    ),
+                    Text(
+                      'Stair : ',
+                      style: kLabel600,
+                    ),
+                    Text(
+                      '${Provider.of<Projects>(context, listen: false).projects[widget.pIndex].stairs[widget.sIndex].id}',
+                      style: kLabelStyle,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: const Divider(),
-        ),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(10.0),
-            itemCount: currentStair.flights.length,
-            itemBuilder: ((context, index) {
-              return Card(
-                //color: Colors.brown.shade100,
+          // Container(
+          //   margin: const EdgeInsets.symmetric(horizontal: 16.0),
+          //   child: const Divider(),
+          // ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(10.0),
+              itemCount: currentStair.flights.length,
+              itemBuilder: ((context, index) {
+                return Card(
+                  //color: Colors.brown.shade100,
 
-                child: ListTile(
-                  leading: SizedBox(
-                    width: 200,
-                    child: TextField(
-                      autofocus: true,
-                      decoration: const InputDecoration(
-                        labelText: "Flight Id",
-                        isDense: true,
-                        contentPadding: EdgeInsets.all(8),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
+                  child: Wrap(alignment: WrapAlignment.spaceBetween, children: [
+                    Container(
+                      width: 100,
+                      padding: const EdgeInsets.only(top: 6),
+                      margin: const EdgeInsets.only(left: 10),
+                      child: TextField(
+                        autofocus: true,
+                        decoration: const InputDecoration(
+                          labelText: "Flight Id",
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(8),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
+                          ),
                         ),
-                      ),
-                      controller: currentStair.flights[index].controller,
-                      onChanged: (value) {
-                        currentStair.flights[index].id = value;
-                      },
-                      onTap: () => currentStair.flights[index].controller.selection = TextSelection(
-                          baseOffset: 0, extentOffset: currentStair.flights[index].controller.value.text.length),
-                    ),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextButton.icon(
-                        onPressed: () {
-                          Flight flt = currentStair.flights[index];
-                          setState(() {
-                            currentStair.addFlight(
-                              Flight.copy(flt),
-                            );
-                          });
+                        controller: currentStair.flights[index].controller,
+                        onChanged: (value) {
+                          currentStair.flights[index].id = value;
                         },
-                        icon: const Icon(Icons.copy),
-                        label: const Text('Copy'),
+                        onTap: () => currentStair.flights[index].controller.selection =
+                            TextSelection(baseOffset: 0, extentOffset: currentStair.flights[index].controller.value.text.length),
                       ),
-                      TextButton.icon(
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextButton.icon(
                           onPressed: () {
-                            // FlightMap fmap = Provider.of<FlightMap>(context, listen: false);
-                            // fmap.updateMap(currentStair.flights[index]);
-                            // print(fmap.te.runtimeType);
-
-                            Map<String, dynamic> template = Provider.of<Projects>(context, listen: false)
-                                .projects[widget.pIndex]
-                                .stairs[widget.sIndex]
-                                .flights[index]
-                                .template();
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => FlightEditor(
-                                  pIndex: widget.pIndex,
-                                  sIndex: widget.sIndex,
-                                  fIndex: index,
-                                  template: template,
-                                ),
-                              ),
-                            );
+                            Flight flt = currentStair.flights[index];
+                            setState(() {
+                              currentStair.addFlight(
+                                Flight.copy(flt),
+                              );
+                            });
                           },
-                          icon: const Icon(Icons.open_in_new),
-                          label: const Text('Open')),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      TextButton.icon(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(Colors.red),
-                          foregroundColor: MaterialStateProperty.all(Colors.white),
+                          icon: const Icon(Icons.copy),
+                          label: const Text('Copy'),
                         ),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text("Are you sure you want to delete this flight?"),
-                                content: Text('Flight id: ${currentStair.flights[index].id}'),
-                                actions: [
-                                  TextButton.icon(
-                                    onPressed: () {
-                                      setState(
-                                        () {
-                                          currentStair.removeFlight(currentStair.flights[index]);
-                                        },
-                                      );
+                        TextButton.icon(
+                            onPressed: () {
+                              // FlightMap fmap = Provider.of<FlightMap>(context, listen: false);
+                              // fmap.updateMap(currentStair.flights[index]);
+                              // print(fmap.te.runtimeType);
 
-                                      Navigator.pop(context);
-                                    },
-                                    icon: const Icon(Icons.check),
-                                    label: const Text("Yes"),
+                              Map<String, dynamic> template = Provider.of<Projects>(context, listen: false)
+                                  .projects[widget.pIndex]
+                                  .stairs[widget.sIndex]
+                                  .flights[index]
+                                  .template();
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FlightEditor(
+                                    pIndex: widget.pIndex,
+                                    sIndex: widget.sIndex,
+                                    fIndex: index,
+                                    template: template,
                                   ),
-                                  TextButton.icon(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    icon: const Icon(Icons.cancel),
-                                    label: const Text("No"),
-                                  ),
-                                ],
+                                ),
                               );
                             },
-                          );
-                        },
-                        icon: const Icon(Icons.delete),
-                        label: Container(
+                            icon: const Icon(Icons.open_in_new),
+                            label: const Text('Open')),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        TextButton.icon(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(Colors.red),
+                            foregroundColor: MaterialStateProperty.all(Colors.white),
+                          ),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text("Are you sure you want to delete this flight?"),
+                                  content: Text('Flight id: ${currentStair.flights[index].id}'),
+                                  actions: [
+                                    TextButton.icon(
+                                      onPressed: () {
+                                        setState(
+                                          () {
+                                            currentStair.removeFlight(currentStair.flights[index]);
+                                          },
+                                        );
+                                        Navigator.pop(context);
+                                      },
+                                      icon: const Icon(Icons.check),
+                                      label: const Text("Yes"),
+                                    ),
+                                    TextButton.icon(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      icon: const Icon(Icons.cancel),
+                                      label: const Text("No"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.delete),
+                          label: Container(
                             padding: const EdgeInsets.only(right: 10.0),
                             child: const Text(
                               'Delete',
-                            )),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ]),
+                );
+              }),
+            ),
           ),
-        ),
-      ]),
+        ]),
+      ),
     );
   }
 }

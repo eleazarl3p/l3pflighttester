@@ -75,8 +75,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                             miFocus.requestFocus();
                           }
                         } else {
-                          projectNameController.selection =
-                              TextSelection(baseOffset: 0, extentOffset: projectNameController.value.text.length);
+                          projectNameController.selection = TextSelection(baseOffset: 0, extentOffset: projectNameController.value.text.length);
                         }
                       },
                     ),
@@ -85,9 +84,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                         onPressed: () {
                           if (projectNameController.text.length > 1) {
                             setState(() {
-                              context
-                                  .read<Projects>()
-                                  .addProject(Project(id: projectNameController.text, stairs: <Stair>[]));
+                              context.read<Projects>().addProject(Project(id: projectNameController.text, stairs: <Stair>[]));
                               projectNameController.text = '';
 
                               Navigator.pop(context);
@@ -113,8 +110,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
           CustomActionButton(
               child: const Text("Save"),
               onPressed: () async {
-                await OurDataStorage.writeDocument(
-                    "allProjects", Provider.of<Projects>(context, listen: false).toJson());
+                await OurDataStorage.writeDocument("allProjects", Provider.of<Projects>(context, listen: false).toJson());
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -129,55 +125,62 @@ class _ProjectsPageState extends State<ProjectsPage> {
           )
         ],
       ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-        decoration: const BoxDecoration(),
-        child: ListView.builder(
-            itemCount: ppj.projects.length,
-            itemBuilder: (context, index) {
-              return Card(
-                //color: Colors.brown.shade100,
-                child: ListTile(
-                  leading: SizedBox(
-                    width: 200,
-                    child: TextField(
-                      autofocus: true,
-                      decoration: const InputDecoration(
-                        labelText: "Project Id",
-                        isDense: true,
-                        contentPadding: EdgeInsets.all(8),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
+      body: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+          decoration: const BoxDecoration(),
+          child: ListView.builder(
+              itemCount: ppj.projects.length,
+              itemBuilder: (context, index) {
+                return Card(
+                    //color: Colors.brown.shade100,
+                    child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+
+                  // padding: EdgeInsets.only(top: 5),
+                  // width: 100,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(top: 6),
+                      margin: const EdgeInsets.only(left: 10),
+                      width: 100,
+                      child: TextField(
+                        autofocus: true,
+                        decoration: const InputDecoration(
+                          labelText: "Project Id",
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(8),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
+                          ),
                         ),
-                      ),
-                      controller: context.read<Projects>().projects[index].controller,
-                      onChanged: (value) {
-                        context.read<Projects>().projects[index].setId = value;
-                      },
-                      onTap: () => context.read<Projects>().projects[index].controller.selection = TextSelection(
-                          baseOffset: 0,
-                          extentOffset: context.read<Projects>().projects[index].controller.value.text.length),
-                    ),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => StairOnCurrentProject(pIndex: index),
-                            ),
-                          );
+                        controller: context.read<Projects>().projects[index].controller,
+                        onChanged: (value) {
+                          context.read<Projects>().projects[index].setId = value;
                         },
-                        icon: const Icon(Icons.open_in_new),
-                        label: const Text('Open'),
+                        onTap: () => context.read<Projects>().projects[index].controller.selection =
+                            TextSelection(baseOffset: 0, extentOffset: context.read<Projects>().projects[index].controller.value.text.length),
                       ),
-                      const SizedBox(
-                        width: 15.0,
-                      ),
-                      TextButton.icon(
+                    ),
+
+                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // mainAxisSize: MainAxisSize.max,
+                    //children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => StairOnCurrentProject(pIndex: index),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.open_in_new),
+                      label: const Text('Open'),
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: TextButton.icon(
                         onPressed: () {
                           setState(() {
                             Project p = Project.copy(Provider.of<Projects>(context, listen: false).projects[index]);
@@ -188,10 +191,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
                         icon: const Icon(Icons.copy),
                         label: const Text('Copy'),
                       ),
-                      const SizedBox(
-                        width: 15.0,
-                      ),
-                      TextButton.icon(
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: TextButton.icon(
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(Colors.red),
                           foregroundColor: MaterialStateProperty.all(Colors.white),
@@ -237,11 +240,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
                               'Delete',
                             )),
                       ),
-                    ],
-                  ),
-                ),
-              );
-            }),
+                    ),
+                  ],
+                ));
+              }),
+        ),
       ),
     );
   }

@@ -76,7 +76,8 @@ class Flight extends ChangeNotifier {
     fl.lowerFlatPost = [...obj.lowerFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()];
     fl.balusters = [
       ...obj.balusters
-          .map((item) => BalusterPost(
+          .map((item) =>
+          BalusterPost(
               nosingDistance: item.nosingDistance, balusterDistance: item.balusterDistance, embeddedType: item.embeddedType, step: item.step))
           .toList()
     ];
@@ -113,13 +114,16 @@ class Flight extends ChangeNotifier {
       "id": id,
       "riser": riser,
       "bevel": bevel,
-      "topCrotchDistance": topCrotchDistance,
-      "bottomCrotchDistance": bottomCrotchDistance,
+
       "topCrotch": topCrotch,
+      "topCrotchDistance": topCrotchDistance,
+      "topCrotchPost": topCrotchPost,
+      "topCrotchEmbeddedType": topCrotchEmbeddedType,
+
       "bottomCrotch": bottomCrotch,
+      "bottomCrotchDistance": bottomCrotchDistance,
       "bottomCrotchPost": bottomCrotchPost,
       "bottomCrotchEmbeddedType": bottomCrotchEmbeddedType,
-      "topCrotchEmbeddedType": topCrotchEmbeddedType,
       //"stepsCount": stepsCount,
       "lowerFlatPost": bottomPosts,
       "upperFlatPost": topPosts,
@@ -135,6 +139,7 @@ class Flight extends ChangeNotifier {
       bevel: json['bevel'],
       topCrotch: json['topCrotch'],
       topCrotchDistance: json['topCrotchDistance'],
+      topCrotchPost: json['topCrotchPost'],
       bottomCrotch: json['bottomCrotch'],
       bottomCrotchDistance: json['bottomCrotchDistance'],
       bottomCrotchPost: json['bottomCrotchPost'],
@@ -163,22 +168,27 @@ class Flight extends ChangeNotifier {
     return fjs;
   }
 
-  Map<String, dynamic> template() => {
+  Map<String, dynamic> template() =>
+      {
         'id': id.toString(),
         "riser": riser.toString(), //
         "bevel": bevel.toString(),
 
         "topCrotch": topCrotch,
         "topCrotchLength": topCrotchDistance.toString(),
-        'hasBottomCrotchPost': topCrotchPost,
+        'hasTopCrotchPost': topCrotchPost,
+        "topCrotchEmbeddedType": topCrotchEmbeddedType,
 
         "bottomCrotch": bottomCrotch,
         "bottomCrotchLength": bottomCrotchDistance.toString(),
-        'hasTopCrotchPost': bottomCrotchPost,
+        'hasBottomCrotchPost': bottomCrotchPost,
+        "bottomCrotchEmbeddedType": bottomCrotchEmbeddedType,
+
         "lowerFlatPost": [...lowerFlatPost.map((item) => Post(distance: item.distance, embeddedType: item.embeddedType)).toList()],
         "balusters": [
           ...balusters
-              .map((item) => BalusterPost(
+              .map((item) =>
+              BalusterPost(
                   nosingDistance: item.nosingDistance, balusterDistance: item.balusterDistance, embeddedType: item.embeddedType, step: item.step))
               .toList()
         ],
@@ -188,8 +198,8 @@ class Flight extends ChangeNotifier {
         //"stepsCount": stepsCount.toString(),
         "lastNoseDistance": lastNoseDistance.toString(),
         'hypotenuse': hypotenuse,
-        "bottomCrotchEmbeddedType": bottomCrotchEmbeddedType,
-        "topCrotchEmbeddedType": topCrotchEmbeddedType,
+
+
       };
 
   void updateFl(Map<String, dynamic> template) {
@@ -199,11 +209,11 @@ class Flight extends ChangeNotifier {
 
     topCrotch = template['topCrotch'];
     topCrotchDistance = template['topCrotchLength'];
-    topCrotchPost = template['hasBottomCrotchPost'];
+    topCrotchPost = template['hasTopCrotchPost'];
 
     bottomCrotch = template['bottomCrotch'];
     bottomCrotchDistance = template['bottomCrotchLength'];
-    bottomCrotchPost = template['hasTopCrotchPost'];
+    bottomCrotchPost = template['hasBottomCrotchPost'];
 
     lowerFlatPost = [...template['lowerFlatPost']];
     balusters = [...template['balusters']];
