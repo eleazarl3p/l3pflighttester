@@ -157,9 +157,12 @@ class _Dibujo extends CustomPainter {
       bottomCrotchExtension += 15;
     }
 
-    num flatDown = [size.width / 18, bottomCrotchExtension, bottomFlatLength].reduce((value, element) => value > element ? value : element);
+    num flatDown = [size.width / 12, bottomCrotchExtension, bottomFlatLength].reduce((value, element) => value > element ? value : element);
     num flatUp = [size.width / 20, topCrotchExtension, topFlatLength].reduce((value, element) => value > element ? value : element);
     double factor = size.width / (sumStairsLength + flatUp + flatDown);
+    //double factor = size.width / (sumStairsLength + 2 * flatDown);
+
+    print('flatDown: $flatDown - flatUp: $flatUp');
 
     double firstEscalonX = factor *
         flatDown; //[40, bottomCrotchExtension, bottomFlatLength, topCrotchExtension, topFlatLength].reduce((value, element) => value > element ? value : element) * factor;

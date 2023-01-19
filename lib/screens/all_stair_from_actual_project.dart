@@ -26,8 +26,10 @@ class StairOnCurrentProject extends StatefulWidget {
 class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
   @override
   Widget build(BuildContext context) {
-    final currentProject = Provider.of<Projects>(context, listen: true).projects[widget.pIndex];
-    print(MediaQuery.of(context).size.width);
+    final currentProject = Provider
+        .of<Projects>(context, listen: true)
+        .projects[widget.pIndex];
+
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -43,8 +45,10 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
               child: const Text("Add Stair"),
               onPressed: () {
                 setState(
-                  () {
-                    Provider.of<Projects>(context, listen: false).projects[widget.pIndex].addStair(Stair(id: ''));
+                      () {
+                    Provider
+                        .of<Projects>(context, listen: false)
+                        .projects[widget.pIndex].addStair(Stair(id: ''));
                   },
                 );
               },
@@ -87,17 +91,17 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
 
                   try {
                     await FlutterEmailSender.send(email).then((value) =>
-                        // platformResponse = 'success',
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            duration: const Duration(milliseconds: 5000),
-                            content: const Text(
-                              'Mail sent!!!',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                            backgroundColor: Colors.blueGrey.shade400,
-                          ),
-                        ));
+                    // platformResponse = 'success',
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        duration: const Duration(milliseconds: 5000),
+                        content: const Text(
+                          'Mail sent!!!',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        backgroundColor: Colors.blueGrey.shade400,
+                      ),
+                    ));
                   } catch (error) {
                     platformResponse = 'error 2 ${error.toString()}';
                     if (!mounted) return;
@@ -148,7 +152,9 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                           style: kLabel600,
                         ),
                         Text(
-                          '${Provider.of<Projects>(context, listen: false).projects[widget.pIndex].id} ',
+                          '${Provider
+                              .of<Projects>(context, listen: false)
+                              .projects[widget.pIndex].id} ',
                           style: kLabelStyle,
                         ),
                         const SizedBox(
@@ -170,259 +176,263 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                   itemCount: currentProject.stairs.length,
                   itemBuilder: ((context, index) {
                     return Card(
-                        //color: Colors.brown.shade100,
+                      //color: Colors.brown.shade100,
                         child: Wrap(
-                      alignment: WrapAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 160.0,
-                          child: Row(
-                            children: [
-                              Checkbox(
-                                  value: currentProject.stairs[index].selected,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      currentProject.stairs[index].selected = !currentProject.stairs[index].selected;
-                                    });
-                                  }),
-                              Expanded(
-                                child: Focus(
-                                  child: TextField(
-                                    autofocus: true,
-                                    decoration: const InputDecoration(
-                                      labelText: "Stair Id",
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.all(8),
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
+                          alignment: WrapAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              width: 160.0,
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                      value: currentProject.stairs[index].selected,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          currentProject.stairs[index].selected = !currentProject.stairs[index].selected;
+                                        });
+                                      }),
+                                  Expanded(
+                                    child: Focus(
+                                      child: TextField(
+                                        autofocus: true,
+                                        decoration: const InputDecoration(
+                                          labelText: "Stair Id",
+                                          isDense: true,
+                                          contentPadding: EdgeInsets.all(8),
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
+                                          ),
+                                        ),
+                                        controller: currentProject.stairs[index].controller,
+                                        onChanged: (value) {
+                                          currentProject.stairs[index].setId = value;
+                                        },
+                                        onTap: () =>
+                                        currentProject.stairs[index].controller.selection =
+                                            TextSelection(baseOffset: 0, extentOffset: currentProject.stairs[index].controller.value.text.length),
                                       ),
                                     ),
-                                    controller: currentProject.stairs[index].controller,
-                                    onChanged: (value) {
-                                      currentProject.stairs[index].setId = value;
-                                    },
-                                    onTap: () => currentProject.stairs[index].controller.selection =
-                                        TextSelection(baseOffset: 0, extentOffset: currentProject.stairs[index].controller.value.text.length),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text("On hold"),
-                            Checkbox(
-                                value: currentProject.stairs[index].onHold,
-                                onChanged: (value) {
-                                  setState(() {
-                                    currentProject.stairs[index].onHold = !currentProject.stairs[index].onHold;
-                                  });
-                                }),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          mainAxisSize: MediaQuery.of(context).size.width > 600 ? MainAxisSize.min : MainAxisSize.max,
-                          children: [
-                            TextButton.icon(
-                              onPressed: () {
-                                Stair str_ = currentProject.stairs[index];
-                                setState(() {
-                                  currentProject.addStair(
-                                    Stair.copy(str_),
-                                  );
-                                });
-                              },
-                              icon: const Icon(Icons.copy),
-                              label: const Text('Copy'),
-                            ),
-                            TextButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => FlightOnActualStair(sIndex: index, pIndex: widget.pIndex, cloud: false),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.open_in_new),
-                                label: const Text('Open')),
-                            Container(
-                              margin: const EdgeInsets.only(right: 15),
-                              child: TextButton.icon(
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(Colors.red),
-                                  foregroundColor: MaterialStateProperty.all(Colors.white),
-                                ),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text("Are you sure you want to delete this stair?"),
-                                        content: Text('Stair id: ${currentProject.stairs[index].id}'),
-                                        actions: [
-                                          TextButton.icon(
-                                              onPressed: () {
-                                                setState(
-                                                  () {
-                                                    currentProject.removeStair(currentProject.stairs[index]);
-                                                  },
-                                                );
-
-                                                Navigator.pop(context);
-                                              },
-                                              icon: const Icon(Icons.check),
-                                              label: const Text("Yes")),
-                                          TextButton.icon(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              icon: const Icon(Icons.cancel),
-                                              label: const Text("No"))
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                                icon: const Icon(Icons.delete),
-                                label: Container(
-                                    padding: const EdgeInsets.only(right: 10.0),
-                                    child: const Text(
-                                      'Delete',
-                                    )),
+                                  )
+                                ],
                               ),
                             ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text("On hold"),
+                                Checkbox(
+                                    value: currentProject.stairs[index].onHold,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        currentProject.stairs[index].onHold = !currentProject.stairs[index].onHold;
+                                      });
+                                    }),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisSize: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width > 600 ? MainAxisSize.min : MainAxisSize.max,
+                              children: [
+                                TextButton.icon(
+                                  onPressed: () {
+                                    Stair str_ = currentProject.stairs[index];
+                                    setState(() {
+                                      currentProject.addStair(
+                                        Stair.copy(str_),
+                                      );
+                                    });
+                                  },
+                                  icon: const Icon(Icons.copy),
+                                  label: const Text('Copy'),
+                                ),
+                                TextButton.icon(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => FlightOnActualStair(sIndex: index, pIndex: widget.pIndex, cloud: false),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.open_in_new),
+                                    label: const Text('Open')),
+                                Container(
+                                  margin: const EdgeInsets.only(right: 15),
+                                  child: TextButton.icon(
+                                    style: ButtonStyle(
+                                      backgroundColor: MaterialStateProperty.all(Colors.red),
+                                      foregroundColor: MaterialStateProperty.all(Colors.white),
+                                    ),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text("Are you sure you want to delete this stair?"),
+                                            content: Text('Stair id: ${currentProject.stairs[index].id}'),
+                                            actions: [
+                                              TextButton.icon(
+                                                  onPressed: () {
+                                                    setState(
+                                                          () {
+                                                        currentProject.removeStair(currentProject.stairs[index]);
+                                                      },
+                                                    );
+
+                                                    Navigator.pop(context);
+                                                  },
+                                                  icon: const Icon(Icons.check),
+                                                  label: const Text("Yes")),
+                                              TextButton.icon(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  icon: const Icon(Icons.cancel),
+                                                  label: const Text("No"))
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    icon: const Icon(Icons.delete),
+                                    label: Container(
+                                        padding: const EdgeInsets.only(right: 10.0),
+                                        child: const Text(
+                                          'Delete',
+                                        )),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
-                        ),
-                      ],
-                    )
-                        // child: ListTile(
-                        //   minLeadingWidth: 200.0,
-                        //   leading: SizedBox(
-                        //     width: 200.0,
-                        //     child: Row(
-                        //       children: [
-                        //         Checkbox(
-                        //             value: currentProject.stairs[index].selected,
-                        //             onChanged: (value) {
-                        //               setState(() {
-                        //                 currentProject.stairs[index].selected = !currentProject.stairs[index].selected;
-                        //               });
-                        //             }),
-                        //         Expanded(
-                        //           child: Focus(
-                        //             child: TextField(
-                        //               autofocus: true,
-                        //               decoration: const InputDecoration(
-                        //                 labelText: "Stair Id",
-                        //                 isDense: true,
-                        //                 contentPadding: EdgeInsets.all(8),
-                        //                 border: OutlineInputBorder(
-                        //                   borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
-                        //                 ),
-                        //               ),
-                        //               controller: currentProject.stairs[index].controller,
-                        //               onChanged: (value) {
-                        //                 currentProject.stairs[index].setId = value;
-                        //               },
-                        //               onTap: () => currentProject.stairs[index].controller.selection =
-                        //                   TextSelection(baseOffset: 0, extentOffset: currentProject.stairs[index].controller.value.text.length),
-                        //             ),
-                        //           ),
-                        //         )
-                        //       ],
-                        //     ),
-                        //   ),
-                        //   trailing: Row(
-                        //     mainAxisSize: MainAxisSize.min,
-                        //     children: [
-                        //       const SizedBox(
-                        //         width: 30,
-                        //       ),
-                        //       const Text("On hold"),
-                        //       Checkbox(
-                        //           value: currentProject.stairs[index].onHold,
-                        //           onChanged: (value) {
-                        //             setState(() {
-                        //               currentProject.stairs[index].onHold = !currentProject.stairs[index].onHold;
-                        //             });
-                        //           }),
-                        //       TextButton.icon(
-                        //         onPressed: () {
-                        //           Stair str_ = currentProject.stairs[index];
-                        //           setState(() {
-                        //             currentProject.addStair(
-                        //               Stair.copy(str_),
-                        //             );
-                        //           });
-                        //         },
-                        //         icon: const Icon(Icons.copy),
-                        //         label: const Text('Copy'),
-                        //       ),
-                        //       TextButton.icon(
-                        //           onPressed: () {
-                        //             Navigator.push(
-                        //               context,
-                        //               MaterialPageRoute(
-                        //                 builder: (context) => FlightOnActualStair(sIndex: index, pIndex: widget.pIndex, cloud: false),
-                        //               ),
-                        //             );
-                        //           },
-                        //           icon: const Icon(Icons.open_in_new),
-                        //           label: const Text('Open')),
-                        //       const SizedBox(
-                        //         width: 10,
-                        //       ),
-                        //       TextButton.icon(
-                        //         style: ButtonStyle(
-                        //           backgroundColor: MaterialStateProperty.all(Colors.red),
-                        //           foregroundColor: MaterialStateProperty.all(Colors.white),
-                        //         ),
-                        //         onPressed: () {
-                        //           showDialog(
-                        //             context: context,
-                        //             builder: (BuildContext context) {
-                        //               return AlertDialog(
-                        //                 title: const Text("Are you sure you want to delete this stair?"),
-                        //                 content: Text('Stair id: ${currentProject.stairs[index].id}'),
-                        //                 actions: [
-                        //                   TextButton.icon(
-                        //                       onPressed: () {
-                        //                         setState(
-                        //                           () {
-                        //                             currentProject.removeStair(currentProject.stairs[index]);
-                        //                           },
-                        //                         );
-                        //
-                        //                         Navigator.pop(context);
-                        //                       },
-                        //                       icon: const Icon(Icons.check),
-                        //                       label: const Text("Yes")),
-                        //                   TextButton.icon(
-                        //                       onPressed: () {
-                        //                         Navigator.pop(context);
-                        //                       },
-                        //                       icon: const Icon(Icons.cancel),
-                        //                       label: const Text("No"))
-                        //                 ],
-                        //               );
-                        //             },
-                        //           );
-                        //         },
-                        //         icon: const Icon(Icons.delete),
-                        //         label: Container(
-                        //             padding: const EdgeInsets.only(right: 10.0),
-                        //             child: const Text(
-                        //               'Delete',
-                        //             )),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
-                        );
+                        )
+                      // child: ListTile(
+                      //   minLeadingWidth: 200.0,
+                      //   leading: SizedBox(
+                      //     width: 200.0,
+                      //     child: Row(
+                      //       children: [
+                      //         Checkbox(
+                      //             value: currentProject.stairs[index].selected,
+                      //             onChanged: (value) {
+                      //               setState(() {
+                      //                 currentProject.stairs[index].selected = !currentProject.stairs[index].selected;
+                      //               });
+                      //             }),
+                      //         Expanded(
+                      //           child: Focus(
+                      //             child: TextField(
+                      //               autofocus: true,
+                      //               decoration: const InputDecoration(
+                      //                 labelText: "Stair Id",
+                      //                 isDense: true,
+                      //                 contentPadding: EdgeInsets.all(8),
+                      //                 border: OutlineInputBorder(
+                      //                   borderSide: BorderSide(width: 1.0, color: Colors.blueGrey),
+                      //                 ),
+                      //               ),
+                      //               controller: currentProject.stairs[index].controller,
+                      //               onChanged: (value) {
+                      //                 currentProject.stairs[index].setId = value;
+                      //               },
+                      //               onTap: () => currentProject.stairs[index].controller.selection =
+                      //                   TextSelection(baseOffset: 0, extentOffset: currentProject.stairs[index].controller.value.text.length),
+                      //             ),
+                      //           ),
+                      //         )
+                      //       ],
+                      //     ),
+                      //   ),
+                      //   trailing: Row(
+                      //     mainAxisSize: MainAxisSize.min,
+                      //     children: [
+                      //       const SizedBox(
+                      //         width: 30,
+                      //       ),
+                      //       const Text("On hold"),
+                      //       Checkbox(
+                      //           value: currentProject.stairs[index].onHold,
+                      //           onChanged: (value) {
+                      //             setState(() {
+                      //               currentProject.stairs[index].onHold = !currentProject.stairs[index].onHold;
+                      //             });
+                      //           }),
+                      //       TextButton.icon(
+                      //         onPressed: () {
+                      //           Stair str_ = currentProject.stairs[index];
+                      //           setState(() {
+                      //             currentProject.addStair(
+                      //               Stair.copy(str_),
+                      //             );
+                      //           });
+                      //         },
+                      //         icon: const Icon(Icons.copy),
+                      //         label: const Text('Copy'),
+                      //       ),
+                      //       TextButton.icon(
+                      //           onPressed: () {
+                      //             Navigator.push(
+                      //               context,
+                      //               MaterialPageRoute(
+                      //                 builder: (context) => FlightOnActualStair(sIndex: index, pIndex: widget.pIndex, cloud: false),
+                      //               ),
+                      //             );
+                      //           },
+                      //           icon: const Icon(Icons.open_in_new),
+                      //           label: const Text('Open')),
+                      //       const SizedBox(
+                      //         width: 10,
+                      //       ),
+                      //       TextButton.icon(
+                      //         style: ButtonStyle(
+                      //           backgroundColor: MaterialStateProperty.all(Colors.red),
+                      //           foregroundColor: MaterialStateProperty.all(Colors.white),
+                      //         ),
+                      //         onPressed: () {
+                      //           showDialog(
+                      //             context: context,
+                      //             builder: (BuildContext context) {
+                      //               return AlertDialog(
+                      //                 title: const Text("Are you sure you want to delete this stair?"),
+                      //                 content: Text('Stair id: ${currentProject.stairs[index].id}'),
+                      //                 actions: [
+                      //                   TextButton.icon(
+                      //                       onPressed: () {
+                      //                         setState(
+                      //                           () {
+                      //                             currentProject.removeStair(currentProject.stairs[index]);
+                      //                           },
+                      //                         );
+                      //
+                      //                         Navigator.pop(context);
+                      //                       },
+                      //                       icon: const Icon(Icons.check),
+                      //                       label: const Text("Yes")),
+                      //                   TextButton.icon(
+                      //                       onPressed: () {
+                      //                         Navigator.pop(context);
+                      //                       },
+                      //                       icon: const Icon(Icons.cancel),
+                      //                       label: const Text("No"))
+                      //                 ],
+                      //               );
+                      //             },
+                      //           );
+                      //         },
+                      //         icon: const Icon(Icons.delete),
+                      //         label: Container(
+                      //             padding: const EdgeInsets.only(right: 10.0),
+                      //             child: const Text(
+                      //               'Delete',
+                      //             )),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                    );
                   }),
                 ),
               ),
