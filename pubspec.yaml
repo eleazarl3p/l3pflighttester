@@ -41,6 +41,9 @@ dependencies:
   #  flutter_mailer: ^2.0.1
   font_awesome_flutter: ^10.3.0
   responsive_framework: ^0.2.0
+  pdf: ^3.8.4
+  open_document: ^1.0.5
+  printing: ^5.9.3
 
 
 

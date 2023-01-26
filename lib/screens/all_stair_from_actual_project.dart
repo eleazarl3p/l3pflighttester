@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:l3pflighttester/file_manager/PdfService.dart';
 
 // import 'package:flutter_mailer/flutter_mailer.dart';
 import '/widget/CustomActionButton.dart';
@@ -69,9 +72,22 @@ class _StairOnCurrentProjectState extends State<StairOnCurrentProject> {
                       if (!stair.onHold && stair.selected) {
                         //data = stair.toJson()['flights'];
                         tempDirections.add('$docPath/Project: ${currentProject.id} - Stair: ${stair.id}.json');
+                        tempDirections.add('$docPath/Project: ${currentProject.id} - Stair: ${stair.id}.pdf');
                         await OurDataStorage.writeTemporary(
-                            'Project: ${currentProject.id} - Stair: ${stair.id}', {'flights': stair.toJson()['flights']});
-                        print({'flights': stair.toJson()['flights']});
+                            'Project: ${currentProject.id} - Stair: ${stair.id}',
+
+                            {
+                              'id': stair.id,
+                              'flights': stair.toJson()['flights']
+                            }
+
+                        );
+                        //print({'flights': stair.toJson()['flights']});
+
+                        await PdfService.createFile('$docPath/Project: ${currentProject.id} - Stair: ${stair.id}.pdf', stair);
+
+
+
                       }
                     }
                     return tempDirections;
